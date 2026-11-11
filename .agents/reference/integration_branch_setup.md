@@ -6,7 +6,7 @@ This project uses a branch-per-task workflow built around a permanent local `int
 
 Branch naming note: the branch prefix is the work type, such as `feature/`, never `integration/`. Git stores refs in a path hierarchy, so a branch named `integration` and a branch named `integration/<x>` cannot coexist — git treats `refs/heads/integration` as a file that blocks `refs/heads/integration/` from being a directory. Using `<type>/<name>` keeps the long-lived `integration` branch and per-task children compatible.
 
-Two custom slash commands automate this workflow and depend on a fixed set of project conventions. `/new-worktree-integration [type] <name>` creates the worktree and branch off `integration` and installs dependencies via `uv sync`. `/merge-worktrees-integration [type] <name>` switches the main repo to `integration`, merges the work branch in with `--no-ff`, runs the validation suite, and on success removes the worktree and deletes the work branch. For a given piece of work, the two commands must receive the same type and name. Both commands hardcode these assumptions: the project is Python managed by `uv` (`pyproject.toml` at the repo root); a local `integration` branch already exists, ideally with an `origin/integration` upstream so the warn-only fetch staleness check has something to compare against; all worktrees live under `worktrees/` at the repo root and that folder is ignored by git; the project source lives under `app/`; and `pytest`, `mypy`, and `pyright` are declared as project dev dependencies so they run under `uv run`. The project has no web server, no health check, and no port logic.
+Two custom slash commands automate this workflow and depend on a fixed set of project conventions. `/new-worktree-integration [type] <name>` creates the worktree and branch off `integration` and installs dependencies via `uv sync`. `/merge-worktrees-integration [type] <name>` switches the main repo to `integration`, merges the work branch in with `--no-ff`, and runs the validation suite. On success it removes the worktree and deletes the work branch. Whether the merge succeeds or is abandoned, it then returns the main repo to the branch it was on before the run. For a given piece of work, the two commands must receive the same type and name. Both commands hardcode these assumptions: the project is Python managed by `uv` (`pyproject.toml` at the repo root); a local `integration` branch already exists, ideally with an `origin/integration` upstream so the warn-only fetch staleness check has something to compare against; all worktrees live under `worktrees/` at the repo root and that folder is ignored by git; the project source lives under `app/`; and `pytest`, `mypy`, and `pyright` are declared as project dev dependencies so they run under `uv run`. The project has no web server, no health check, and no port logic.
 
 ## A. One-time setup
 
@@ -34,7 +34,7 @@ Neither command will run without a `pyproject.toml` at the repo root. If it is m
 uv --version
 ```
 
-If `uv` is not found, install it (see https://docs.astral.sh/uv/getting-started/installation/) before continuing.
+Neither command will run without `uv`. If it is not found, install it (see https://docs.astral.sh/uv/getting-started/installation/) before continuing.
 
 ### Step 4 — Confirm the repo is clean
 

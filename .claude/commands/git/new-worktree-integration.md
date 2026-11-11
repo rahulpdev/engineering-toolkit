@@ -1,7 +1,7 @@
 ---
 description: Create a single git worktree branched off the local `integration` branch on a branch named `<type>/<name>` (type is `feature`, `fix`, `chore` or `docs`, default `feature`) and install Python/uv dependencies.
 argument-hint: [type] <name> (name required - short kebab-case work name; type optional - `feature`, `fix`, `chore` or `docs`, default `feature`)
-allowed-tools: Bash(git check-ref-format:*), Bash(git check-ignore:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git worktree:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(mkdir:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv sync:*)
+allowed-tools: Bash(git check-ref-format:*), Bash(git check-ignore:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git worktree:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(mkdir:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv --version:*), Bash(uv sync:*)
 ---
 
 # /new-worktree-integration: Create Worktree Off Integration
@@ -69,14 +69,15 @@ Follow these steps in order:
    - **Bare repo**: run `git rev-parse --is-bare-repository`. If output is `true`, stop with "bare repos are not supported by this command."
    - **Linked worktree (covers both the worktree root and any subdirectory of one)**: run `git rev-parse --path-format=absolute --git-dir` and capture as `GD`; run `git rev-parse --path-format=absolute --git-common-dir` and capture as `GCD`. If `GD` != `GCD`, compute `MAIN_ROOT` as `dirname "$GCD"`, then stop with "you are in a linked worktree; cd $MAIN_ROOT and re-run."
    - **Subdirectory of main repo**: run `pwd -P` and capture as `CWD`; run `git rev-parse --show-toplevel` and capture as `TOPLEVEL`. If `CWD` != `TOPLEVEL`, stop with "you are in a subdirectory of the main repo; cd $TOPLEVEL and re-run."
-3. **Confirm `pyproject.toml` exists at the repo root.**
-   - Run: `test -f pyproject.toml`.
-   - If it does not exist, stop and tell the user that this is not a uv-managed project.
+3. **Confirm this is a uv-managed project and `uv` is installed.**
+   - Run: `test -f pyproject.toml`. If it does not exist, stop and tell the user that this is not a uv-managed project.
+   - Run: `uv --version`. If it fails, stop and tell the user to install `uv`. Do not attempt a fallback installer.
 4. **Confirm the `app/` directory exists at the repo root.**
    - Run: `test -d app`.
    - If it does not exist, stop and tell the user that an `app/` directory is required at the repo root.
 5. **Confirm `pytest`, `mypy`, and `pyright` are declared in `pyproject.toml`.**
-   - Run: `grep -q '"pytest"' pyproject.toml && grep -q '"mypy"' pyproject.toml && grep -q '"pyright"' pyproject.toml`.
+   - Run: `grep -qE '"pytest[^A-Za-z0-9_.-]' pyproject.toml && grep -qE '"mypy[^A-Za-z0-9_.-]' pyproject.toml && grep -qE '"pyright[^A-Za-z0-9_.-]' pyproject.toml`.
+   - Each pattern matches the quoted package name with or without a version constraint, such as `"pytest"` or `"pytest>=8.3"`. It does not match a different package whose name only starts the same way, such as `"pytest-cov"`.
    - If any of the three is missing, stop and tell the user which tool(s) are missing and to add them with `uv add --dev pytest mypy pyright`.
 6. **Confirm `worktrees/` is ignored by git.**
    - Run: `git check-ignore -q worktrees/.probe`.
@@ -85,22 +86,27 @@ Follow these steps in order:
    - Run: `git show-ref --verify --quiet refs/heads/integration`.
    - If it does not exist, stop and tell the user that a local `integration` branch is required.
 8. **Refuse on any pre-existing target artifact.** Run each check in order; on the first that matches, stop and tell the user what to clean up.
-   - **Orphan admin entry**: run `grep -qE "^worktree .*/worktrees/${FOLDER}$" <<< "$(git worktree list --porcelain)"`. If exit code is 0, stop and instruct the user to run `git worktree prune` (and remove `worktrees/$FOLDER` if it still exists on disk), then retry.
+   - **Registered worktree**: run `grep -qE "^worktree .*/worktrees/${FOLDER}$" <<< "$(git worktree list --porcelain)"`. If exit code is 0, git already records a worktree at this path. Then run `test -e "worktrees/$FOLDER" || test -L "worktrees/$FOLDER"` to see whether it is still on disk.
+     - **Live worktree** (still on disk): stop and tell the user that `$BRANCH` already has a worktree at `worktrees/$FOLDER`. Tell them to finish it with `/merge-worktrees-integration` or choose a different name. Never tell the user to delete the folder, because it may hold uncommitted work.
+     - **Orphan admin entry** (gone from disk): stop and instruct the user to run `git worktree prune`, then retry.
    - **Existing folder or symlink**: run `test ! -e "worktrees/$FOLDER" && test ! -L "worktrees/$FOLDER"`. If either test fails, stop and instruct the user to remove `worktrees/$FOLDER` (or whatever it points to, if it's a symlink) or choose a different name.
    - **Existing branch (case-insensitive)**: run `grep -ix "refs/heads/$BRANCH" <<< "$(git for-each-ref --format='%(refname)' refs/heads/)"`. If any match, stop and instruct the user to delete the matching branch or choose a different name.
 9. **Check whether local `integration` is behind its remote (warn-only).**
    - Always include the outcome under "What you did" in the final report; never silently skip, never stop the process.
    - Run: `git fetch origin integration`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 10.
    - Otherwise run: `git show-ref --verify --quiet refs/remotes/origin/integration`. If the ref does not exist (e.g. custom `remote.origin.fetch` refspec), substitute "refs/remotes/origin/integration is not present locally" as the outcome and proceed to Step 10.
-   - Otherwise run: `git rev-list --count integration..origin/integration`. If the count is 0, substitute "integration is up to date with origin/integration" as the outcome; if greater than 0, substitute "integration is N commit(s) behind origin/integration" as the outcome and also add that line under **Risks / gotchas**.
+   - Otherwise run: `git rev-list --left-right --count integration...origin/integration`. It prints two counts. The first is the number of commits on `integration` that `origin/integration` lacks (ahead). The second is the number of commits on `origin/integration` that `integration` lacks (behind). Substitute the matching outcome:
+     - Both 0: "integration is up to date with origin/integration".
+     - Ahead only: "integration is N commit(s) ahead of origin/integration".
+     - Behind only: "integration is N commit(s) behind origin/integration". Also add that line under **Risks / gotchas**.
+     - Both above 0: "integration has diverged from origin/integration: N commit(s) ahead and M commit(s) behind". Also add that line under **Risks / gotchas**.
 10. **Create the worktree branched off `integration`.**
     - Run: `mkdir -p worktrees`.
     - Run: `git worktree add -b "$BRANCH" "worktrees/$FOLDER" integration`.
     - If this fails, capture the exact git error, run `git worktree prune` to clear any admin debris, and stop and tell the user the captured git error.
 11. **Install Python/uv dependencies inside the new worktree.**
     - Run: `uv sync --directory "worktrees/$FOLDER"`.
-    - If `uv` is not installed, stop and tell the user to install `uv`, with `Status: Partial`. Do not attempt a fallback installer.
-    - If `uv sync` fails for any other reason, capture the error and add it under **Risks / gotchas** in the final report, mark the run as `Status: Partial`, and continue to Step 12.
+    - If `uv sync` fails, capture the error and add it under **Risks / gotchas** in the final report, mark the run as `Status: Partial`, and continue to Step 12.
 12. **Confirm the new worktree is on the correct branch.**
     - Run: `git -C "worktrees/$FOLDER" branch --show-current`.
     - If the output differs from `$BRANCH`, add the mismatch under **Risks / gotchas** in the final report and mark the run as `Status: Partial`.
@@ -135,11 +141,11 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
   - Branch: `<type>/<name>`
   - Base branch: `integration`
   - uv sync: result
-- **Risks / gotchas**: bullets, only when real (e.g. freshness behind, partial `.venv`, branch mismatch).
+- **Risks / gotchas**: bullets, only when real (e.g. freshness behind or diverged, partial `.venv`, branch mismatch).
 - **Next steps**: exact command `cd worktrees/<folder>` to enter the worktree and start development. If `Status: Partial` because of `uv sync`, also include the exact follow-up command for the user to run.
 - **Questions (only if blocked)**: numbered list of what is needed to unblock.
 
 ## Notes
 
 - Hardcoded assumptions: project uses Python + `uv`; project source lives under `app/`; `pytest`, `mypy`, and `pyright` are declared as dev dependencies; project has no web server; all worktrees live under `worktrees/` at the repo root.
-- Known limitations: the warn-only fetch in Step 9 always emits an outcome under "What you did" (skipped / up-to-date / behind), but the check itself is best-effort — on network or remote failure it substitutes the git error and proceeds. `pyproject.toml` presence and dev-dependency declarations are checked but the file's contents are not otherwise validated.
+- Known limitations: the warn-only fetch in Step 9 always emits an outcome under "What you did" (skipped / up to date / ahead / behind / diverged), but the check itself is best-effort — on network or remote failure it substitutes the git error and proceeds. `pyproject.toml` presence and dev-dependency declarations are checked but the file's contents are not otherwise validated.

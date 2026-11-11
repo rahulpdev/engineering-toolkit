@@ -1,7 +1,7 @@
 ---
 description: Merge the single work branch `<type>/<name>` into the local `main` branch with a `--no-ff` merge commit, validate the result with pytest/mypy/pyright, and on success remove the worktree and delete the work branch.
 argument-hint: [type] <name> (name required - short kebab-case work name; type optional - `feature`, `fix`, `chore` or `docs`, default `feature`; must match what was passed to `/new-worktree`)
-allowed-tools: Bash(git check-ref-format:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git status:*), Bash(git diff:*), Bash(git switch:*), Bash(git merge:*), Bash(git commit:*), Bash(git worktree:*), Bash(git branch:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv run:*)
+allowed-tools: Bash(git check-ref-format:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git status:*), Bash(git diff:*), Bash(git switch:*), Bash(git merge:*), Bash(git commit:*), Bash(git worktree:*), Bash(git branch:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv --version:*), Bash(uv run:*)
 ---
 
 # /merge-worktrees: Merge Worktree Into Main
@@ -71,21 +71,23 @@ Follow these steps in order:
    - **Bare repo**: run `git rev-parse --is-bare-repository`. If output is `true`, stop with "bare repos are not supported by this command."
    - **Linked worktree (covers both the worktree root and any subdirectory of one)**: run `git rev-parse --path-format=absolute --git-dir` and capture as `GD`; run `git rev-parse --path-format=absolute --git-common-dir` and capture as `GCD`. If `GD` != `GCD`, compute `MAIN_ROOT` as `dirname "$GCD"`, then stop with "you are in a linked worktree; cd $MAIN_ROOT and re-run."
    - **Subdirectory of main repo**: run `pwd -P` and capture as `CWD`; run `git rev-parse --show-toplevel` and capture as `TOPLEVEL`. If `CWD` != `TOPLEVEL`, stop with "you are in a subdirectory of the main repo; cd $TOPLEVEL and re-run."
-3. **Confirm `pyproject.toml` exists at the repo root.**
-   - Run: `test -f pyproject.toml`.
-   - If it does not exist, stop and tell the user that this is not a uv-managed project.
+3. **Confirm this is a uv-managed project and `uv` is installed.**
+   - Run: `test -f pyproject.toml`. If it does not exist, stop and tell the user that this is not a uv-managed project.
+   - Run: `uv --version`. If it fails, stop and tell the user to install `uv`. Do not attempt a fallback installer.
 4. **Confirm the `app/` directory exists at the repo root.**
    - Run: `test -d app`.
    - If it does not exist, stop and tell the user that an `app/` directory is required at the repo root.
 5. **Confirm `pytest`, `mypy`, and `pyright` are declared in `pyproject.toml`.**
-   - Run: `grep -q '"pytest"' pyproject.toml && grep -q '"mypy"' pyproject.toml && grep -q '"pyright"' pyproject.toml`.
+   - Run: `grep -qE '"pytest[^A-Za-z0-9_.-]' pyproject.toml && grep -qE '"mypy[^A-Za-z0-9_.-]' pyproject.toml && grep -qE '"pyright[^A-Za-z0-9_.-]' pyproject.toml`.
+   - Each pattern matches the quoted package name with or without a version constraint, such as `"pytest"` or `"pytest>=8.3"`. It does not match a different package whose name only starts the same way, such as `"pytest-cov"`.
    - If any of the three is missing, stop and tell the user which tool(s) are missing and to add them with `uv add --dev pytest mypy pyright`.
 6. **Confirm the local `main` branch exists.**
    - Run: `git show-ref --verify --quiet refs/heads/main`.
    - If it does not exist, stop and tell the user that a local `main` branch is required.
-7. **Confirm the work branch exists (exact case).**
+7. **Confirm the work branch exists (exact case) and has commits to merge.**
    - Run: `git show-ref --verify --quiet "refs/heads/$BRANCH"`. If missing, stop and tell the user that the `$BRANCH` branch does not exist.
    - Then run: `grep -ix "refs/heads/$BRANCH" <<< "$(git for-each-ref --format='%(refname)' refs/heads/)"`. If the matched refname differs in case from `refs/heads/$BRANCH`, stop and tell the user that a different-case variant of the branch exists and refuse to merge.
+   - Then run: `git rev-list --count "main..$BRANCH"`. If the count is 0, `$BRANCH` has no commits that `main` lacks, so there is nothing to merge. Stop and tell the user so, and leave the worktree and the work branch in place.
 8. **Confirm the worktree folder `worktrees/$FOLDER` exists and is checked out on the right branch.**
    - Run: `test -d "worktrees/$FOLDER"`. If missing, stop and tell the user that `worktrees/$FOLDER` does not exist.
    - Run: `git -C "worktrees/$FOLDER" branch --show-current`. If the output is empty (detached HEAD) or differs from `$BRANCH`, stop and tell the user to `cd worktrees/$FOLDER && git switch $BRANCH` before re-running.
@@ -99,9 +101,15 @@ Follow these steps in order:
     - Always include the outcome under "What you did" in the final report; never silently skip, never stop the process.
     - Run: `git fetch origin main`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 12.
     - Otherwise run: `git show-ref --verify --quiet refs/remotes/origin/main`. If the ref does not exist (e.g. custom `remote.origin.fetch` refspec), substitute "refs/remotes/origin/main is not present locally" as the outcome and proceed to Step 12.
-    - Otherwise run: `git rev-list --count main..origin/main`. If the count is 0, substitute "main is up to date with origin/main" as the outcome; if greater than 0, substitute "main is N commit(s) behind origin/main" as the outcome and also add that line under **Risks / gotchas**.
-12. **Switch the main repo to `main`.**
+    - Otherwise run: `git rev-list --left-right --count main...origin/main`. It prints two counts. The first is the number of commits on `main` that `origin/main` lacks (ahead). The second is the number of commits on `origin/main` that `main` lacks (behind). Substitute the matching outcome:
+      - Both 0: "main is up to date with origin/main".
+      - Ahead only: "main is N commit(s) ahead of origin/main".
+      - Behind only: "main is N commit(s) behind origin/main". Also add that line under **Risks / gotchas**.
+      - Both above 0: "main has diverged from origin/main: N commit(s) ahead and M commit(s) behind". Also add that line under **Risks / gotchas**.
+12. **Record the starting branch, then switch the main repo to `main`.**
+    - Run: `git branch --show-current` and capture as `START_BRANCH`. The output is empty when the main repo is on a detached HEAD (checked out at a single commit rather than a branch).
     - Run: `git switch main`. If this fails, stop and tell the user the git error.
+    - From here on, every stop and the final report first return the main repo to `START_BRANCH`, as _Returning to the starting branch_ describes.
 13. **Prepare the merge without committing.**
     - Run: `git merge "$BRANCH" --no-ff --no-commit`.
     - If the merge reports conflicts, capture the conflicting files via `git diff --name-only --diff-filter=U`, run `git merge --abort` to restore `main`, and stop and tell the user the conflict list.
@@ -112,14 +120,25 @@ Follow these steps in order:
       - `uv run pyright app/`
     - If any exits non-zero, capture which command failed and the last lines of its output, run `git merge --abort`, and stop and tell the user which command failed and its output.
 15. **Commit the prepared merge.**
-    - Run: `git commit -m "merge: $BRANCH into main"`. If this fails, stop and tell the user the git error, and that the prepared merge is still in place — they can either fix and commit manually or run `git merge --abort` to abandon.
+    - Run: `git commit -m "merge: $BRANCH into main"`. Then run `git rev-parse --short HEAD` and capture as `MERGE_COMMIT` for the report. If the commit fails, stop and tell the user the git error, and that the prepared merge is still in place — they can either fix and commit manually or run `git merge --abort` to abandon. Leave the main repo on `main`, as _Returning to the starting branch_ describes.
 16. **Remove the worktree.**
     - Run: `git worktree remove --force "worktrees/$FOLDER"`.
     - If this fails, capture the git error and add it under **Risks / gotchas** in the final report, mark `Status: Partial`, **skip Step 17 entirely** and proceed directly to Step 18. Include in the report the exact recovery commands: `git worktree remove --force "worktrees/$FOLDER"` (try again manually), then `git branch -d "$BRANCH"`.
 17. **Delete the work branch.** (Skipped if Step 16 failed.)
     - Run: `git branch -d "$BRANCH"`.
     - If `-d` refuses, capture the git error and add it under **Risks / gotchas** in the final report, and mark `Status: Partial`.
-18. **Produce the final response using the OUTPUT section.** Include the Step 11 outcome under "What you did" verbatim.
+18. **Return to the starting branch, then produce the final response using the OUTPUT section.**
+    - Return the main repo to `START_BRANCH`, as _Returning to the starting branch_ describes.
+    - Include the Step 11 outcome under "What you did" verbatim.
+
+**Returning to the starting branch**
+
+- Step 12 switches the main repo to `main`. Before the command stops at any later step, or finishes in Step 18, it puts the main repo back on `START_BRANCH`.
+- If `START_BRANCH` is `main`, no switch is needed.
+- If `START_BRANCH` is empty, the main repo started on a detached HEAD. Leave it on `main` and say so in the report.
+- Otherwise run `git switch "$START_BRANCH"`.
+- If the switch fails, add the git error and the recovery command `git switch "$START_BRANCH"` under **Risks / gotchas**. The merge result does not change. On a run that otherwise succeeded, mark `Status: Partial`.
+- The one exception is a failed commit in Step 15. The prepared merge is still in place, so the main repo stays on `main`. Tell the user to run `git switch "$START_BRANCH"` once they have committed or aborted the merge.
 
 **Decision discipline**
 
@@ -145,13 +164,14 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 
 - **Status**: Success | Partial | Blocked
 - **What you understood**: 1–3 bullets restating the type, name, source branch, and merge target.
-- **What you did**: bullets, in execution order (e.g. switched to `main`, merged with `--no-ff`, ran pytest/mypy/pyright, removed worktree, deleted work branch, plus the Step 11 freshness outcome verbatim).
+- **What you did**: bullets, in execution order (e.g. switched to `main`, merged with `--no-ff`, ran pytest/mypy/pyright, removed worktree, deleted work branch, returned the main repo to its starting branch, plus the Step 11 freshness outcome verbatim).
 - **Key results**:
-  - Merge: `<type>/<name>` → `main` (include merge commit hash if available)
+  - Merge: `<type>/<name>` → `main` (include `MERGE_COMMIT` if available)
   - Validation: pytest / mypy / pyright outcomes
   - Worktree removed: `worktrees/<folder>`
   - Work branch deleted: `<type>/<name>`
-- **Risks / gotchas**: bullets, only when real (e.g. freshness behind, merge conflicts, validation failure + merge aborted, residual worktree files).
+  - Main repo branch: the branch it was on before the run, and the branch it is on now
+- **Risks / gotchas**: bullets, only when real (e.g. freshness behind or diverged, merge conflicts, validation failure + merge aborted, residual worktree files).
 - **Next steps**: exact command(s) the user can run next (e.g. start the next piece of work, or push `main` to the remote).
 - **Questions (only if blocked)**: numbered list of what is needed to unblock.
 
@@ -160,5 +180,5 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 - Hardcoded assumptions: project uses Python + `uv`; the user manually verifies the work inside the worktree before invoking this command; project has no web server; project source lives under `app/`; `pytest`, `mypy`, and `pyright` are declared as dev dependencies.
 - Validation layering: pre-merge validation is owned by other commands in the worktree. This command only runs the integration-validation layer on the merged tree.
 - Known limitation: between Steps 13 and 15 the main repo is in a mid-merge state. Do not run other git operations on the main repo during this window — `git merge --abort` on failure would undo any unrelated changes staged in another shell.
-- Known limitation: the warn-only fetch in Step 11 always emits an outcome under "What you did" (skipped / up-to-date / behind), but the check itself is best-effort — on network or remote failure it substitutes the git error and proceeds.
+- Known limitation: the warn-only fetch in Step 11 always emits an outcome under "What you did" (skipped / up to date / ahead / behind / diverged), but the check itself is best-effort — on network or remote failure it substitutes the git error and proceeds.
 - Known limitation: `pyproject.toml` presence and dev-dependency declarations are checked, but the file's contents are not otherwise validated. In particular, if `[tool.pytest.ini_options].testpaths` resolves into `worktrees/`, Step 14's `--ignore=worktrees` is overridden and pytest will fail mid-merge with a collection error. Keep test discovery roots out of `worktrees/`.
