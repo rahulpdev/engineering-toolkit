@@ -1,0 +1,19 @@
+# Claude Code local settings (machine-specific permissions; never shared)
+.claude/settings.local.json
+
+# Files the commands write while running
+.agents/plans/
+.agents/reports/
+
+# Python
+__pycache__/
+*.py[oc]
+.venv/
+.pytest_cache/
+
+# Secrets and local config
+.env
+
+# OS
+.DS_Store
+Thumbs.db
