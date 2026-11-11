@@ -9,7 +9,21 @@
 
 ## Overview
 
-This repository holds the commands, sub-agents, templates and standards the author uses to plan, build, review and document software with AI coding agents (programs such as Claude Code and Codex that read files, run commands and edit code under a person's direction). The three dotted folders are laid out exactly as a project expects them, so installing is a copy: `.claude/` and `.codex/` give each agent its commands and sub-agents, and `.agents/` gives both the reference files the commands read while running and the templates a new project is started from. The remaining folders hold a generic global-rules file, persona prompts, standalone chat prompts, and the script that keeps the Codex sub-agents in step with the Claude ones. Codex has no slash commands; to run a command there, say: "Read and follow in full `<command path>` with this additional context:". Five files are adapted from the Dynamous Agentic Coding course by Cole Medin (`plan/plan-feature.md`, `implement/execute.md`, `validate/validate.md`, `validate/check-ignore-comments.md` and `.agents/reference/piv_loop_reference.md`), and the two codebase setup specifications take their step sequence from the same course's Live Workshop #2; everything else is the author's own work, released under the MIT licence.
+A working toolkit for building software with AI coding agents (programs such as Claude Code and Codex that read files, run commands and edit code under a person's direction). It holds the commands, sub-agents, templates and standards the author uses to plan, build, review and document software.
+
+The three dotted folders are laid out exactly as a project expects them, so installing is a copy:
+
+| Copy this folder | Into your project as | You get |
+|---|---|---|
+| `.claude/` | `.claude/` | 34 slash commands and 3 sub-agents for Claude Code |
+| `.codex/` | `.codex/` | the same sub-agents for Codex |
+| `.agents/` | `.agents/` | the files the commands read while running, and the templates a new project starts from |
+
+`rules/`, `prompts/` and `scripts/` are not installed; they are used by copying a file or running a script.
+
+Codex has no slash commands. To run a command there, say: "Read and follow in full `<command path>` with this additional context:".
+
+Five files are adapted from the Dynamous Agentic Coding course by Cole Medin, and the two codebase setup specifications take their step sequence from its Live Workshop #2 (see `.claude/commands/README.md` and `.agents/templates/README.md`). Everything else is the author's own work. MIT licence.
 
 ## Key Features
 
