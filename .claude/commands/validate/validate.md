@@ -8,7 +8,7 @@ Execute the following commands in sequence and report results:
 uv run pytest -v
 ```
 
-**Expected:** All tests pass (currently 34 tests), execution time < 1 second
+**Expected:** All tests pass with none skipped, execution time < 1 second
 
 ## 2. Type Checking
 

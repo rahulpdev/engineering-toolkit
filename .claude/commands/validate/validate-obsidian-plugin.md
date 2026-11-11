@@ -8,7 +8,7 @@ Execute the following commands in sequence and report results:
 pnpm test
 ```
 
-**Expected:** All tests pass (currently N tests), coverage report printed, execution time < 10 seconds
+**Expected:** All tests pass with none skipped, coverage report printed with every threshold met, execution time < 10 seconds
 
 ## 2. Type Checking
 
@@ -57,7 +57,7 @@ grep -c 'require("obsidian")' main.js
 **Expected:** 1 or more — `obsidian` is required at runtime, not bundled into `main.js`
 
 ```bash
-node scripts/check-bundle-size.mjs
+node scripts/check-bundle-size.ts
 ```
 
 **Expected:** `main.js` is within the size budget
@@ -69,6 +69,16 @@ pnpm check:manifest
 ```
 
 **Expected:** `manifest.json`, `versions.json` and `package.json` versions agree and all manifest rules pass
+
+Check the test client against a copy of the fixture vault (only where the project has a test client; remove this check otherwise):
+
+```bash
+VAULT_COPY="$(mktemp -d)" && cp -R test-vault/. "$VAULT_COPY"
+node packages/test-client/src/cli.ts "$VAULT_COPY" ping > "$VAULT_COPY.result.json" 2> "$VAULT_COPY.log.jsonl"; echo "exit=$?"
+node -e "const fs=require('node:fs'); const [resultPath, logPath]=process.argv.slice(1); const result=JSON.parse(fs.readFileSync(resultPath,'utf8')); const lines=fs.readFileSync(logPath,'utf8').split('\n').filter(Boolean).map((line)=>JSON.parse(line)); if (!result.ok || lines.length===0 || !lines.every((line)=>line.correlationId===result.correlationId)) { console.error('test client check failed'); process.exit(1); } console.log('test client ok');" "$VAULT_COPY.result.json" "$VAULT_COPY.log.jsonl"
+```
+
+**Expected:** `exit=0`, then `test client ok`: the operation succeeded and every log line on standard error carries the `correlationId` of the `Result` on standard output
 
 ## 5. Real-Obsidian Validation
 
@@ -88,6 +98,7 @@ After all validations complete, provide a summary report with:
 - Type checking status
 - Linting status (eslint + prettier)
 - Local build status (bundle, size budget, manifest)
+- Test-client status, where the project has one
 - Real-Obsidian test status
 - Any errors or warnings encountered
 - Overall health assessment (PASS/FAIL)

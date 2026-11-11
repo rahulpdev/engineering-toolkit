@@ -37,7 +37,7 @@ The planning agent produces an implementation plan with **one task per step in S
 1. **Documentation research.** The planning agent locates the *current official documentation* for the tool or library the step introduces, reads it, writes what the step needs into the task, and cites the source that was used. This specification names *what* to research and *where to look* (official project documentation, and the Obsidian plugin development reference in the Day-0 kit), never a fixed URL. Configuration is never derived from memory alone.
 2. **Installation** — the `pnpm add` command(s).
 3. **Files** — exactly the files to create or modify and what each must contain.
-4. **Validation** — the checks that must pass before the task is complete; every tool set up in earlier steps participates.
+4. **Validation** — the checks that must pass before the task is complete; every tool set up in earlier steps participates, and every command runs on the tools the stack in Section 2.1 already requires.
 5. **Commit boundary** — one commit per step, using the suggested message.
 
 The plan also resolves the Decision Register (Section 3): for each parameter and decision it records the resolved value and quotes the PRD or TAD passage that justifies any override of a default. The plan is produced by invoking `/plan:plan-feature` with a feature description that names the paths of this specification, the PRD and the TAD, and gives the instruction to record any clarifying question, with the assumed answer, in the plan's NOTES section rather than stopping to ask; it is executed with `/implement:execute`. The plan is reviewed and approved by the project owner before execution.
@@ -123,6 +123,7 @@ Rules: `packages/core/` never imports `obsidian`, Electron or a Node module; a b
 - Files ≤ 300 lines; functions ≤ 50 lines; constants, configuration and long strings in their own modules.
 - Every word shown to the user lives in one messages module, never inline in a feature.
 - KISS and YAGNI: no abstractions or features before they are needed.
+- Commands and scripts use only the tools the stack in Section 2.1 requires; any further tool becomes a declared dependency first.
 
 ### 2.4 Logging convention
 
@@ -355,7 +356,7 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 **Required outcome:**
 - A root `vitest.config.ts` (or workspace file) covering every package; `obsidian` aliased to `__mocks__/obsidian.ts` for the plugin package only — the core must not need it.
 - `__mocks__/obsidian.ts`: minimal empty classes (`Plugin`, `Notice`, `TFile`, `TFolder`, `Modal`, `PluginSettingTab`, `Setting`), a `Platform` object and `normalizePath`, grown only as the plugin package's tests require.
-- Coverage enabled on every run, reported to the terminal, with `coverage/` ignored by git.
+- Coverage enabled on every run, reported to the terminal, with `coverage/` ignored by git, and a threshold in the configuration that fails the run when line coverage of `packages/core/` falls below 80%. A threshold is raised as coverage grows and never lowered to make a run pass.
 - `packages/core/src/scratch.test.ts` covering every function in `scratch.ts`, including an async case using fake timers.
 - Root script `test` = `vitest run`.
 
@@ -483,7 +484,7 @@ The two files divide the material between them and never repeat it. `CLAUDE.md` 
 - `README.md`, following `.agents/templates/template_readme_obsidian_plugin.md` — its section order, headings, formatting and voice are kept exactly; the content describes the product the PRD and TAD define, is written from the PRD, the TAD, this specification and the code only, states nothing beyond them, and includes every disclosure the developer policies require.
 - `CLAUDE.md`, following `.agents/templates/template_claude_md_obsidian_plugin.md` — its section order, headings, formatting and voice are kept exactly; the rules are generated from Section 2 of this specification, the PRD, the TAD and every standing rule the plan establishes, with the architecture section showing the workspace tree and the application's planned slices, the error handling section carrying the D4 domain list, and the development commands section carrying Section 2.8. The template's code examples are kept as written: they show format and claim nothing about this application. Real code is pointed to, never copied: the template's reference table names, for each pattern the repository already implements, the file to imitate. Long reference material goes in `.agents/reference/`, not in `CLAUDE.md`.
 - Where a template section has nothing to say for this application, it is kept with a one-line statement to that effect rather than removed, so the shape stays stable across repositories.
-- `.claude/commands/validate/validate.md`: expected test count, scripts and package names replaced with the real values, and `[D2]` the test-client check from Section 2.8 added.
+- `.claude/commands/validate/validate.md`: runs as copied. Without `[D2]`, its test-client check is removed; with a test client outside `packages/test-client/`, the check's path is updated.
 
 **Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches the lockfile, and each development command has been run and succeeded (one that would create a version or a release is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its commands, settings table and disclosures against the repository.
 **Commit:** `docs: add README and global development rules (CLAUDE.md)`
@@ -495,7 +496,7 @@ The two files divide the material between them and never repeat it. `CLAUDE.md` 
 The foundation is complete when all of the following hold:
 
 - [ ] `pnpm lint`, `pnpm format:check` and `pnpm typecheck` report zero issues in every package.
-- [ ] `pnpm test` passes with coverage reported; `pnpm e2e` passes against both the minimum and the latest Obsidian.
+- [ ] `pnpm test` passes with coverage reported and its thresholds met; `pnpm e2e` passes against both the minimum and the latest Obsidian.
 - [ ] No suppression comment exists without a documented reason on the same line, and none disables a security or `obsidianmd/*` rule (the suppression search in Section 5.0 returns nothing unjustified).
 - [ ] `pnpm build` produces `main.js` at the root with no Obsidian, Electron, CodeMirror or Node code bundled, within the size budget.
 - [ ] The core package has no dependency on `obsidian` and the boundary check proves it.

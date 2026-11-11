@@ -51,6 +51,7 @@ comment block from the finished file.
 **KISS** (Keep It Simple, Stupid)
 
 - Prefer simple, readable solutions over clever abstractions
+- Commands and scripts use only the tools the tech stack requires; any further tool becomes a declared dependency first
 
 **YAGNI** (You Aren't Gonna Need It)
 
@@ -247,6 +248,7 @@ log.error('orders.checkout.validation_failed', {
 - Test names: `describe` the function, `it` states the condition and the expected result
 - Async tests need no special marker -- an `async` test function is awaited
 - In-memory adapters live in `core/core/testing/` -- always use them, never write a second stand-in for a port inside a slice
+- Coverage thresholds fail the test run when coverage falls; raise a threshold as coverage grows, never lower one to make a run pass
 
 ### Unit test example
 
