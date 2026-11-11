@@ -1,14 +1,14 @@
 ---
-description: Create a single git worktree branched off the local `integration` branch on a branch named `<type>/<name>` (type is `feature`, `fix`, `chore` or `docs`, default `feature`) and install Python/uv dependencies.
+description: Create a single git worktree branched off the local `main` branch on a branch named `<type>/<name>` (type is `feature`, `fix`, `chore` or `docs`, default `feature`) and install Python/uv dependencies.
 argument-hint: [type] <name> (name required - short kebab-case work name; type optional - `feature`, `fix`, `chore` or `docs`, default `feature`)
 allowed-tools: Bash(git check-ref-format:*), Bash(git check-ignore:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git worktree:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(mkdir:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv sync:*)
 ---
 
-# /new-worktree: Create Worktree Off Integration
+# /new-worktree: Create Worktree Off Main
 
 ## Philosophy (Why this exists)
 
-This command keeps work in progress isolated from `main` and centralises the setup in one command. It ensures every piece of work must branch off the same base (`integration`), follow the same name pattern (`<type>/<name>`), and live in the same ready-to-use Python/uv worktree (`worktrees/<folder>`).
+This command keeps work in progress in its own worktree and centralises the setup in one command. It ensures every piece of work must branch off the same base (`main`), follow the same name pattern (`<type>/<name>`), and live in the same ready-to-use Python/uv worktree (`worktrees/<folder>`).
 
 ## Invocation & Arguments (INPUT)
 
@@ -32,7 +32,7 @@ This command keeps work in progress isolated from `main` and centralises the set
 - Required args: `$ARGUMENTS` = work name in kebab-case (e.g. `feature-a`), given as the last token.
 - Optional args: a type before the name. It is one of `feature`, `fix`, `chore` or `docs`.
 - Defaults: the type is `feature` when omitted.
-  - Fixed conventions (not user-configurable): the base branch is always `integration`. Every type branches from it.
+  - Fixed conventions (not user-configurable): the base branch is always `main`. Every type branches from it.
 - Derived values, computed in Step 1 and used by every later step:
   - `TYPE`: the type given, or `feature` when none was given.
   - `NAME`: the name.
@@ -47,7 +47,7 @@ This command keeps work in progress isolated from `main` and centralises the set
     - Must not start with `/` or `-`.
     - Must not contain `..`, `@{`, or `/` (single segment only).
     - Must not equal (case-insensitively) any git pseudo-ref: `HEAD`, `FETCH_HEAD`, `ORIG_HEAD`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, `BISECT_HEAD`.
-    - Must not equal (case-insensitively) any workflow-reserved name: `main`, `master`, `integration`, `feature`, `fix`, `chore`, `docs`.
+    - Must not equal (case-insensitively) any workflow-reserved name: `main`, `master`, `feature`, `fix`, `chore`, `docs`.
     - Must match strict kebab-case: regex `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` (lowercase letter start, then dash-separated lowercase-alphanumeric segments; no underscores, no uppercase, no leading digit or hyphen, no trailing hyphen, no consecutive hyphens).
   - `refs/heads/$BRANCH` must pass `git check-ref-format`.
 
@@ -81,21 +81,21 @@ Follow these steps in order:
 6. **Confirm `worktrees/` is ignored by git.**
    - Run: `git check-ignore -q worktrees/.probe`.
    - If exit code is non-zero (the path is NOT ignored), stop and tell the user to add `worktrees/` to `.gitignore` (committed) or to `.git/info/exclude` (personal-only).
-7. **Confirm the local `integration` branch exists.**
-   - Run: `git show-ref --verify --quiet refs/heads/integration`.
-   - If it does not exist, stop and tell the user that a local `integration` branch is required.
+7. **Confirm the local `main` branch exists.**
+   - Run: `git show-ref --verify --quiet refs/heads/main`.
+   - If it does not exist, stop and tell the user that a local `main` branch is required.
 8. **Refuse on any pre-existing target artifact.** Run each check in order; on the first that matches, stop and tell the user what to clean up.
    - **Orphan admin entry**: run `grep -qE "^worktree .*/worktrees/${FOLDER}$" <<< "$(git worktree list --porcelain)"`. If exit code is 0, stop and instruct the user to run `git worktree prune` (and remove `worktrees/$FOLDER` if it still exists on disk), then retry.
    - **Existing folder or symlink**: run `test ! -e "worktrees/$FOLDER" && test ! -L "worktrees/$FOLDER"`. If either test fails, stop and instruct the user to remove `worktrees/$FOLDER` (or whatever it points to, if it's a symlink) or choose a different name.
    - **Existing branch (case-insensitive)**: run `grep -ix "refs/heads/$BRANCH" <<< "$(git for-each-ref --format='%(refname)' refs/heads/)"`. If any match, stop and instruct the user to delete the matching branch or choose a different name.
-9. **Check whether local `integration` is behind its remote (warn-only).**
+9. **Check whether local `main` is behind its remote (warn-only).**
    - Always include the outcome under "What you did" in the final report; never silently skip, never stop the process.
-   - Run: `git fetch origin integration`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 10.
-   - Otherwise run: `git show-ref --verify --quiet refs/remotes/origin/integration`. If the ref does not exist (e.g. custom `remote.origin.fetch` refspec), substitute "refs/remotes/origin/integration is not present locally" as the outcome and proceed to Step 10.
-   - Otherwise run: `git rev-list --count integration..origin/integration`. If the count is 0, substitute "integration is up to date with origin/integration" as the outcome; if greater than 0, substitute "integration is N commit(s) behind origin/integration" as the outcome and also add that line under **Risks / gotchas**.
-10. **Create the worktree branched off `integration`.**
+   - Run: `git fetch origin main`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 10.
+   - Otherwise run: `git show-ref --verify --quiet refs/remotes/origin/main`. If the ref does not exist (e.g. custom `remote.origin.fetch` refspec), substitute "refs/remotes/origin/main is not present locally" as the outcome and proceed to Step 10.
+   - Otherwise run: `git rev-list --count main..origin/main`. If the count is 0, substitute "main is up to date with origin/main" as the outcome; if greater than 0, substitute "main is N commit(s) behind origin/main" as the outcome and also add that line under **Risks / gotchas**.
+10. **Create the worktree branched off `main`.**
     - Run: `mkdir -p worktrees`.
-    - Run: `git worktree add -b "$BRANCH" "worktrees/$FOLDER" integration`.
+    - Run: `git worktree add -b "$BRANCH" "worktrees/$FOLDER" main`.
     - If this fails, capture the exact git error, run `git worktree prune` to clear any admin debris, and stop and tell the user the captured git error.
 11. **Install Python/uv dependencies inside the new worktree.**
     - Run: `uv sync --directory "worktrees/$FOLDER"`.
@@ -115,7 +115,7 @@ Follow these steps in order:
 
 **Quality/Safety constraints**
 
-- Always branch from the local `integration` branch; never fall back to `main`, `master`, the current branch, or a remote-tracking branch.
+- Always branch from the local `main` branch; never fall back to `master`, the current branch, or a remote-tracking branch.
 - Do not run `git add`, `git commit`, or `git push` in this command — setup only.
 - Do not modify files outside `worktrees/$FOLDER` and git's own worktree metadata.
 - Do not start any server, run any health check, reserve ports, or kill server processes; this project has no web server.
@@ -133,7 +133,7 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 - **Key results**:
   - Worktree path: `worktrees/<folder>`
   - Branch: `<type>/<name>`
-  - Base branch: `integration`
+  - Base branch: `main`
   - uv sync: result
 - **Risks / gotchas**: bullets, only when real (e.g. freshness behind, partial `.venv`, branch mismatch).
 - **Next steps**: exact command `cd worktrees/<folder>` to enter the worktree and start development. If `Status: Partial` because of `uv sync`, also include the exact follow-up command for the user to run.

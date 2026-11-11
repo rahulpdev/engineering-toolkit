@@ -15,7 +15,7 @@ The three dotted folders are laid out exactly as a project expects them, so inst
 
 | Copy this folder | Into your project as | You get |
 |---|---|---|
-| `.claude/` | `.claude/` | 34 slash commands and 3 sub-agents for Claude Code |
+| `.claude/` | `.claude/` | 36 slash commands and 3 sub-agents for Claude Code |
 | `.codex/` | `.codex/` | the same sub-agents for Codex |
 | `.agents/` | `.agents/` | the files the commands read while running, and the templates a new project starts from |
 
@@ -37,7 +37,7 @@ Five files are adapted from the Dynamous Agentic Coding course by Cole Medin, an
 
 Each item below is a top-level folder. Its own README lists the files inside it.
 
-- [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — 34 commands in eight groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
+- [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — 36 commands in eight groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
 - [`.claude/agents/`](.claude/agents/README.md): **Claude Code sub-agents** — `document-reviewer`, `navigator` and `pathfinder`. Copy to a project's `.claude/agents/`.
 - [`.codex/`](.codex/README.md): **Codex sub-agents** — the same three sub-agents in TOML, generated from the Claude versions and never edited by hand. Copy to a project's `.codex/`.
 - [`.agents/reference/`](.agents/reference/README.md): **Reference standards and guides** — the command and sub-agent templates, the writing standard, the rules the review chain audits against, the planning framework and the worktree setup. Copy to a project's `.agents/reference/`; several commands read these files by that path.

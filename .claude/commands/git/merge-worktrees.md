@@ -1,14 +1,14 @@
 ---
-description: Merge the single work branch `<type>/<name>` into the local `integration` branch with a `--no-ff` merge commit, validate the result with pytest/mypy/pyright, and on success remove the worktree and delete the work branch.
+description: Merge the single work branch `<type>/<name>` into the local `main` branch with a `--no-ff` merge commit, validate the result with pytest/mypy/pyright, and on success remove the worktree and delete the work branch.
 argument-hint: [type] <name> (name required - short kebab-case work name; type optional - `feature`, `fix`, `chore` or `docs`, default `feature`; must match what was passed to `/new-worktree`)
 allowed-tools: Bash(git check-ref-format:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git status:*), Bash(git diff:*), Bash(git switch:*), Bash(git merge:*), Bash(git commit:*), Bash(git worktree:*), Bash(git branch:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv run:*)
 ---
 
-# /merge-worktrees: Merge Worktree Into Integration
+# /merge-worktrees: Merge Worktree Into Main
 
 ## Philosophy (Why this exists)
 
-This command finalises a single piece of work by collapsing its worktree and branch back into `integration` under one consistent pattern. It prepares a `--no-ff` merge of `<type>/<name>` into the local `integration` branch, validates the merged working tree against pytest/mypy/pyright, and only commits the merge once validation passes.
+This command finalises a single piece of work by collapsing its worktree and branch back into `main` under one consistent pattern. It prepares a `--no-ff` merge of `<type>/<name>` into the local `main` branch, validates the merged working tree against pytest/mypy/pyright, and only commits the merge once validation passes.
 
 The validation step here is **integration validation**, not feature validation.
 
@@ -34,7 +34,7 @@ The validation step here is **integration validation**, not feature validation.
 - Required args: `$ARGUMENTS` = work name in kebab-case (e.g. `feature-a`), given as the last token. Must match exactly the name passed to `/new-worktree`.
 - Optional args: a type before the name. It is one of `feature`, `fix`, `chore` or `docs`. Must match exactly the type passed to `/new-worktree`.
 - Defaults: the type is `feature` when omitted.
-  - Fixed conventions (not user-configurable): the merge target is always the local `integration` branch. The merge always uses `--no-ff`.
+  - Fixed conventions (not user-configurable): the merge target is always the local `main` branch. The merge always uses `--no-ff`.
 - Derived values, computed in Step 1 and used by every later step:
   - `TYPE`: the type given, or `feature` when none was given.
   - `NAME`: the name.
@@ -49,7 +49,7 @@ The validation step here is **integration validation**, not feature validation.
     - Must not start with `/` or `-`.
     - Must not contain `..`, `@{`, or `/` (single segment only).
     - Must not equal (case-insensitively) any git pseudo-ref: `HEAD`, `FETCH_HEAD`, `ORIG_HEAD`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, `BISECT_HEAD`.
-    - Must not equal (case-insensitively) any workflow-reserved name: `main`, `master`, `integration`, `feature`, `fix`, `chore`, `docs`.
+    - Must not equal (case-insensitively) any workflow-reserved name: `main`, `master`, `feature`, `fix`, `chore`, `docs`.
     - Must match strict kebab-case: regex `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` (lowercase letter start, then dash-separated lowercase-alphanumeric segments; no underscores, no uppercase, no leading digit or hyphen, no trailing hyphen, no consecutive hyphens).
   - `refs/heads/$BRANCH` must pass `git check-ref-format`.
 
@@ -80,9 +80,9 @@ Follow these steps in order:
 5. **Confirm `pytest`, `mypy`, and `pyright` are declared in `pyproject.toml`.**
    - Run: `grep -q '"pytest"' pyproject.toml && grep -q '"mypy"' pyproject.toml && grep -q '"pyright"' pyproject.toml`.
    - If any of the three is missing, stop and tell the user which tool(s) are missing and to add them with `uv add --dev pytest mypy pyright`.
-6. **Confirm the local `integration` branch exists.**
-   - Run: `git show-ref --verify --quiet refs/heads/integration`.
-   - If it does not exist, stop and tell the user that a local `integration` branch is required.
+6. **Confirm the local `main` branch exists.**
+   - Run: `git show-ref --verify --quiet refs/heads/main`.
+   - If it does not exist, stop and tell the user that a local `main` branch is required.
 7. **Confirm the work branch exists (exact case).**
    - Run: `git show-ref --verify --quiet "refs/heads/$BRANCH"`. If missing, stop and tell the user that the `$BRANCH` branch does not exist.
    - Then run: `grep -ix "refs/heads/$BRANCH" <<< "$(git for-each-ref --format='%(refname)' refs/heads/)"`. If the matched refname differs in case from `refs/heads/$BRANCH`, stop and tell the user that a different-case variant of the branch exists and refuse to merge.
@@ -93,18 +93,18 @@ Follow these steps in order:
    - Run: `git -C "worktrees/$FOLDER" status --porcelain`.
    - Allow `.venv/` and `uv.lock` lines in the output; treat any other non-empty line as user state. If any user state exists, stop and tell the user to commit or discard those changes before re-running.
 10. **Confirm the main repo working tree is clean and is not mid-merge.**
-    - Run: `git rev-parse -q --verify MERGE_HEAD`. If exit code is 0, stop and tell the user that a merge is already in progress and they should either `git merge --abort` to restore `integration`, or finish the merge manually with `git commit`, before re-running.
+    - Run: `git rev-parse -q --verify MERGE_HEAD`. If exit code is 0, stop and tell the user that a merge is already in progress and they should either `git merge --abort` to restore `main`, or finish the merge manually with `git commit`, before re-running.
     - Run: `git status --porcelain`. If non-empty, stop and tell the user the list of dirty paths so they can commit, stash, or ignore them.
-11. **Check whether local `integration` is behind its remote (warn-only).**
+11. **Check whether local `main` is behind its remote (warn-only).**
     - Always include the outcome under "What you did" in the final report; never silently skip, never stop the process.
-    - Run: `git fetch origin integration`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 12.
-    - Otherwise run: `git show-ref --verify --quiet refs/remotes/origin/integration`. If the ref does not exist (e.g. custom `remote.origin.fetch` refspec), substitute "refs/remotes/origin/integration is not present locally" as the outcome and proceed to Step 12.
-    - Otherwise run: `git rev-list --count integration..origin/integration`. If the count is 0, substitute "integration is up to date with origin/integration" as the outcome; if greater than 0, substitute "integration is N commit(s) behind origin/integration" as the outcome and also add that line under **Risks / gotchas**.
-12. **Switch the main repo to `integration`.**
-    - Run: `git switch integration`. If this fails, stop and tell the user the git error.
+    - Run: `git fetch origin main`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 12.
+    - Otherwise run: `git show-ref --verify --quiet refs/remotes/origin/main`. If the ref does not exist (e.g. custom `remote.origin.fetch` refspec), substitute "refs/remotes/origin/main is not present locally" as the outcome and proceed to Step 12.
+    - Otherwise run: `git rev-list --count main..origin/main`. If the count is 0, substitute "main is up to date with origin/main" as the outcome; if greater than 0, substitute "main is N commit(s) behind origin/main" as the outcome and also add that line under **Risks / gotchas**.
+12. **Switch the main repo to `main`.**
+    - Run: `git switch main`. If this fails, stop and tell the user the git error.
 13. **Prepare the merge without committing.**
     - Run: `git merge "$BRANCH" --no-ff --no-commit`.
-    - If the merge reports conflicts, capture the conflicting files via `git diff --name-only --diff-filter=U`, run `git merge --abort` to restore integration, and stop and tell the user the conflict list.
+    - If the merge reports conflicts, capture the conflicting files via `git diff --name-only --diff-filter=U`, run `git merge --abort` to restore `main`, and stop and tell the user the conflict list.
 14. **Run integration validation on the prepared merge.**
     - Run, in order:
       - `uv run pytest -v --ignore=worktrees`
@@ -112,7 +112,7 @@ Follow these steps in order:
       - `uv run pyright app/`
     - If any exits non-zero, capture which command failed and the last lines of its output, run `git merge --abort`, and stop and tell the user which command failed and its output.
 15. **Commit the prepared merge.**
-    - Run: `git commit -m "merge: $BRANCH into integration"`. If this fails, stop and tell the user the git error, and that the prepared merge is still in place — they can either fix and commit manually or run `git merge --abort` to abandon.
+    - Run: `git commit -m "merge: $BRANCH into main"`. If this fails, stop and tell the user the git error, and that the prepared merge is still in place — they can either fix and commit manually or run `git merge --abort` to abandon.
 16. **Remove the worktree.**
     - Run: `git worktree remove --force "worktrees/$FOLDER"`.
     - If this fails, capture the git error and add it under **Risks / gotchas** in the final report, mark `Status: Partial`, **skip Step 17 entirely** and proceed directly to Step 18. Include in the report the exact recovery commands: `git worktree remove --force "worktrees/$FOLDER"` (try again manually), then `git branch -d "$BRANCH"`.
@@ -125,14 +125,14 @@ Follow these steps in order:
 
 - Never auto-resolve merge conflicts; always hand control back to the user.
 - `--force` is permitted **only** on Step 16. Never use `git branch -D` anywhere in this command.
-- Never run `git push` in this command; pushing `integration` is out of scope.
+- Never run `git push` in this command; pushing `main` is out of scope.
 - If validation fails, abort the prepared merge with `git merge --abort`.
 - If re-invoked after a stopped run where the worktree has already been removed or the work branch already deleted, refuse and report; do not attempt to repair or resume.
 
 **Quality/Safety constraints**
 
-- Always merge into the local `integration` branch; never into `main`, `master`, a remote-tracking branch, or whatever branch happens to be checked out.
-- Always use `--no-ff` so every piece of work lands as a distinct merge commit on `integration`.
+- Always merge into the local `main` branch; never into `master`, a remote-tracking branch, or whatever branch happens to be checked out.
+- Always use `--no-ff` so every piece of work lands as a distinct merge commit on `main`.
 - Cleanup (Steps 16–17) runs only after Steps 13, 14, and 15 succeed.
 - Do not start any server, run any health check, reserve ports, or kill server processes; this project has no web server.
 - Do not modify files outside git's own state and the worktree's metadata.
@@ -145,14 +145,14 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 
 - **Status**: Success | Partial | Blocked
 - **What you understood**: 1–3 bullets restating the type, name, source branch, and merge target.
-- **What you did**: bullets, in execution order (e.g. switched to `integration`, merged with `--no-ff`, ran pytest/mypy/pyright, removed worktree, deleted work branch, plus the Step 11 freshness outcome verbatim).
+- **What you did**: bullets, in execution order (e.g. switched to `main`, merged with `--no-ff`, ran pytest/mypy/pyright, removed worktree, deleted work branch, plus the Step 11 freshness outcome verbatim).
 - **Key results**:
-  - Merge: `<type>/<name>` → `integration` (include merge commit hash if available)
+  - Merge: `<type>/<name>` → `main` (include merge commit hash if available)
   - Validation: pytest / mypy / pyright outcomes
   - Worktree removed: `worktrees/<folder>`
   - Work branch deleted: `<type>/<name>`
 - **Risks / gotchas**: bullets, only when real (e.g. freshness behind, merge conflicts, validation failure + merge aborted, residual worktree files).
-- **Next steps**: exact command(s) the user can run next (e.g. start the next piece of work, or perform their separate process to merge `integration` into `main`).
+- **Next steps**: exact command(s) the user can run next (e.g. start the next piece of work, or push `main` to the remote).
 - **Questions (only if blocked)**: numbered list of what is needed to unblock.
 
 ## Notes
