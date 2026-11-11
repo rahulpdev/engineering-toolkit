@@ -1,6 +1,6 @@
 ---
-description: Create a single git worktree branched off the local `integration` branch using the canonical name `feature/<feature>` and install Python/uv dependencies.
-argument-hint: <feature> (required - short kebab-case feature name appended to `feature/`)
+description: Create a single git worktree branched off the local `integration` branch on a branch named `<type>/<name>` (type is `feature`, `fix`, `chore` or `docs`, default `feature`) and install Python/uv dependencies.
+argument-hint: [type] <name> (name required - short kebab-case work name; type optional - `feature`, `fix`, `chore` or `docs`, default `feature`)
 allowed-tools: Bash(git check-ref-format:*), Bash(git check-ignore:*), Bash(git rev-parse:*), Bash(git show-ref:*), Bash(git for-each-ref:*), Bash(git worktree:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git -C:*), Bash(test:*), Bash(mkdir:*), Bash(grep:*), Bash(pwd:*), Bash(dirname:*), Bash(uv sync:*)
 ---
 
@@ -8,7 +8,7 @@ allowed-tools: Bash(git check-ref-format:*), Bash(git check-ignore:*), Bash(git 
 
 ## Philosophy (Why this exists)
 
-This command keeps feature work isolated from `main` and centralises the setup in one command. It ensures every feature must branch off the same base (`integration`), follow the same name pattern (`feature/<feature>`), and live in the same ready-to-use Python/uv worktree (`worktrees/<feature>`).
+This command keeps work in progress isolated from `main` and centralises the setup in one command. It ensures every piece of work must branch off the same base (`integration`), follow the same name pattern (`<type>/<name>`), and live in the same ready-to-use Python/uv worktree (`worktrees/<folder>`).
 
 ## Invocation & Arguments (INPUT)
 
@@ -16,6 +16,8 @@ This command keeps feature work isolated from `main` and centralises the setup i
 
 - `/new-worktree feature-a`
 - `/new-worktree pdf-table-detection`
+- `/new-worktree fix login-timeout`
+- `/new-worktree chore bump-deps`
 
 **Arguments received**
 
@@ -23,37 +25,45 @@ This command keeps feature work isolated from `main` and centralises the setup i
 
 **Arguments policy**
 
-- **Mandatory**: `$ARGUMENTS` is required. If missing or invalid, stop and ask.
+- **Mandatory**: `$ARGUMENTS` is required and must hold a name, optionally preceded by a type. If missing or invalid, stop and ask.
 
 **Argument contract**
 
-- Required args: `$ARGUMENTS` = feature name in kebab-case (e.g. `feature-a`).
-- Optional args: None.
-- Defaults: None.
-  - Fixed conventions (not user-configurable): base branch is always `integration`; branch name is always `feature/$ARGUMENTS`; worktree path is always `worktrees/$ARGUMENTS`.
+- Required args: `$ARGUMENTS` = work name in kebab-case (e.g. `feature-a`), given as the last token.
+- Optional args: a type before the name. It is one of `feature`, `fix`, `chore` or `docs`.
+- Defaults: the type is `feature` when omitted.
+  - Fixed conventions (not user-configurable): the base branch is always `integration`. Every type branches from it.
+- Derived values, computed in Step 1 and used by every later step:
+  - `TYPE`: the type given, or `feature` when none was given.
+  - `NAME`: the name.
+  - `BRANCH`: `TYPE/NAME`.
+  - `FOLDER`: `TYPE-NAME`. The worktree path is `worktrees/FOLDER`.
 - Validation rules:
   - Must be non-empty after trimming whitespace.
-  - Must be a single token (no whitespace).
-  - Must not contain shell metacharacters: `;`, `&`, `|`, `` ` ``, `$`, `(`, `)`, `<`, `>`, `*`, `?`, `[`, `]`, `{`, `}`, `\`, `'`, `"`, `!`.
-  - Must not start with `/` or `-`.
-  - Must not contain `..`, `@{`, or `/` (single segment only).
-  - Must not equal (case-insensitively) any git pseudo-ref: `HEAD`, `FETCH_HEAD`, `ORIG_HEAD`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, `BISECT_HEAD`.
-  - Must not equal (case-insensitively) any workflow-reserved name: `main`, `master`, `integration`, `feature`.
-  - Must match strict kebab-case: regex `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` (lowercase letter start, then dash-separated lowercase-alphanumeric segments; no underscores, no uppercase, no leading digit or hyphen, no trailing hyphen, no consecutive hyphens).
-  - `refs/heads/feature/$ARGUMENTS` must pass `git check-ref-format`.
+  - Must be either one token (the name) or two tokens (a type, then the name).
+  - When two tokens are given, the first must be exactly `feature`, `fix`, `chore` or `docs`.
+  - `NAME` must satisfy every rule below:
+    - Must not contain shell metacharacters: `;`, `&`, `|`, `` ` ``, `$`, `(`, `)`, `<`, `>`, `*`, `?`, `[`, `]`, `{`, `}`, `\`, `'`, `"`, `!`.
+    - Must not start with `/` or `-`.
+    - Must not contain `..`, `@{`, or `/` (single segment only).
+    - Must not equal (case-insensitively) any git pseudo-ref: `HEAD`, `FETCH_HEAD`, `ORIG_HEAD`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, `BISECT_HEAD`.
+    - Must not equal (case-insensitively) any workflow-reserved name: `main`, `master`, `integration`, `feature`, `fix`, `chore`, `docs`.
+    - Must match strict kebab-case: regex `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` (lowercase letter start, then dash-separated lowercase-alphanumeric segments; no underscores, no uppercase, no leading digit or hyphen, no trailing hyphen, no consecutive hyphens).
+  - `refs/heads/$BRANCH` must pass `git check-ref-format`.
 
 **If arguments are missing/invalid**
 
-- Stop before running any git mutations. Explain the problem, ask for a valid feature name and show a valid example.
+- Stop before running any git mutations. Explain the problem, ask for a valid name and show a valid example. If the type is not allowed, list the allowed types.
 
 ## Process (PROCESS)
 
 Follow these steps in order:
 
-1. **Validate `$ARGUMENTS`.**
+1. **Parse and validate `$ARGUMENTS`.**
    - Trim surrounding whitespace.
+   - Split on whitespace. Set `TYPE` and `NAME` from the tokens, then compute `BRANCH` and `FOLDER` as defined in _Argument contract_.
    - Reject the value if any rule in _Validation rules_ is violated. On reject, stop and tell the user which validation rule was violated.
-   - Run `git check-ref-format "refs/heads/feature/$ARGUMENTS"` (no `--branch` — running with `--branch` would first expand `@{-N}` "previous checkout" shortcuts against your current state, which is not what we want for literal-string validation). If exit code is non-zero, stop and tell the user the feature name fails git's ref-format check.
+   - Run `git check-ref-format "refs/heads/$BRANCH"` (no `--branch` — running with `--branch` would first expand `@{-N}` "previous checkout" shortcuts against your current state, which is not what we want for literal-string validation). If exit code is non-zero, stop and tell the user the branch name fails git's ref-format check.
 2. **Confirm cwd is the main repo root.** Run each check in order; on the first that fails, stop and tell the user the matching message.
    - **Not in a git repo**: run `git rev-parse --is-inside-work-tree`. If exit code is non-zero, stop with "cwd is not inside a git repository; cd into the repo and re-run."
    - **Bare repo**: run `git rev-parse --is-bare-repository`. If output is `true`, stop with "bare repos are not supported by this command."
@@ -75,9 +85,9 @@ Follow these steps in order:
    - Run: `git show-ref --verify --quiet refs/heads/integration`.
    - If it does not exist, stop and tell the user that a local `integration` branch is required.
 8. **Refuse on any pre-existing target artifact.** Run each check in order; on the first that matches, stop and tell the user what to clean up.
-   - **Orphan admin entry**: run `grep -qE "^worktree .*/worktrees/${ARGUMENTS}$" <<< "$(git worktree list --porcelain)"`. If exit code is 0, stop and instruct the user to run `git worktree prune` (and remove `worktrees/$ARGUMENTS` if it still exists on disk), then retry.
-   - **Existing folder or symlink**: run `test ! -e "worktrees/$ARGUMENTS" && test ! -L "worktrees/$ARGUMENTS"`. If either test fails, stop and instruct the user to remove `worktrees/$ARGUMENTS` (or whatever it points to, if it's a symlink) or choose a different name.
-   - **Existing branch (case-insensitive)**: run `grep -ix "refs/heads/feature/$ARGUMENTS" <<< "$(git for-each-ref --format='%(refname)' refs/heads/)"`. If any match, stop and instruct the user to delete the matching branch or choose a different name.
+   - **Orphan admin entry**: run `grep -qE "^worktree .*/worktrees/${FOLDER}$" <<< "$(git worktree list --porcelain)"`. If exit code is 0, stop and instruct the user to run `git worktree prune` (and remove `worktrees/$FOLDER` if it still exists on disk), then retry.
+   - **Existing folder or symlink**: run `test ! -e "worktrees/$FOLDER" && test ! -L "worktrees/$FOLDER"`. If either test fails, stop and instruct the user to remove `worktrees/$FOLDER` (or whatever it points to, if it's a symlink) or choose a different name.
+   - **Existing branch (case-insensitive)**: run `grep -ix "refs/heads/$BRANCH" <<< "$(git for-each-ref --format='%(refname)' refs/heads/)"`. If any match, stop and instruct the user to delete the matching branch or choose a different name.
 9. **Check whether local `integration` is behind its remote (warn-only).**
    - Always include the outcome under "What you did" in the final report; never silently skip, never stop the process.
    - Run: `git fetch origin integration`. If it exits non-zero (no network, no `origin` remote, or no remote branch), substitute the git error as the outcome and proceed to Step 10.
@@ -85,20 +95,20 @@ Follow these steps in order:
    - Otherwise run: `git rev-list --count integration..origin/integration`. If the count is 0, substitute "integration is up to date with origin/integration" as the outcome; if greater than 0, substitute "integration is N commit(s) behind origin/integration" as the outcome and also add that line under **Risks / gotchas**.
 10. **Create the worktree branched off `integration`.**
     - Run: `mkdir -p worktrees`.
-    - Run: `git worktree add -b "feature/$ARGUMENTS" "worktrees/$ARGUMENTS" integration`.
+    - Run: `git worktree add -b "$BRANCH" "worktrees/$FOLDER" integration`.
     - If this fails, capture the exact git error, run `git worktree prune` to clear any admin debris, and stop and tell the user the captured git error.
 11. **Install Python/uv dependencies inside the new worktree.**
-    - Run: `uv sync --directory "worktrees/$ARGUMENTS"`.
+    - Run: `uv sync --directory "worktrees/$FOLDER"`.
     - If `uv` is not installed, stop and tell the user to install `uv`, with `Status: Partial`. Do not attempt a fallback installer.
     - If `uv sync` fails for any other reason, capture the error and add it under **Risks / gotchas** in the final report, mark the run as `Status: Partial`, and continue to Step 12.
 12. **Confirm the new worktree is on the correct branch.**
-    - Run: `git -C "worktrees/$ARGUMENTS" branch --show-current`.
-    - If the output differs from `feature/$ARGUMENTS`, add the mismatch under **Risks / gotchas** in the final report and mark the run as `Status: Partial`.
+    - Run: `git -C "worktrees/$FOLDER" branch --show-current`.
+    - If the output differs from `$BRANCH`, add the mismatch under **Risks / gotchas** in the final report and mark the run as `Status: Partial`.
 13. **Produce the final response using the OUTPUT section.** Include the Step 9 outcome under "What you did" verbatim.
 
 **Decision discipline**
 
-- Never invent or auto-derive a feature name; always require `$ARGUMENTS` from the user.
+- Never invent or auto-derive a name; always require it in `$ARGUMENTS` from the user. Never guess the type from the name: it is `feature` unless the user states another.
 - Never silently overwrite an existing worktree folder, branch, or `.venv`.
 - If a non-fatal step fails after the worktree exists, report Partial and never auto-clean — the user inspects the partial artifact.
 - Refuse-and-report is the default disposition; do not attempt to repair or resume previous partial states.
@@ -107,7 +117,7 @@ Follow these steps in order:
 
 - Always branch from the local `integration` branch; never fall back to `main`, `master`, the current branch, or a remote-tracking branch.
 - Do not run `git add`, `git commit`, or `git push` in this command — setup only.
-- Do not modify files outside `worktrees/$ARGUMENTS` and git's own worktree metadata.
+- Do not modify files outside `worktrees/$FOLDER` and git's own worktree metadata.
 - Do not start any server, run any health check, reserve ports, or kill server processes; this project has no web server.
 - Do not create a second worktree in the same invocation; this command is single-worktree only.
 
@@ -118,15 +128,15 @@ Follow these steps in order:
 Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
 
 - **Status**: Success | Partial | Blocked
-- **What you understood**: 1–3 bullets restating the feature name, branch name, and worktree path.
+- **What you understood**: 1–3 bullets restating the type, name, branch name, and worktree path.
 - **What you did**: bullets, in execution order (e.g. created worktree, created branch, ran `uv sync`, plus the Step 9 freshness outcome verbatim).
 - **Key results**:
-  - Worktree path: `worktrees/<feature>`
-  - Branch: `feature/<feature>`
+  - Worktree path: `worktrees/<folder>`
+  - Branch: `<type>/<name>`
   - Base branch: `integration`
   - uv sync: result
 - **Risks / gotchas**: bullets, only when real (e.g. freshness behind, partial `.venv`, branch mismatch).
-- **Next steps**: exact command `cd worktrees/<feature>` to enter the worktree and start development. If `Status: Partial` because of `uv sync`, also include the exact follow-up command for the user to run.
+- **Next steps**: exact command `cd worktrees/<folder>` to enter the worktree and start development. If `Status: Partial` because of `uv sync`, also include the exact follow-up command for the user to run.
 - **Questions (only if blocked)**: numbered list of what is needed to unblock.
 
 ## Notes

@@ -16,7 +16,7 @@ This folder holds the files that commands and sub-agents read while they run, an
 - A writing standard with its own verification passes, applied by the drafting commands and the `document-reviewer` sub-agent
 - The repository hygiene rules the pre-merge review chain audits against
 - The eight-stage planning framework the planning chain implements
-- One-time setup instructions for the feature worktree workflow
+- One-time setup instructions for the worktree workflow
 
 ## Documents
 

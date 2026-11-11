@@ -2,11 +2,11 @@
 
 ## Workflow
 
-This project uses a feature-branch workflow built around a permanent local `integration` branch that sits between `main` and short-lived feature branches. Each feature is developed in its own git worktree at `worktrees/<feature>`, on a branch named `feature/<feature>` branched off `integration`. When the feature is complete the branch merges back into `integration` via a `--no-ff` merge commit and the worktree and feature branch are cleaned up. Merging `integration` into `main` is a separate manual process, deliberately out of scope of the two commands below.
+This project uses a branch-per-task workflow built around a permanent local `integration` branch that sits between `main` and short-lived work branches. Each piece of work is developed in its own git worktree at `worktrees/<type>-<name>`, on a branch named `<type>/<name>` branched off `integration`. The type is `feature`, `fix`, `chore` or `docs`, and it defaults to `feature`. Use `feature` for new behaviour, `fix` for correcting broken behaviour, `chore` for maintenance that changes no behaviour, and `docs` for documentation only. When the work is complete the branch merges back into `integration` via a `--no-ff` merge commit and the worktree and work branch are cleaned up. Merging `integration` into `main` is a separate manual process, deliberately out of scope of the two commands below.
 
-Branch naming note: the feature branch prefix is `feature/`, not `integration/`. Git stores refs in a path hierarchy, so a branch named `integration` and a branch named `integration/<x>` cannot coexist — git treats `refs/heads/integration` as a file that blocks `refs/heads/integration/` from being a directory. Using `feature/<name>` keeps the long-lived `integration` branch and per-feature children compatible.
+Branch naming note: the branch prefix is the work type, such as `feature/`, never `integration/`. Git stores refs in a path hierarchy, so a branch named `integration` and a branch named `integration/<x>` cannot coexist — git treats `refs/heads/integration` as a file that blocks `refs/heads/integration/` from being a directory. Using `<type>/<name>` keeps the long-lived `integration` branch and per-task children compatible.
 
-Two custom slash commands automate this workflow and depend on a fixed set of project conventions. `/new-worktree <feature>` creates the worktree and branch off `integration` and installs dependencies via `uv sync`. `/merge-worktrees <feature>` switches the main repo to `integration`, merges the feature branch in with `--no-ff`, runs the validation suite, and on success removes the worktree and deletes the feature branch. Both commands hardcode these assumptions: the project is Python managed by `uv` (`pyproject.toml` at the repo root); a local `integration` branch already exists, ideally with an `origin/integration` upstream so the warn-only fetch staleness check has something to compare against; all worktrees live under `worktrees/` at the repo root and that folder is ignored by git; the project source lives under `app/`; and `pytest`, `mypy`, and `pyright` are declared as project dev dependencies so they run under `uv run`. The project has no web server, no health check, and no port logic.
+Two custom slash commands automate this workflow and depend on a fixed set of project conventions. `/new-worktree [type] <name>` creates the worktree and branch off `integration` and installs dependencies via `uv sync`. `/merge-worktrees [type] <name>` switches the main repo to `integration`, merges the work branch in with `--no-ff`, runs the validation suite, and on success removes the worktree and deletes the work branch. For a given piece of work, the two commands must receive the same type and name. Both commands hardcode these assumptions: the project is Python managed by `uv` (`pyproject.toml` at the repo root); a local `integration` branch already exists, ideally with an `origin/integration` upstream so the warn-only fetch staleness check has something to compare against; all worktrees live under `worktrees/` at the repo root and that folder is ignored by git; the project source lives under `app/`; and `pytest`, `mypy`, and `pyright` are declared as project dev dependencies so they run under `uv run`. The project has no web server, no health check, and no port logic.
 
 ## A. One-time setup
 
@@ -71,15 +71,7 @@ uv add --dev pytest mypy pyright
 
 Commit the resulting changes to `pyproject.toml` and `uv.lock` on `main` before continuing.
 
-### Step 8 — Create the `integration` branch off `main`
-
-```
-git switch -c integration
-```
-
-You are now on `integration`. Both commands require this branch to exist locally.
-
-### Step 9 — Add ignore rules
+### Step 8 — Add ignore rules
 
 ```
 cat >> .gitignore <<EOF
@@ -91,18 +83,26 @@ __pycache__/
 EOF
 ```
 
-`/new-worktree` creates every worktree under `worktrees/<feature>`. The `worktrees/` rule keeps worktree contents (including each `.venv`) out of the parent repo's `git status`. The other entries cover artifacts that `uv sync`, `pytest`, and `mypy` will create at the main repo root if you ever run them there. Without these, `/merge-worktrees` Step 10 will block on a "dirty main repo" condition that has nothing to do with your actual changes.
+`/new-worktree` creates every worktree under `worktrees/<type>-<name>`. The `worktrees/` rule keeps worktree contents (including each `.venv`) out of the parent repo's `git status`. The other entries cover artifacts that `uv sync`, `pytest`, and `mypy` will create at the main repo root if you ever run them there. Without these, `/merge-worktrees` Step 10 will block on a "dirty main repo" condition that has nothing to do with your actual changes.
 
-If you prefer a personal-only ignore that is not committed to the repo, append the same five lines to `.git/info/exclude` instead and skip Step 10.
+If you prefer a personal-only ignore that is not committed to the repo, append the same five lines to `.git/info/exclude` instead and skip Step 9.
 
 **Pytest config caveat:** if you use `[tool.pytest.ini_options]` in `pyproject.toml`, do not put `worktrees` in `testpaths` or `rootdir`. `/merge-worktrees` Step 14 runs `pytest --ignore=worktrees`, which suppresses default discovery into that directory, but `testpaths` overrides `--ignore`. With a `testpaths` that resolves under `worktrees/`, the merge command will fail with a confusing pytest collection error.
 
-### Step 10 — Commit the `.gitignore` change on `integration`
+### Step 9 — Commit the `.gitignore` change on `main`
 
 ```
 git add .gitignore
 git commit -m "chore: ignore local worktrees folder"
 ```
+
+### Step 10 — Create the `integration` branch off `main`
+
+```
+git switch -c integration
+```
+
+You are now on `integration`, which inherits the ignore rules. Both commands require this branch to exist locally.
 
 ### Step 11 — Push `integration` to GitHub
 
@@ -112,4 +112,4 @@ git push -u origin integration
 
 This sets `origin/integration` as the upstream tracking branch so the warn-only `git fetch origin integration` staleness check inside both commands has a remote to compare against.
 
-Setup is complete. Stay on `integration` for normal planning. Use `/new-worktree <feature>` to start a feature and `/merge-worktrees <feature>` to finish it.
+Setup is complete. Stay on `integration` for normal planning. Use `/new-worktree [type] <name>` to start a piece of work and `/merge-worktrees [type] <name>` to finish it.
