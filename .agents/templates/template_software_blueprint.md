@@ -1,5 +1,6 @@
-# Project Blueprint: [Project Name]
+# Software Blueprint
 
+**Project Name:** [Name]  
 **Prepared By:** [User]  
 **Date:** [2025-MM-DD]  
 **Version:** 1.4

@@ -64,7 +64,7 @@ Follow these steps in order:
    - The target is `.agents/blueprint.md` under the current working directory.
    - If that file already exists, stop and ask before overwriting. Do not continue until the user answers.
 3. **Read every input in full**, start to finish. Do not search, sample, or skim.
-   - **Template** (read it from the path in **Context to Load**): note the header block (title, Prepared By, Date, Version), the Introduction, the exact headings, question text, and table columns of Sections 1-5, and the exact text of Sections 6-10.
+   - **Template** (read it from the path in **Context to Load**): note the header block (title, Project Name, Prepared By, Date, Version), the Introduction, the exact headings, question text, and table columns of Sections 1-5, and the exact text of Sections 6-10.
    - **Sample (`$1`)**: build three lists.
      - _Voice profile_: punctuation habits, when the author uses bullets, numbered lists, tables, or prose, how questions in 5.3 and 5.4 are phrased, how assumptions are phrased, and how specific the answers are. Note the sample's sentence length, but the writing standard in Step 6 sets the ceiling, not the sample.
      - _Vocabulary_: the everyday words and phrases the author uses for common ideas (for example how they say "the system", "the client", "must", "out of scope").
@@ -84,7 +84,7 @@ Follow these steps in order:
    - Run `cp .agents/templates/template_software_blueprint.md .agents/blueprint.md`.
    - Run `diff` between the template and the new file and confirm no differences. If the copy failed or differs, stop and report.
 6. **Populate the header, Introduction, and Sections 1-5** of the new file with Edit. Do not touch Sections 6-10.
-   - Header: put the project name in the title, the Prepared By name from Step 4, today's date as `YYYY-MM-DD`, and keep the Version value unchanged. In the Introduction, replace only the project name.
+   - Header: keep the title as the template gives it, put the project name on the Project Name line, the Prepared By name from Step 4, today's date as `YYYY-MM-DD`, and keep the Version value unchanged. In the Introduction, replace only the project name.
    - Wherever a ❓ Q line appears, keep its question text exactly as the template gives it, removing only the square brackets. Replace each ✅ A placeholder with the answer.
    - Section 5: fill the 5.1 NFR table (non-functional requirements, the qualities the system must have, such as speed and security, rather than what it does), the 5.2 Dependency-Risk Register (dependencies drawn from Section 2.2), the 5.3 Product Management questions, the 5.4 Engineering questions, and the 5.5 assumptions list. Give every table row an Owner (`PM` for Product Management or `ENG` for Engineering) and a Status of `Open`.
    - Apply these writing rules to every line you write:
@@ -96,7 +96,7 @@ Follow these steps in order:
      - **Required content the source lacks**: where the template needs content the source does not supply (for example error handling in 3.2, unusual situations the system must still handle in 3.1, success metrics in 1.3), propose agency-standard content rather than leaving the field empty, and record the proposal as a judgement in Step 9.
      - **Judgement log**: as you write, record every inference, assumption, interpretation, L/M/H rating (Low, Medium or High), Owner assignment, and proposed content, with where it landed. Step 9 depends on this log.
 7. **Run the checks below** on the finished draft and fix failures with minimal edits until every check is clean.
-   - _Template check_: Sections 1-5 headings present, in order, and unchanged. Question text unchanged. Table columns unchanged. No bracketed placeholders or template example text left in the header, Introduction, or Sections 1-5. Sections 6-10 identical to the template (copy Sections 6-10 of each file into a temporary file and `diff` the two files, or read both).
+   - _Template check_: the title is unchanged and the Project Name line holds the project name. Sections 1-5 headings present, in order, and unchanged. Question text unchanged. Table columns unchanged. No bracketed placeholders or template example text left in the header, Introduction, or Sections 1-5. Sections 6-10 identical to the template (copy Sections 6-10 of each file into a temporary file and `diff` the two files, or read both).
    - _Sample check, direction one_: scan the draft for every term on the sample project facts list, matching whole words only. Remove any that the factual source does not independently support.
    - _Sample check, direction two_: scan the draft for every term on the jargon list. Rewrite any that remain.
    - _Voice check_: punctuation, list and table usage, and question phrasing match the voice profile.
