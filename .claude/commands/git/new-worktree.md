@@ -14,7 +14,7 @@ This command keeps work in progress in its own worktree and centralises the setu
 
 **Usage examples**
 
-- `/new-worktree feature-a`
+- `/new-worktree login-page`
 - `/new-worktree pdf-table-detection`
 - `/new-worktree fix login-timeout`
 - `/new-worktree chore bump-deps`
@@ -29,7 +29,7 @@ This command keeps work in progress in its own worktree and centralises the setu
 
 **Argument contract**
 
-- Required args: `$ARGUMENTS` = work name in kebab-case (e.g. `feature-a`), given as the last token.
+- Required args: `$ARGUMENTS` = one word (the work name) or two words (the type, then the work name), separated by a space. The work name is in kebab-case (e.g. `login-page`).
 - Optional args: a type before the name. It is one of `feature`, `fix`, `chore` or `docs`.
 - Defaults: the type is `feature` when omitted.
   - Fixed conventions (not user-configurable): the base branch is always `main`. Every type branches from it.
@@ -40,8 +40,8 @@ This command keeps work in progress in its own worktree and centralises the setu
   - `FOLDER`: `TYPE-NAME`. The worktree path is `worktrees/FOLDER`.
 - Validation rules:
   - Must be non-empty after trimming whitespace.
-  - Must be either one token (the name) or two tokens (a type, then the name).
-  - When two tokens are given, the first must be exactly `feature`, `fix`, `chore` or `docs`.
+  - Must be either one word (the name) or two words (a type, then the name).
+  - When two words are given, the first must be exactly `feature`, `fix`, `chore` or `docs`.
   - `NAME` must satisfy every rule below:
     - Must not contain shell metacharacters: `;`, `&`, `|`, `` ` ``, `$`, `(`, `)`, `<`, `>`, `*`, `?`, `[`, `]`, `{`, `}`, `\`, `'`, `"`, `!`.
     - Must not start with `/` or `-`.
@@ -61,7 +61,7 @@ Follow these steps in order:
 
 1. **Parse and validate `$ARGUMENTS`.**
    - Trim surrounding whitespace.
-   - Split on whitespace. Set `TYPE` and `NAME` from the tokens, then compute `BRANCH` and `FOLDER` as defined in _Argument contract_.
+   - Split on whitespace. Set `TYPE` and `NAME` from the words, then compute `BRANCH` and `FOLDER` as defined in _Argument contract_.
    - Reject the value if any rule in _Validation rules_ is violated. On reject, stop and tell the user which validation rule was violated.
    - Run `git check-ref-format "refs/heads/$BRANCH"` (no `--branch` — running with `--branch` would first expand `@{-N}` "previous checkout" shortcuts against your current state, which is not what we want for literal-string validation). If exit code is non-zero, stop and tell the user the branch name fails git's ref-format check.
 2. **Confirm cwd is the main repo root.** Run each check in order; on the first that fails, stop and tell the user the matching message.
@@ -105,7 +105,7 @@ Follow these steps in order:
     - Run: `git worktree add -b "$BRANCH" "worktrees/$FOLDER" main`.
     - If this fails, capture the exact git error, run `git worktree prune` to clear any admin debris, and stop and tell the user the captured git error.
 11. **Install Python/uv dependencies inside the new worktree.**
-    - Run: `uv sync --directory "worktrees/$FOLDER"`.
+    - Run: `uv sync --locked --directory "worktrees/$FOLDER"`. The `--locked` flag stops with an error instead of rewriting `uv.lock` when it is missing or out of date.
     - If `uv sync` fails, capture the error and add it under **Risks / gotchas** in the final report, mark the run as `Status: Partial`, and continue to Step 12.
 12. **Confirm the new worktree is on the correct branch.**
     - Run: `git -C "worktrees/$FOLDER" branch --show-current`.
@@ -147,5 +147,5 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 
 ## Notes
 
-- Hardcoded assumptions: project uses Python + `uv`; project source lives under `app/`; `pytest`, `mypy`, and `pyright` are declared as dev dependencies; project has no web server; all worktrees live under `worktrees/` at the repo root.
+- Hardcoded assumptions: project uses Python + `uv` with `uv.lock` committed; project source lives under `app/`; `pytest`, `mypy`, and `pyright` are declared as dev dependencies; project has no web server; all worktrees live under `worktrees/` at the repo root.
 - Known limitations: the warn-only fetch in Step 9 always emits an outcome under "What you did" (skipped / up to date / ahead / behind / diverged), but the check itself is best-effort — on network or remote failure it substitutes the git error and proceeds. `pyproject.toml` presence and dev-dependency declarations are checked but the file's contents are not otherwise validated.

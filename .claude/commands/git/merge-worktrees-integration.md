@@ -16,7 +16,7 @@ The validation step here is **integration validation**, not feature validation.
 
 **Usage examples**
 
-- `/merge-worktrees-integration feature-a`
+- `/merge-worktrees-integration login-page`
 - `/merge-worktrees-integration pdf-table-detection`
 - `/merge-worktrees-integration fix login-timeout`
 - `/merge-worktrees-integration chore bump-deps`
@@ -31,7 +31,7 @@ The validation step here is **integration validation**, not feature validation.
 
 **Argument contract**
 
-- Required args: `$ARGUMENTS` = work name in kebab-case (e.g. `feature-a`), given as the last token. Must match exactly the name passed to `/new-worktree-integration`.
+- Required args: `$ARGUMENTS` = one word (the work name) or two words (the type, then the work name), separated by a space. The work name is in kebab-case (e.g. `login-page`). Must match exactly the name passed to `/new-worktree-integration`.
 - Optional args: a type before the name. It is one of `feature`, `fix`, `chore` or `docs`. Must match exactly the type passed to `/new-worktree-integration`.
 - Defaults: the type is `feature` when omitted.
   - Fixed conventions (not user-configurable): the merge target is always the local `integration` branch. The merge always uses `--no-ff`.
@@ -42,8 +42,8 @@ The validation step here is **integration validation**, not feature validation.
   - `FOLDER`: `TYPE-NAME`. The worktree path is `worktrees/FOLDER`.
 - Validation rules:
   - Must be non-empty after trimming whitespace.
-  - Must be either one token (the name) or two tokens (a type, then the name).
-  - When two tokens are given, the first must be exactly `feature`, `fix`, `chore` or `docs`.
+  - Must be either one word (the name) or two words (a type, then the name).
+  - When two words are given, the first must be exactly `feature`, `fix`, `chore` or `docs`.
   - `NAME` must satisfy every rule below:
     - Must not contain shell metacharacters: `;`, `&`, `|`, `` ` ``, `$`, `(`, `)`, `<`, `>`, `*`, `?`, `[`, `]`, `{`, `}`, `\`, `'`, `"`, `!`.
     - Must not start with `/` or `-`.
@@ -63,7 +63,7 @@ Follow these steps in order:
 
 1. **Parse and validate `$ARGUMENTS`.**
    - Trim surrounding whitespace.
-   - Split on whitespace. Set `TYPE` and `NAME` from the tokens, then compute `BRANCH` and `FOLDER` as defined in _Argument contract_.
+   - Split on whitespace. Set `TYPE` and `NAME` from the words, then compute `BRANCH` and `FOLDER` as defined in _Argument contract_.
    - Reject the value if any rule in _Validation rules_ is violated. On reject, stop and tell the user which validation rule was violated.
    - Run `git check-ref-format "refs/heads/$BRANCH"` (no `--branch` — running with `--branch` would first expand `@{-N}` "previous checkout" shortcuts against your current state, which is not what we want for literal-string validation). If exit code is non-zero, stop and tell the user the branch name fails git's ref-format check.
 2. **Confirm cwd is the main repo root.** Run each check in order; on the first that fails, stop and tell the user the matching message.
@@ -93,7 +93,7 @@ Follow these steps in order:
    - Run: `git -C "worktrees/$FOLDER" branch --show-current`. If the output is empty (detached HEAD) or differs from `$BRANCH`, stop and tell the user to `cd worktrees/$FOLDER && git switch $BRANCH` before re-running.
 9. **Confirm the worktree has no uncommitted or untracked changes from the user.**
    - Run: `git -C "worktrees/$FOLDER" status --porcelain`.
-   - Allow `.venv/` and `uv.lock` lines in the output; treat any other non-empty line as user state. If any user state exists, stop and tell the user to commit or discard those changes before re-running.
+   - Allow `.venv/` lines in the output. Treat any other non-empty line as user state, including a change to `uv.lock`. If any user state exists, stop and tell the user to commit or discard those changes before re-running.
 10. **Confirm the main repo working tree is clean and is not mid-merge.**
     - Run: `git rev-parse -q --verify MERGE_HEAD`. If exit code is 0, stop and tell the user that a merge is already in progress and they should either `git merge --abort` to restore `integration`, or finish the merge manually with `git commit`, before re-running.
     - Run: `git status --porcelain`. If non-empty, stop and tell the user the list of dirty paths so they can commit, stash, or ignore them.
@@ -115,9 +115,10 @@ Follow these steps in order:
     - If the merge reports conflicts, capture the conflicting files via `git diff --name-only --diff-filter=U`, run `git merge --abort` to restore integration, and stop and tell the user the conflict list.
 14. **Run integration validation on the prepared merge.**
     - Run, in order:
-      - `uv run pytest -v --ignore=worktrees`
-      - `uv run mypy app/`
-      - `uv run pyright app/`
+      - `uv run --locked pytest -v --ignore=worktrees`
+      - `uv run --locked mypy app/`
+      - `uv run --locked pyright app/`
+    - The `--locked` flag stops with an error instead of rewriting `uv.lock` when it is missing or out of date. Treat that error as a validation failure.
     - If any exits non-zero, capture which command failed and the last lines of its output, run `git merge --abort`, and stop and tell the user which command failed and its output.
 15. **Commit the prepared merge.**
     - Run: `git commit -m "merge: $BRANCH into integration"`. Then run `git rev-parse --short HEAD` and capture as `MERGE_COMMIT` for the report. If the commit fails, stop and tell the user the git error, and that the prepared merge is still in place — they can either fix and commit manually or run `git merge --abort` to abandon. Leave the main repo on `integration`, as _Returning to the starting branch_ describes.
@@ -177,7 +178,7 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 
 ## Notes
 
-- Hardcoded assumptions: project uses Python + `uv`; the user manually verifies the work inside the worktree before invoking this command; project has no web server; project source lives under `app/`; `pytest`, `mypy`, and `pyright` are declared as dev dependencies.
+- Hardcoded assumptions: project uses Python + `uv` with `uv.lock` committed; the user manually verifies the work inside the worktree before invoking this command; project has no web server; project source lives under `app/`; `pytest`, `mypy`, and `pyright` are declared as dev dependencies.
 - Validation layering: pre-merge validation is owned by other commands in the worktree. This command only runs the integration-validation layer on the merged tree.
 - Known limitation: between Steps 13 and 15 the main repo is in a mid-merge state. Do not run other git operations on the main repo during this window — `git merge --abort` on failure would undo any unrelated changes staged in another shell.
 - Known limitation: the warn-only fetch in Step 11 always emits an outcome under "What you did" (skipped / up to date / ahead / behind / diverged), but the check itself is best-effort — on network or remote failure it substitutes the git error and proceeds.
