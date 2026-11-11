@@ -1,0 +1,1 @@
+Rewrite it in a way that exactly matches the tone, structure, formatting, and style of the existing document—without introducing new patterns, headings, formatting conventions, or shifts in voice. Do not introduce any new patterns or standard best-practice formatting yourself. Write as if continuing the original author’s work, seamlessly and invisibly.
