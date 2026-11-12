@@ -2,7 +2,7 @@
 
 **What this is:** the specification for building the technical foundation of a new Obsidian plugin repository in TypeScript. A planning agent reads it, together with the repository's PRD and TAD, and writes an implementation plan. An implementation agent executes that plan. The specification fixes the tooling, structure and conventions of the foundation, and names the few decisions that must be resolved from the PRD and TAD.
 **Prepared by:** Rahul Parmar
-**Version:** 1.4 — 2026-11-10
+**Version:** 1.5 — 2026-11-12
 **Location:** copied unchanged into every new plugin repository at `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md`.
 
 ---
@@ -37,7 +37,7 @@ The planning agent produces an implementation plan with **one task per step in S
 1. **Documentation research.** The planning agent locates the *current official documentation* for the tool or library the step introduces, reads it, writes what the step needs into the task, and cites the source that was used. This specification names *what* to research and *where to look* (official project documentation, and the Obsidian plugin development reference in the Day-0 kit), never a fixed URL. Configuration is never derived from memory alone.
 2. **Installation** — the `pnpm add` command(s).
 3. **Files** — exactly the files to create or modify and what each must contain.
-4. **Validation** — the checks that must pass before the task is complete; every tool set up in earlier steps participates, and every command runs on the tools the stack in Section 2.1 already requires.
+4. **Validation** — the checks that must pass before the task is complete; every tool set up in earlier steps participates, and every command follows the tooling rule in Section 2.3.
 5. **Commit boundary** — one commit per step, using the suggested message.
 
 The plan also resolves the Decision Register (Section 3): for each parameter and decision it records the resolved value and quotes the PRD or TAD passage that justifies any override of a default. The plan is produced by invoking `/plan:plan-feature` with a feature description that names the paths of this specification, the PRD and the TAD, and gives the instruction to record any clarifying question, with the assumed answer, in the plan's NOTES section rather than stopping to ask; it is executed with `/implement:execute`. The plan is reviewed and approved by the project owner before execution.
@@ -123,7 +123,7 @@ Rules: `packages/core/` never imports `obsidian`, Electron or a Node module; a b
 - Files ≤ 300 lines; functions ≤ 50 lines; constants, configuration and long strings in their own modules.
 - Every word shown to the user lives in one messages module, never inline in a feature.
 - KISS and YAGNI: no abstractions or features before they are needed.
-- Commands and scripts use only the tools the stack in Section 2.1 requires; any further tool becomes a declared dependency first.
+- Commands and scripts never bring in a second programming language or an undeclared package — for example, no Python one-liner in a TypeScript project. General command-line tools such as `git`, `grep` and `curl` are allowed. A further package becomes a declared dependency first.
 
 ### 2.4 Logging convention
 
@@ -177,7 +177,7 @@ pnpm e2e             # wdio-obsidian-service against earliest and latest Obsidia
 pnpm check:manifest  # manifest and versions.json rules (Step 11)
 ```
 
-`/validate:validate` runs these in order and reports. `[D2]` It then runs one operation through the test client's command line against a copy of `test-vault/` and confirms that the operation's log lines carry the `correlationId` of its `Result`.
+Step 12 writes these into `/validate:validate` as its checks, in this order. Until then, the command runs whichever of these scripts already exist.
 
 ---
 
@@ -221,10 +221,10 @@ These files exist in the repository before planning starts. The planning agent v
 | `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md` | This specification |
 | `.agents/reference/vertical-slice-architecture-setup-guide.md` | Researched by the planning agent for Steps 8 and 11 |
 | `.agents/reference/obsidian-community-plugin-development.md` | The Obsidian plugin development reference: policies, manifest, guidelines, testing, release; researched by the planning agent for Steps 1, 2, 9, 10 and 11 |
-| `.agents/templates/template_readme_obsidian_plugin.md` | The structure, format and voice of `README.md`; followed in Step 12 |
-| `.agents/templates/template_claude_md_obsidian_plugin.md` | The structure, format and voice of `CLAUDE.md`; followed in Step 12 |
+| `.agents/templates/template_readme.md` | The structure, format and voice of `README.md`; followed in Step 12 |
+| `.agents/templates/template_claude_md.md` | The structure, format and voice of `CLAUDE.md`; followed in Step 12 |
 | `.claude/commands/git/commit.md` | `/git:commit` — used at every commit boundary |
-| `.claude/commands/validate/validate.md` | `/validate:validate` — full local validation; its expected values are updated in Step 12 |
+| `.claude/commands/validate/validate.md` | `/validate:validate` — full local validation; its checks are written in Step 12 |
 | `.gitignore` | Complete from day 0 (entries below), so no housekeeping commits interrupt the sequence |
 
 Day-0 `.gitignore` entries:
@@ -478,13 +478,16 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 
 The two files divide the material between them and never repeat it. `CLAUDE.md` is normative: every rule, convention and constraint an agent must obey lives there and nowhere else. `README.md` is descriptive: how to install, run and use the plugin, for a human reader — and it carries the disclosures the directory requires (network use, accounts, payment, outside-vault access, server-side telemetry, third-party licences). Where a reader of one file needs something held by the other, the file carries a one-line pointer to it, never a restatement.
 
-**Documentation to read:** `.agents/templates/template_readme_obsidian_plugin.md` and `.agents/templates/template_claude_md_obsidian_plugin.md`, in full, before writing either file. **Documentation to research:** the Obsidian plugin development reference on README disclosures.
+**Documentation to read:** `.agents/templates/template_readme.md` and `.agents/templates/template_claude_md.md`, in full, together with the Appendix of this specification, before writing either file. **Documentation to research:** the Obsidian plugin development reference on README disclosures.
 
 **Required outcome:**
-- `README.md`, following `.agents/templates/template_readme_obsidian_plugin.md` — its section order, headings, formatting and voice are kept exactly; the content describes the product the PRD and TAD define, is written from the PRD, the TAD, this specification and the code only, states nothing beyond them, and includes every disclosure the developer policies require.
-- `CLAUDE.md`, following `.agents/templates/template_claude_md_obsidian_plugin.md` — its section order, headings, formatting and voice are kept exactly; the rules are generated from Section 2 of this specification, the PRD, the TAD and every standing rule the plan establishes, with the architecture section showing the workspace tree and the application's planned slices, the error handling section carrying the D4 domain list, and the development commands section carrying Section 2.8. The template's code examples are kept as written: they show format and claim nothing about this application. Real code is pointed to, never copied: the template's reference table names, for each pattern the repository already implements, the file to imitate. Long reference material goes in `.agents/reference/`, not in `CLAUDE.md`.
+- `README.md`, following `.agents/templates/template_readme.md` with its stack blocks taken from the Appendix — its section order, headings, formatting and voice are kept exactly; the content describes the product the PRD and TAD define, is written from the PRD, the TAD, this specification and the code only, states nothing beyond them, and includes every disclosure the developer policies require.
+- `CLAUDE.md`, following `.agents/templates/template_claude_md.md` with its stack blocks taken from the Appendix — its section order, headings, formatting and voice are kept exactly; the rules are generated from Section 2 of this specification, the PRD, the TAD and every standing rule the plan establishes, with the architecture section showing the workspace tree and the application's planned slices, the error handling section carrying the D4 domain list, and the development commands section carrying Section 2.8. The template's code examples are kept as written: they show format and claim nothing about this application. Real code is pointed to, never copied: the template's reference table names, for each pattern the repository already implements, the file to imitate. Long reference material goes in `.agents/reference/`, not in `CLAUDE.md`.
 - Where a template section has nothing to say for this application, it is kept with a one-line statement to that effect rather than removed, so the shape stays stable across repositories.
-- `.claude/commands/validate/validate.md`: runs as copied. Without `[D2]`, its test-client check is removed; with a test client outside `packages/test-client/`, the check's path is updated.
+- `.claude/commands/validate/validate.md`: its Checks section written with each command followed by its expected result, using only the tools Section 2.3 allows:
+  - the scripts in Section 2.8, in that order
+  - a bundle check: `main.js`, `manifest.json` and `styles.css` at the root, `obsidian` left external, and `main.js` within the Step 11 size budget
+  - `[D2]` one operation run through the test client's command line against a copy of `test-vault/`, confirming that its log lines carry the `correlationId` of its `Result`
 
 **Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches the lockfile, and each development command has been run and succeeded (one that would create a version or a release is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its commands, settings table and disclosures against the repository.
 **Commit:** `docs: add README and global development rules (CLAUDE.md)`
@@ -516,7 +519,7 @@ The foundation is complete when all of the following hold:
 ├── .agents/
 │   ├── PRD.md · TAD.md
 │   ├── reference/  (ai_optimized_codebase_setup_obsidian_plugin, vertical-slice-architecture-setup-guide, obsidian-community-plugin-development)
-│   └── templates/  (template_readme_obsidian_plugin, template_claude_md_obsidian_plugin)
+│   └── templates/  (template_readme, template_claude_md)
 ├── .claude/commands/  (git/commit, validate/validate)
 ├── .github/
 │   ├── workflows/  (ci, release, e2e, check_for_new_obsidian)
@@ -541,3 +544,489 @@ The foundation is complete when all of the following hold:
 ## 8. Provenance
 
 The step sequence — validation tooling first, then logging, then the application skeleton, then packaging, then the environment-level tests, then release and documentation — and the principle of researching official documentation before configuring each tool come from Cole Medin's Dynamous Agentic Coding Live Workshop #2, "Creating an AI-Optimized Codebase", and its instructor guide. That workshop builds a Python web service; this specification adapts its principles to a TypeScript Obsidian plugin as the guide invites, and departs from it in these ways: the compiler is the first type-safety layer and type-aware lint rules the second, because TypeScript carries its own types; one linter hosts both the directory's rules and the type-aware rules; the runtime is Obsidian's, so tests run under Node and inside a real Obsidian rather than in a container; there is no server, database or container, so the packaging step is a bundle and a release the directory can verify; the core is separated from the host through ports so it can be tested without Obsidian; the tooling and `.gitignore` are in place from day 0; a structured `Result`/`AppError` error model replaces thrown exceptions; the suppression loop runs after every step from Step 8; the Decision Register isolates the few application choices; and `CLAUDE.md` is written at the end from the fixed conventions.
+
+---
+
+## Appendix — Stack blocks for README.md and CLAUDE.md
+
+The README and `CLAUDE.md` templates are shared by every kind of project. Each `[Stack block: name]` slot in them is filled in Step 12 with the block of the same name below. A block's own square-bracket slots are filled from the PRD, the TAD and the code, like any other slot. If a slot names a block that is not below, stop and report it; never write the block yourself. A block that says "Not applicable" is kept with that line, so the shape stays the same across repositories.
+
+### CLAUDE.md blocks
+
+#### correlation-ID rule
+
+````markdown
+[The correlation-ID rule for this application, beginning: `correlationId` on every log line an operation writes]
+````
+
+#### secret storage rule
+
+````markdown
+Use Obsidian's secret storage; never store credentials in plaintext
+````
+
+#### type safety rules
+
+````markdown
+- Full type annotations on every function signature
+- The compiler's strict mode and the type-checked lint rules must both pass
+- No `// eslint-disable` or `// @ts-` comment without a documented reason on the same line, and never one that disables a security or `obsidianmd/*` rule
+````
+
+#### documentation comment rule
+
+````markdown
+**TSDOC ON ALL EXPORTED FUNCTIONS**
+
+- `/** … */` with `@param` and `@returns`
+````
+
+#### tech stack
+
+````markdown
+### Application core
+
+- **Language:** [language and version, with the Node version used for build and tests]
+- **Package manager:** [package manager and version, with the workspace's packages]
+- **Framework:** Not applicable — the core is plain TypeScript behind ports, with [schema library and version floor] for validation
+- **ORM:** Not applicable — notes are reached only through the vault port
+- **Logging:** [logging mechanism (output format)]
+- **Database:** Not applicable — [where plugin-owned data is kept]
+- **Lint/format:** [linter, rule sets and formatter, with versions (indentation, quote style, line width)]
+- **Type checking:** [the compiler mode and the type-checked lint configuration (both required)]
+- **Testing:** [unit test runner and real-Obsidian test harness, with version floors]
+
+### Plugin
+
+- **Obsidian API:** [`obsidian` types version; minimum app version; desktop-only or mobile-capable]
+- **Bundler:** [bundler and the single file it produces]
+- **Interface:** [the settings approach and the interface elements the plugin uses]
+- **Data access:** Ports only (the plugin package supplies one adapter per port; nothing else touches the vault)
+````
+
+#### architecture
+
+````markdown
+```
+packages/
+├── core/src/               # Application core — never imports `obsidian`, Electron or Node
+│   ├── core/               # Universal infra — required by all slices
+│   │   ├── ports.ts        # The port interfaces
+│   │   ├── api.ts          # Operation registry, versions, Result
+│   │   ├── errors.ts       # AppError and error codes
+│   │   ├── logging.ts      # Logger, correlation ID, LogSink port
+│   │   ├── ids.ts          # Identifier generation
+│   │   ├── testing/        # In-memory adapters and a pretend clock for every test
+│   │   └── README.md       # The decision rule for what belongs here
+│   ├── shared/             # Cross-feature utilities (3+ slice rule)
+│   ├── {feature}/          # Vertical slices: [the slice names from the TAD]
+│   │   ├── operations.ts
+│   │   ├── rules.ts
+│   │   ├── schemas.ts
+│   │   ├── README.md
+│   │   └── *.test.ts       # Colocated unit tests (no Obsidian, no file system)
+│   └── index.ts            # The core's public surface
+├── plugin/src/             # The Obsidian plugin — thin
+│   ├── main.ts             # Lifecycle only
+│   ├── adapters/           # One adapter per port, using Obsidian's API
+│   └── settings/           # The settings tab
+[└── any further package this application has, one line each with its purpose]
+__mocks__/obsidian.ts       # The shim unit tests use in place of `obsidian`
+e2e-tests/                  # Tests inside a real Obsidian
+test-vault/                 # Fixture vault for development and e2e tests
+scripts/                    # Build checks, version bump, manifest check
+```
+
+**Rules:**
+
+- `packages/core/` — never imports `obsidian`, Electron or a Node module; the boundary check fails the lint step if it does
+- `core/core/` — infrastructure only; never imports feature slices or `shared/`
+- `shared/` — only code used by **3 or more** feature slices; never feature-specific logic
+- Each feature slice is self-contained; a slice uses only what another slice publishes through its `index.ts`
+- `main.ts` does lifecycle and nothing else
+- [The process-model rule for this application: what Obsidian loads, and any other program built from this repository]
+````
+
+#### naming
+
+````markdown
+- Functions, variables and object properties: `camelCase`
+- Types, classes and Zod schemas: `PascalCase`
+- Fields: verbose — `customerId`, `orderStatus`, `createdAt` (never `id`, `status`)
+- Constants: `UPPER_SNAKE_CASE`
+````
+
+#### documentation comments
+
+````markdown
+### TSDoc (required on all exported functions)
+
+```ts
+/**
+ * Finds a single customer by its identifier.
+ *
+ * Reads the customer's note through the vault port and returns its
+ * validated fields if the note exists.
+ *
+ * @param customerId - Identifier of the customer to find.
+ * @param vault - The vault port the note is read through.
+ * @returns The customer if found, `null` otherwise.
+ */
+export async function findCustomerById(
+	customerId: string,
+	vault: VaultPort,
+): Promise<Customer | null> {
+```
+````
+
+#### ORM models
+
+````markdown
+Not applicable — a plugin has no ORM. Its data shapes are the schemas below.
+````
+
+#### schemas
+
+````markdown
+```ts
+import * as z from 'zod';
+
+export const CustomerSchema = z.object({
+	customerId: z.string(),
+	customerStatus: CustomerStatusSchema,
+	createdAt: z.string(),
+});
+
+export type Customer = z.infer<typeof CustomerSchema>;
+```
+
+> **Vault data exception:** Fields written to a note keep exactly the names the PRD fixes (e.g., `id`, `status`), however short. Variables, properties and types inside the code must always use verbose names. When a schema describes vault data, its keys are the PRD's names and the code maps them to verbose names where it reads them.
+````
+
+#### logger setup
+
+````markdown
+```ts
+// `log` is the logger an operation is given; it already carries the correlationId
+log.info('orders.checkout.validation_started', { orderId });
+```
+````
+
+#### logging example
+
+````markdown
+**Never log secrets, licence keys, credentials, or note contents.**
+
+```ts
+// Operation start + completion pair
+log.info('orders.checkout.validation_started', { orderId });
+
+const validation = validateOrder(order);
+
+log.info('orders.checkout.validation_completed', {
+	orderId,
+	lineItemCount: validation.lineItemCount,
+	totalAmount: validation.totalAmount,
+});
+
+// Error with structured context
+log.error('orders.checkout.validation_failed', {
+	orderId,
+	errorCode: 'ORDERS_INPUT_EMPTY_CART',
+});
+```
+
+[How the correlation ID is set and carried, beginning: **`correlationId`** is generated by `execute` / `query` when the caller supplies none, and reaches every log line through the logger each operation is given.]
+````
+
+#### test locations
+
+````markdown
+| Test type              | Location                     | Runner                                                |
+| ---------------------- | ---------------------------- | ----------------------------------------------------- |
+| Core unit              | beside the code, `*.test.ts` | Vitest, no shim                                       |
+| Plugin unit            | beside the code, `*.test.ts` | Vitest, `obsidian` aliased to `__mocks__/obsidian.ts` |
+| Inside a real Obsidian | `e2e-tests/`                 | `wdio-obsidian-service`, `earliest` and `latest`      |
+[one row per further test type this application has]
+````
+
+#### test rules
+
+````markdown
+- `e2e-tests/` is reserved for tests inside a real Obsidian — never place unit tests there
+- Core unit tests: no Obsidian, no file system, no network -- the in-memory adapters and pretend clock in `core/core/testing/` stand in for every port
+- Plugin unit tests run against the shim; the shim reflects assumptions, so the real-Obsidian tests are what prove the integration
+- Test names: `describe` the function, `it` states the condition and the expected result
+- Async tests need no special marker -- an `async` test function is awaited
+- In-memory adapters live in `core/core/testing/` -- always use them, never write a second stand-in for a port inside a slice
+- Coverage thresholds fail the test run when coverage falls; raise a threshold as coverage grows, never lower one to make a run pass
+````
+
+#### unit test example
+
+````markdown
+```ts
+describe('validateOrder', () => {
+	it('returns ORDERS_INPUT_EMPTY_CART when the order has no line items', () => {
+		const validation = validateOrder({ orderId: 'order-1', lineItems: [] });
+
+		expect(validation).toEqual({
+			ok: false,
+			error: expect.objectContaining({
+				errorCode: 'ORDERS_INPUT_EMPTY_CART',
+				retryable: false,
+			}),
+		});
+	});
+});
+```
+````
+
+#### second test example
+
+````markdown
+### Real-Obsidian test example
+
+```ts
+describe('place order command', () => {
+	it('shows the confirmation notice when the order is placed', async () => {
+		await browser.executeObsidianCommand('[plugin id]:place-order');
+
+		await expect($('.notice')).toHaveText(expect.stringContaining('Order placed'));
+	});
+});
+```
+````
+
+#### error model
+
+````markdown
+```ts
+return {
+	ok: false,
+	error: {
+		errorCode: 'ORDERS_INPUT_EMPTY_CART',
+		message: 'An order must contain at least one line item.',
+		retryable: false,
+	},
+};
+```
+
+- Inside the core, failures are values: return a failed result with an `AppError`; never throw across the core's boundary
+- Messages shown to the user are **intentionally plain**
+- An `AppError`'s `message` is a diagnostic for the log; what the user sees comes from the messages module, keyed by `errorCode`
+- Notices must be non-sensitive; put full diagnostics in structured logs only
+- `execute` / `query` convert any thrown error into a failed `Result` with the internal-error code automatically
+- `execute` / `query` attach the `correlationId` to every `Result`; handlers never pass it
+- Event handlers in the plugin never throw, and no promise is left floating
+
+**`Result` shape** (canonical across all operations and queries):
+
+```ts
+type Result<TOutcome> =
+	| { ok: true; correlationId: string; outcome: TOutcome }
+	| { ok: false; correlationId: string; error: AppError };
+
+interface AppError {
+	errorCode: string; // [the error-code format]
+	message: string;
+	retryable: boolean;
+	details?: Record<string, unknown>;
+}
+```
+````
+
+#### minimum patterns
+
+````markdown
+a documented exported function, a start + completion log pair, a returned `AppError`, an operation definition, a port adapter, a unit test and a real-Obsidian test
+````
+
+#### development commands
+
+````markdown
+pnpm install                                               # Install all dependencies
+
+# Running the plugin
+pnpm dev                                                   # Watch build into the development vault
+[one line per additional program, such as a headless client]
+
+# Database
+# Not applicable — a plugin has no database
+
+# Tests
+pnpm test                                                  # Unit tests with coverage (fast)
+pnpm e2e                                                   # Tests inside a real Obsidian (earliest and latest)
+
+# Lint, format, type checking (run all before committing)
+pnpm lint && pnpm format:check
+pnpm typecheck
+
+# Build and release
+pnpm build                                                 # Production build; writes main.js at the root
+pnpm check:manifest                                        # Manifest and versions.json rules
+[version-bump command]                                     # Bump the version in every file that carries it
+
+# Containers
+# Not applicable — a plugin runs inside Obsidian
+````
+
+#### fourth agent instruction
+
+````markdown
+**Keep the core free of host imports** per Section 3
+````
+
+#### fifth agent instruction
+
+````markdown
+**Error codes and failed results** per Section 7
+````
+
+### README blocks
+
+#### standard features
+
+````markdown
+- **Structured JSON logs** — [the correlation IDs this application carries, beginning with `correlationId` on every log line an operation writes]; contextual fields such as `errorCode` where applicable
+- **Diagnostic command** — one command that confirms the plugin and its application core respond
+````
+
+#### architecture diagram
+
+````markdown
+```
+┌─────────────────────────────────────────────────────────┐
+│  Obsidian  (minimum version [version] · [platforms])    │
+└──────────────────────┬──────────────────────────────────┘
+                       │ plugin API
+┌──────────────────────▼──────────────────────────────────┐
+│  Plugin  (lifecycle · settings · one adapter per port)  │
+└──────────────────────┬──────────────────────────────────┘
+                       │ ports
+┌──────────────────────▼──────────────────────────────────┐
+│  Application core  (no dependency on Obsidian)          │
+│  [the feature slices]                                   │
+└──────────────────────┬──────────────────────────────────┘
+                       │ [the link to the next tier]
+[one box per further tier, such as a headless client or a remote service, in the same form]
+┌──────────────────────▼──────────────────────────────────┐
+│  The vault  (Markdown notes)                            │
+│  [where plugin-owned data is kept]                      │
+└─────────────────────────────────────────────────────────┘
+```
+
+[The process model — what Obsidian loads, and any other program built from this repository — and that the code is organised as vertical slices under `packages/core/src/`. The repository tree is in `CLAUDE.md`, Section 3.]
+````
+
+#### installation
+
+````markdown
+[How a user installs the plugin: from Obsidian's community plugin directory once it is listed there, or by copying `main.js`, `manifest.json` and `styles.css` from the latest release into the vault's plugin folder.]
+
+To work on the plugin:
+
+1. Clone the repository and change into it.
+2. Install dependencies.
+3. No environment file is needed.
+4. Build the plugin into the development vault and enable it there.
+
+The commands for each step are in [`CLAUDE.md`, Section 9](CLAUDE.md).
+````
+
+#### running
+
+````markdown
+Run the watch build and open the development vault in Obsidian; the commands are in [`CLAUDE.md`, Section 9](CLAUDE.md).
+
+The plugin reloads in the development vault after each build. Its log lines appear in Obsidian's developer console[, and where else they are written].
+````
+
+#### health checks
+
+````markdown
+Run **[the diagnostic command's name]** from the command palette. A notice confirms that the plugin and its application core respond.
+
+[With a headless client: the one command that runs the same check without Obsidian, in a `bash` block.]
+````
+
+#### API reference
+
+````markdown
+> The plugin has no HTTP API. Its internal API is the set of operations and queries below, called in-process through `execute` and `query`.
+
+### Authentication
+
+Not applicable — operations are called in-process, by the plugin and by [any other host this application has].
+
+### Operations
+
+[One subsection per operation or query. Each subsection: a `####` heading of the form `` `name` (version n) — What it does ``, one sentence, the request as a JSON block, then one JSON result block per distinct result, labelled in bold:]
+
+#### `placeOrder` (version 1) — Create an order
+
+Record an order for processing.
+
+```json
+{
+  "name": "placeOrder",
+  "version": 1,
+  "actor": "user",
+  "payload": { "customerId": "…", "lineItems": [ … ] }
+}
+```
+
+**Result** (succeeded):
+
+```json
+{
+  "ok": true,
+  "correlationId": "7c4a8d09-ca72-4024-b234-2d6e9a872b51",
+  "outcome": { "orderId": "550e8400-e29b-41d4-a716-446655440000", "status": "queued" }
+}
+```
+````
+
+#### error codes
+
+````markdown
+All errors follow the format [the error-code format]. The `retryable` field indicates whether the same request may succeed if tried again unchanged.
+
+| Code                       | Retryable | Meaning                         |
+| -------------------------- | --------- | ------------------------------- |
+| [`DOMAIN_CATEGORY_DETAIL`] | [Yes/No]  | [one line]                      |
+| `BILLING_PROVIDER_TIMEOUT` | Yes       | Payment provider call timed out |
+````
+
+#### configuration
+
+````markdown
+All configuration is through the plugin's settings tab in Obsidian. No environment file is needed.
+
+| Setting     | Default       | Description                                  |
+| ----------- | ------------- | -------------------------------------------- |
+| [`Setting`] | [default]     | [one line — one row per setting]             |
+
+[Where the settings are stored, and where any further configuration reference lives, e.g. a TAD section.]
+
+**Database connection strings:** Not applicable — a plugin has no database. [Where plugin-owned data is kept.]
+````
+
+#### disclosures
+
+````markdown
+Obsidian's developer policies require each of the following to be stated here.
+
+- **Network use** — [None, or each remote service the plugin contacts, when, and why it is needed]
+- **Accounts** — [None, or which features need an account and with whom]
+- **Payment** — [None, or which features need payment]
+- **Files outside the vault** — [None, or what is read or written outside the vault and why]
+- **Telemetry** — [None, or what is collected, where it is sent, and how to turn it off]
+- **Third-party licences** — [where the licence notices of bundled and copied code are listed]
+````
+
+#### logs answer
+
+````markdown
+Logs are structured JSON, one object per line, written to [where log lines go]. Each entry carries [the correlation IDs this application carries, beginning with `correlationId`] and `errorCode` where applicable. [Where to look for ad-hoc investigation, e.g. Obsidian's developer console.]
+````

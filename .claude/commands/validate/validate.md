@@ -1,126 +1,22 @@
-Run comprehensive validation of the project to ensure all tests, type checks, linting, and deployments are working correctly.
+Run comprehensive validation of the project to ensure every check the project defines is passing.
 
-Execute the following commands in sequence and report results:
+Execute the checks in the **Checks** section in sequence and report results:
 
-## 1. Test Suite
+- Run each command exactly as written and compare its output with the **Expected** result beneath it.
+- A check passes only when every test passes with none skipped and every tool reports zero errors and zero warnings, whatever its expected result says.
+- Stop anything a check starts, such as a server or a container, before the next check begins, whether or not the check passed.
+- If the Checks section holds no checks, run every validation command the project defines instead: its tests, type checks, linting, formatting, build and any other check, as its `package.json` scripts, `pyproject.toml` tool configuration or Makefile define them.
 
-```bash
-uv run pytest -v
-```
+## Checks
 
-**Expected:** All tests pass with none skipped, execution time < 1 second
+Each check is a numbered `###` heading holding its commands in fenced `bash` blocks, each block followed by its **Expected:** result. The project writes its own checks here.
 
-## 2. Type Checking
-
-```bash
-uv run mypy app/
-```
-
-**Expected:** "Success: no issues found in X source files"
-
-```bash
-uv run pyright app/
-```
-
-**Expected:** "0 errors, 0 warnings, 0 informations"
-
-## 3. Linting
-
-```bash
-uv run ruff check .
-```
-
-**Expected:** "All checks passed!"
-
-## 4. Local Server Validation
-
-Start the server in background:
-
-```bash
-uv run uvicorn app.main:app --host 0.0.0.0 --port 8123 &
-```
-
-Wait 3 seconds for startup, then test endpoints:
-
-```bash
-curl -s http://localhost:8123/ | python3 -m json.tool
-```
-
-**Expected:** JSON response with app name, version, and docs link
-
-```bash
-curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:8123/docs
-```
-
-**Expected:** HTTP Status: 200
-
-```bash
-curl -s -i http://localhost:8123/ | head -10
-```
-
-**Expected:** Headers include `x-request-id` and status 200
-
-Stop the server:
-
-```bash
-lsof -ti:8123 | xargs kill -9 2>/dev/null || true
-```
-
-## 5. Docker Deployment Validation
-
-Build and start Docker service:
-
-```bash
-docker-compose up -d --build
-```
-
-**Expected:** Container builds successfully and starts
-
-Wait 5 seconds, then verify container status:
-
-```bash
-docker-compose ps
-```
-
-**Expected:** Container status shows "Up"
-
-Test Docker endpoints:
-
-```bash
-curl -s http://localhost:8123/ | python3 -m json.tool
-```
-
-**Expected:** Same JSON response as local server
-
-```bash
-curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:8123/docs
-```
-
-**Expected:** HTTP Status: 200
-
-Check Docker logs:
-
-```bash
-docker-compose logs app | tail -20
-```
-
-**Expected:** Structured JSON logs with request_id, startup message, request logging
-
-Stop Docker service:
-
-```bash
-docker-compose down
-```
-
-## 6. Summary Report
+## Summary Report
 
 After all validations complete, provide a summary report with:
 
-- Total tests passed/failed
-- Type checking status (mypy + pyright)
-- Linting status
-- Local server status
-- Docker deployment status
+- The status of each check, with tests passed/failed where the check runs tests
+- The commands run and where they came from, when the Checks section held none
 - Any errors or warnings encountered
 - Overall health assessment (PASS/FAIL)
 

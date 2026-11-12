@@ -15,7 +15,7 @@ The three dotted folders are laid out exactly as a project expects them, so inst
 
 | Copy this folder | Into your project as | You get |
 |---|---|---|
-| `.claude/` | `.claude/` | 36 slash commands and 3 sub-agents for Claude Code |
+| `.claude/` | `.claude/` | 37 slash commands and 3 sub-agents for Claude Code |
 | `.codex/` | `.codex/` | the same sub-agents for Codex |
 | `.agents/` | `.agents/` | the files the commands read while running, and the templates a new project starts from |
 
@@ -37,11 +37,11 @@ Five files are adapted from the Dynamous Agentic Coding course by Cole Medin, an
 
 Each item below is a top-level folder. Its own README lists the files inside it.
 
-- [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — 36 commands in eight groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
+- [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — 37 commands in eight groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
 - [`.claude/agents/`](.claude/agents/README.md): **Claude Code sub-agents** — `document-reviewer`, `navigator` and `pathfinder`. Copy to a project's `.claude/agents/`.
 - [`.codex/`](.codex/README.md): **Codex sub-agents** — the same three sub-agents in TOML, generated from the Claude versions and never edited by hand. Copy to a project's `.codex/`.
 - [`.agents/reference/`](.agents/reference/README.md): **Reference standards and guides** — the command and sub-agent templates, the writing standard, the rules the review chain audits against, the planning framework and the worktree setup. Copy to a project's `.agents/reference/`; several commands read these files by that path.
-- [`.agents/templates/`](.agents/templates/README.md): **Project templates** — idea intake, project blueprints, README and `CLAUDE.md` templates, and two specifications for building a repository's foundation. Copy to a project's `.agents/templates/`.
+- [`.agents/templates/`](.agents/templates/README.md): **Project templates** — idea intake, project blueprints, README and `CLAUDE.md` templates shared by every kind of project, and two codebase setup specifications that build a repository's foundation in twelve validated, committed steps: one for a Python backend (FastAPI, Supabase and Docker) and one for an Obsidian plugin in TypeScript. Each specification supplies its own stack's validation checks and README and `CLAUDE.md` content. Copy to a project's `.agents/templates/`.
 - [`rules/`](rules/README.md): **Global rules and personas** — a stack-independent `CLAUDE.md` for repositories that are not applications, and three chat persona prompts.
 - [`prompts/`](prompts/README.md): **Standalone prompts** — five prompts pasted into a chat, including the two that generated the blueprint templates.
 - [`scripts/`](scripts/README.md): **Scripts** — the Claude-to-Codex sub-agent converter and its tests.

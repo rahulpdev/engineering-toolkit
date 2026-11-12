@@ -2,7 +2,7 @@
 
 **What this is:** the specification for building the technical foundation of a new Python backend repository. A planning agent reads it, together with the repository's PRD and TAD, and writes an implementation plan. An implementation agent executes that plan. The specification fixes the tooling, structure and conventions of the foundation, and names the few decisions that must be resolved from the PRD and TAD.
 **Prepared by:** Rahul Parmar
-**Version:** 1.6 — 2026-11-10
+**Version:** 1.7 — 2026-11-12
 **Location:** copied unchanged into every new repository at `.agents/reference/ai_optimized_codebase_setup.md`.
 
 ---
@@ -110,6 +110,7 @@ Rules: `app/core/` never imports feature slices or `app/shared/`. `app/shared/` 
 - Google-style docstrings with `Args:` and `Returns:` on every public function.
 - Files ≤ 500 lines; functions ≤ 50 lines; constants, configuration and long strings in their own modules.
 - KISS and YAGNI: no abstractions or features before they are needed.
+- Commands and scripts never bring in a second programming language or an undeclared package — for example, no Python one-liner in a TypeScript project. General command-line tools such as `git`, `grep` and `curl` are allowed. A further package becomes a declared dependency first.
 
 ### 2.4 Logging convention
 
@@ -157,7 +158,7 @@ uv run pytest -m "not integration"      # fast, no database
 uv run pytest                           # all, requires `supabase start`
 ```
 
-`/validate:validate` runs these plus a local-server smoke test and a Docker build check.
+Step 12 writes these into `/validate:validate` as its checks, followed by a local-server smoke test and a Docker check. Until then, the command finds the project's validation commands for itself.
 
 ---
 
@@ -202,7 +203,7 @@ These files exist in the repository before planning starts. The planning agent v
 | `.agents/templates/template_readme.md` | The structure, format and voice of `README.md`; followed in Step 12 |
 | `.agents/templates/template_claude_md.md` | The structure, format and voice of `CLAUDE.md`; followed in Step 12 |
 | `.claude/commands/git/commit.md` | `/git:commit` — used at every commit boundary |
-| `.claude/commands/validate/validate.md` | `/validate:validate` — full local validation; its expected values are updated in Step 12 |
+| `.claude/commands/validate/validate.md` | `/validate:validate` — full local validation; its checks are written in Step 12 |
 | `.gitignore` | Complete from day 0 (entries below), so no housekeeping commits interrupt the sequence |
 
 Day-0 `.gitignore` entries:
@@ -470,13 +471,16 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 
 The two files divide the material between them and never repeat it. `CLAUDE.md` is normative: every rule, convention and constraint an agent must obey lives there and nowhere else. `README.md` is descriptive: how to install, run and use the system, for a human reader. Where a reader of one file needs something held by the other, the file carries a one-line pointer to it, never a restatement — restatements drift.
 
-**Documentation to read:** `.agents/templates/template_readme.md` and `.agents/templates/template_claude_md.md`, in full, before writing either file.
+**Documentation to read:** `.agents/templates/template_readme.md` and `.agents/templates/template_claude_md.md`, in full, together with the Appendix of this specification, before writing either file.
 
 **Required outcome:**
-- `README.md`, following `.agents/templates/template_readme.md` — its section order, headings, formatting and voice are kept exactly; the content describes the product the PRD and TAD define, is written from the PRD, the TAD, this specification and the code only, and states nothing beyond them. The template's sections cover, at minimum: overview and key features; badges; table of contents; getting started and running the services for a non-technical user (prerequisites and the order of operations, pointing to `CLAUDE.md` for the commands); how it works; API reference (every endpoint the TAD defines, the status lifecycle, the error codes); testing (a pointer to `CLAUDE.md`); configuration; FAQs; contributing (a pointer to `CLAUDE.md`); licence.
-- `CLAUDE.md`, following `.agents/templates/template_claude_md.md` — its section order, headings, formatting and voice are kept exactly; the rules are generated from Section 2 of this specification, the PRD, the TAD and every standing rule the plan establishes. The template's code examples are kept as written: they show format and claim nothing about this application. Real code is pointed to, never copied: the template's reference table names, for each pattern the repository already implements, the file to imitate. The template's sections cover, at minimum: core principles; tech stack; architecture (the repository tree with the application's planned slices from the TAD, and the layout rules); code style; logging; testing conventions; error handling (including the D4 domain list); development commands (setup, running the services, Supabase, tests, lint/format/type checking, Docker); agent instructions (never `git add .` / `-A`; never edit dependencies in `pyproject.toml` by hand; no suppression comments without a documented reason; never import across slices). Long reference material goes in `.agents/reference/`, not in `CLAUDE.md`.
+- `README.md`, following `.agents/templates/template_readme.md` with its stack blocks taken from the Appendix — its section order, headings, formatting and voice are kept exactly; the content describes the product the PRD and TAD define, is written from the PRD, the TAD, this specification and the code only, and states nothing beyond them. The template's sections cover, at minimum: overview and key features; badges; table of contents; getting started and running the application for a non-technical user (prerequisites and the order of operations, pointing to `CLAUDE.md` for the commands); how it works; API reference (every endpoint the TAD defines, the status lifecycle, the error codes); testing (a pointer to `CLAUDE.md`); configuration; disclosures; FAQs; contributing (a pointer to `CLAUDE.md`); licence.
+- `CLAUDE.md`, following `.agents/templates/template_claude_md.md` with its stack blocks taken from the Appendix — its section order, headings, formatting and voice are kept exactly; the rules are generated from Section 2 of this specification, the PRD, the TAD and every standing rule the plan establishes. The template's code examples are kept as written: they show format and claim nothing about this application. Real code is pointed to, never copied: the template's reference table names, for each pattern the repository already implements, the file to imitate. The template's sections cover, at minimum: core principles; tech stack; architecture (the repository tree with the application's planned slices from the TAD, and the layout rules); code style; logging; testing conventions; error handling (including the D4 domain list); development commands (setup, running the services, Supabase, tests, lint/format/type checking, Docker); agent instructions (never `git add .` / `-A`; never edit dependencies in `pyproject.toml` by hand; no suppression comments without a documented reason; never import across slices). Long reference material goes in `.agents/reference/`, not in `CLAUDE.md`.
 - Where a template section has nothing to say for this application, it is kept with a one-line statement to that effect rather than removed, so the shape stays stable across repositories.
-- `.claude/commands/validate/validate.md`: expected test count, entry point, port and service names replaced with the real values.
+- `.claude/commands/validate/validate.md`: its Checks section written with the real entry point, port and service names, each command followed by its expected result:
+  - the commands in Section 2.8
+  - a local-server smoke test: uvicorn on `{{APP_PORT}}`, every endpoint Section 6 lists, the `X-Request-ID` header on each response, then the server stopped
+  - a Docker check: `docker compose up -d --build`, the same endpoints, `docker compose logs` showing structured JSON with `request_id` and the startup event, then `docker compose down`
 
 **Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches `pyproject.toml`, and each development command has been run and succeeded (one that would create a migration is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its ports, commands and configuration table against the repository.
 **Commit:** `docs: add README and global development rules (CLAUDE.md)`
@@ -527,3 +531,492 @@ The foundation is complete when all of the following hold:
 ## 8. Provenance
 
 The step sequence and the principle of researching official documentation before configuring each tool come from Cole Medin's Dynamous Agentic Coding Live Workshop #2, "Creating an AI-Optimized Codebase", and its instructor guide. This specification departs from that workshop in these ways: Supabase with CLI-managed migrations instead of a Postgres container with Alembic; both type checkers mandatory; the tooling and `.gitignore` in place from day 0 rather than created mid-sequence; FastAPI before Docker; one scaffold-cleanup commit; a structured `AppException`/`ErrorResponse` error model; the suppression loop after every step from Step 8; the Decision Register; and `CLAUDE.md` written at the end from the fixed conventions.
+
+---
+
+## Appendix — Stack blocks for README.md and CLAUDE.md
+
+The README and `CLAUDE.md` templates are shared by every kind of project. Each `[Stack block: name]` slot in them is filled in Step 12 with the block of the same name below. A block's own square-bracket slots are filled from the PRD, the TAD and the code, like any other slot. If a slot names a block that is not below, stop and report it; never write the block yourself. A block that says "Not applicable" is kept with that line, so the shape stays the same across repositories.
+
+### CLAUDE.md blocks
+
+#### correlation-ID rule
+
+````markdown
+[The correlation-ID rule for this application, beginning: `request_id` on every API log]
+````
+
+#### secret storage rule
+
+````markdown
+Use environment variables or managed secrets; never store credentials in plaintext
+````
+
+#### type safety rules
+
+````markdown
+- Full type hints on every function signature
+- Both configured type checkers must pass in strict mode
+- No `# type: ignore` or `# noqa` without a documented reason on the same line
+````
+
+#### documentation comment rule
+
+````markdown
+**DOCSTRINGS ON ALL PUBLIC FUNCTIONS**
+
+- Google-style with `Args:` and `Returns:` sections
+````
+
+#### tech stack
+
+````markdown
+### Backend
+
+- **Language:** [language and version]
+- **Package manager:** [package manager]
+- **Framework:** [web framework and version floor + validation library and version floor]
+- **ORM:** [ORM and driver, with version floors]
+- **Logging:** [logging library and version floor (output format)]
+- **Database:** [database provider and version; extensions; migration tool]
+- **Lint/format:** [linter/formatter and version floor (line length, quote style, rule set)]
+- **Type checking:** [type checkers and version floors (both required)]
+- **Testing:** [test framework and plugins, with version floors]
+
+### Frontend
+
+[The frontend stack from the TAD, in the same bullet format as Backend: language, runtime/package manager, framework, validation/forms, lint/format, testing, logging, data access. With no frontend in the TAD: None in scope.]
+````
+
+#### architecture
+
+````markdown
+```
+app/
+├── core/                   # Universal infra — required by all slices
+│   ├── config.py           # Settings singleton (get_settings)
+│   ├── database.py         # Async engine, session factory, Base, get_db
+│   ├── logging.py          # Logging setup, correlation ID context vars
+│   ├── middleware.py        # RequestLoggingMiddleware, CORS
+│   ├── exceptions.py       # AppException base, ErrorResponse, global handler
+│   ├── health.py           # /health, /health/db, /health/ready
+│   └── tests/              # Core unit tests (colocated)
+├── shared/                 # Cross-feature utilities (3+ slice rule)
+│   ├── models.py           # ORM mixins: [the mixins for this application]
+│   ├── schemas.py          # [the application-wide enums and shared schemas]
+│   ├── utils.py            # utcnow(), format_iso()
+│   └── tests/
+├── {feature}/              # Vertical slices: [the slice names from the TAD]
+│   ├── models.py
+│   ├── schemas.py
+│   ├── router.py
+│   ├── service.py
+│   └── tests/              # Colocated unit tests (no DB, no HTTP)
+├── tests/                  # Backend integration tests (multi-slice, HTTP-level)
+[└── the entry-point module(s) for this application, one line each with its purpose]
+```
+
+**Rules:**
+
+- `app/core/` — infrastructure only; never imports feature slices or `app/shared/`
+- `app/shared/` — only code used by **3 or more** feature slices; never feature-specific logic
+- Each feature slice is self-contained; cross-slice dependencies go through `app/shared/`
+- [The process-model rule for this application: how many services, from how many images, with which entry points]
+````
+
+#### naming
+
+````markdown
+- Functions and variables: `snake_case`
+- Classes (models, schemas, exceptions, etc.): `PascalCase`
+- Model fields: verbose — `customer_id`, `order_status`, `created_at` (never `id`, `status`)
+- Constants: `UPPER_SNAKE_CASE`
+````
+
+#### documentation comments
+
+````markdown
+### Docstrings (Google style — required on all public functions)
+
+```python
+async def get_customer_by_id(
+    customer_id: UUID,
+    db: AsyncSession,
+) -> Customer | None:
+    """Fetch a single customer by primary key.
+
+    Queries the customers table using the provided ID and returns
+    the full ORM instance if it exists.
+
+    Args:
+        customer_id (UUID): Primary key of the customer to retrieve.
+        db (AsyncSession): Async database session (injected as a dependency).
+
+    Returns:
+        Customer | None: Customer ORM instance if found, None otherwise.
+
+    Raises:
+        AppException: If the caller is not permitted to read the customer.
+    """
+```
+````
+
+#### ORM models
+
+````markdown
+```python
+from app.shared.models import [the mixins for this application]
+
+class Customer(Base, [the mixins for this application]):
+    __tablename__ = "customers"
+
+    customer_id: Mapped[UUID] = mapped_column(primary_key=True)
+    email_address: Mapped[str] = mapped_column(String(320), nullable=False)
+    customer_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=CustomerStatus.ACTIVE
+    )
+```
+````
+
+#### schemas
+
+````markdown
+```python
+from pydantic import BaseModel, ConfigDict
+
+class CustomerResponse(BaseModel):
+    customer_id: UUID
+    customer_status: CustomerStatus
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+```
+
+> **External API exception:** Public-facing API response schemas may use shorter field names (e.g., `status` instead of `customer_status`) for consumer ergonomics. Internal model fields and database columns must always use verbose names. When a schema serves both purposes, use `serialization_alias` to map verbose internal names to shorter external names.
+````
+
+#### logger setup
+
+````markdown
+```python
+from app.core.logging import get_logger
+
+log = get_logger(__name__)
+```
+````
+
+#### logging example
+
+````markdown
+**Never log secrets, API keys, credentials, or sensitive document contents.**
+
+```python
+# Operation start + completion pair
+log.info("orders.checkout.validation_started", order_id=str(order_id))
+
+result = await _validate_order(order)
+
+log.info(
+    "orders.checkout.validation_completed",
+    order_id=str(order_id),
+    line_item_count=result.line_item_count,
+    total_amount=str(result.total_amount),
+)
+
+# Error with structured context
+log.error(
+    "orders.checkout.validation_failed",
+    order_id=str(order_id),
+    error_code="ORDERS_INPUT_EMPTY_CART",
+    exc_info=True,
+)
+```
+
+[How each correlation ID this application uses is set and cleared, beginning: **`request_id`** is set automatically by `RequestLoggingMiddleware` on every inbound request.]
+````
+
+#### test locations
+
+````markdown
+| Test type           | Location                             | Marker                     |
+| ------------------- | ------------------------------------ | -------------------------- |
+| Backend unit        | `app/{slice}/tests/`                 | (none required)            |
+| Backend integration | `app/tests/`                         | `@pytest.mark.integration` |
+| Cross-stack E2E     | `tests/` (root)                      | -- (future)                |
+````
+
+#### test rules
+
+````markdown
+- Root `tests/` is reserved for cross-stack E2E only — never place unit or integration tests there
+- Unit tests: no real DB, no HTTP, no external provider calls -- mocks acceptable at slice boundaries
+- Integration tests: HTTP-level through the async test client against the application; still mock external providers
+- Test names: `test_<function>_<condition>_<expected_result>`
+- Async test mode is configured -- no per-test async marker needed
+- Integration test fixtures live in `app/tests/conftest.py` -- always use `test_db_engine` / `test_db_session` fixtures, never import `engine` / `AsyncSessionLocal` from `app.core.database` directly (event loop mismatch)
+````
+
+#### unit test example
+
+````markdown
+```python
+async def test_validate_order_with_empty_cart_raises_app_exception() -> None:
+    with pytest.raises(AppException) as exc_info:
+        await validate_order(Order(line_items=[]), order_id=uuid4())
+    assert exc_info.value.error_code == "ORDERS_INPUT_EMPTY_CART"
+    assert exc_info.value.retryable is False
+```
+````
+
+#### second test example
+
+````markdown
+### Integration test example
+
+```python
+@pytest.mark.integration
+async def test_post_order_returns_202_with_order_id(
+    client: AsyncClient,
+) -> None:
+    response = await client.post(
+        "/api/v1/orders",
+        json=SAMPLE_ORDER_PAYLOAD,
+    )
+    assert response.status_code == 202
+    assert "order_id" in response.json()
+```
+````
+
+#### error model
+
+````markdown
+```python
+from app.core.exceptions import AppException, ErrorResponse
+
+raise AppException(
+    error_code="ORDERS_INPUT_EMPTY_CART",
+    http_status_code=422,
+    message="An order must contain at least one line item.",
+    retryable=False,
+)
+```
+
+- Raise `AppException` (or a subclass like `DatabaseError`) for all application-layer errors
+- 5xx response bodies are **intentionally generic**
+- All `AppException` instances with `http_status_code >= 500` must use a generic, non-sensitive `message` (e.g., `"Service temporarily unavailable. Please try again later."`). Full diagnostics go to structured logs only.
+- Externally returned errors must be non-sensitive; put full diagnostics in structured logs only
+- The global handler in `app/core/exceptions.py` converts `AppException` -> `ErrorResponse` automatically
+- The handler auto-attaches [the correlation IDs this application uses] from the logging context.
+- Exception: `app/core/health.py` may raise `HTTPException` directly (infrastructure-only, not application logic)
+
+**`ErrorResponse` shape** (canonical across all endpoints):
+
+```python
+class ErrorResponse(BaseModel):
+    error_code: str          # [the error-code format]
+    message: str
+    request_id: str | None
+    [one line per further correlation-ID field this application carries]
+    retryable: bool
+```
+````
+
+#### minimum patterns
+
+````markdown
+a documented public function, a start + completion log pair, a raised `AppException`, a unit test and an integration test
+````
+
+#### development commands
+
+````markdown
+[install-dependencies command]                             # Install all dependencies
+cp .env.example .env                                       # Create local env file (first time)
+
+# Running services
+[API dev server command, with the port]                    # API dev server
+[one line per additional service]
+
+# Database
+[start local database command]                             # Start local DB (port [port])
+[reset-and-migrate command]                                # Reset + re-apply all migrations
+[new-migration command]                                    # New migration file
+
+# Tests
+[unit-tests-only command]                                  # Unit tests only (fast)
+[all-tests command]                                        # All tests (requires the local database)
+[integration-tests-only command]                           # Integration tests only
+
+# Lint, format, type checking (run all before committing)
+[lint and format command]
+[type checker command, one line per checker]
+
+# Containers
+[build-and-start command]                                  # [the services] in containers
+[one line per additional service]
+````
+
+#### fourth agent instruction
+
+````markdown
+**Apply all shared mixins** per Section 4
+````
+
+#### fifth agent instruction
+
+````markdown
+**Error codes and exceptions** per Section 7
+````
+
+### README blocks
+
+#### standard features
+
+````markdown
+- **Structured JSON logs** — [the correlation IDs this application carries, beginning with `request_id` on API logs]; contextual fields such as `error_code` where applicable
+- **Health endpoints** — liveness, database connectivity, and full readiness checks
+````
+
+#### architecture diagram
+
+````markdown
+```
+┌─────────────────────────────────────────────────────────┐
+│  [Client / frontend]                                    │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTPS
+┌──────────────────────▼──────────────────────────────────┐
+│  API Service  ([framework] · [server] · port [port])    │
+│  [the API-facing slices]                                │
+└──────────────────────┬──────────────────────────────────┘
+                       │ [the link to the next tier]
+[one box per further service tier, in the same form]
+┌──────────────────────▼──────────────────────────────────┐
+│  [Database and version]                                 │
+│  [extensions · tenancy model · backup policy]           │
+└─────────────────────────────────────────────────────────┘
+```
+
+[The process model — how many services, from how many images — and that the code is organised as vertical slices under `app/`. The repository tree is in `CLAUDE.md`, Section 3.]
+````
+
+#### installation
+
+````markdown
+1. Clone the repository and change into it.
+2. Install dependencies.
+3. Copy `.env.example` to `.env` and populate it — at minimum set `DATABASE_URL`.
+4. Start the local database and apply migrations.
+
+The commands for each step are in [`CLAUDE.md`, Section 9](CLAUDE.md).
+````
+
+#### running
+
+````markdown
+Run the [service / services] locally, or all of them in containers; the commands for both are in [`CLAUDE.md`, Section 9](CLAUDE.md).
+
+The API will be available at `http://localhost:[port]`. Interactive docs at `http://localhost:[port]/docs`.
+````
+
+#### health checks
+
+````markdown
+```bash
+curl http://localhost:[port]/health          # liveness
+curl http://localhost:[port]/health/db       # database connectivity
+curl http://localhost:[port]/health/ready    # full readiness
+```
+````
+
+#### API reference
+
+````markdown
+> Full interactive documentation is available at `http://localhost:[port]/docs` when the server is running.
+
+### Authentication
+
+[How callers authenticate, in one sentence, followed by the header in a code block:]
+
+```
+Authorization: Bearer <api_key>
+```
+
+### Endpoints
+
+[One subsection per endpoint. Each subsection: a `####` heading of the form `` `METHOD /path` — What it does ``, one sentence, a `curl` example, then one JSON response block per distinct response, labelled in bold with its status code:]
+
+#### `POST /api/v1/orders` — Create an order
+
+Submit an order for processing.
+
+```bash
+curl -X POST http://localhost:[port]/api/v1/orders \
+  -H "Authorization: Bearer <api_key>" \
+  -H "Content-Type: application/json" \
+  -d '{"customer_id": "…", "line_items": [ … ]}'
+```
+
+**Response** (`202 Accepted`):
+
+```json
+{
+  "order_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "queued",
+  "request_id": "7c4a8d09-ca72-4024-b234-2d6e9a872b51"
+}
+```
+````
+
+#### error codes
+
+````markdown
+All errors follow the format [the error-code format]. The `retryable` field indicates whether the client should retry without modifying the request.
+
+| Code                       | HTTP | Retryable | Meaning                        |
+| -------------------------- | ---- | --------- | ------------------------------ |
+| [`DOMAIN_CATEGORY_DETAIL`] | [n]  | [Yes/No]  | [one line]                     |
+| `BILLING_PROVIDER_TIMEOUT` | 503  | Yes       | Payment provider call timed out |
+````
+
+#### configuration
+
+````markdown
+All configuration is via environment variables. Copy `.env.example` to `.env` to get started.
+
+| Variable          | Required | Default                                                | Description                                             |
+| ----------------- | -------- | ------------------------------------------------------ | ------------------------------------------------------- |
+| `DATABASE_URL`    | Yes      | —                                                      | [Database connection string, with its scheme]           |
+| `ENVIRONMENT`     | No       | `development`                                          | `development` or `production`                           |
+| `LOG_LEVEL`       | No       | `INFO`                                                 | `DEBUG`, `INFO`, `WARNING`, `ERROR`                     |
+| `APP_NAME`        | No       | `[Application name]`                                   | Application name in logs and API responses              |
+| `API_PREFIX`      | No       | `/api/v1`                                              | URL prefix for API routes                               |
+| `ALLOWED_ORIGINS` | No       | `["http://localhost:3000","http://localhost:[port]"]`  | CORS allowed origins (JSON array)                       |
+| [`VARIABLE`]      | [Yes/No] | [default or —]                                         | [one line — one row per application-specific setting]   |
+
+[Where any further configuration reference lives, e.g. a TAD section.]
+
+**Local database connection string:**
+
+```
+DATABASE_URL=[the local connection string]
+```
+
+**Hosted database connection string:**
+
+```
+DATABASE_URL=[the hosted connection string, with credentials as placeholders]
+```
+````
+
+#### disclosures
+
+````markdown
+[Not applicable, unless the PRD or TAD names a marketplace or directory that requires disclosures; then one bullet per disclosure it requires.]
+````
+
+#### logs answer
+
+````markdown
+Service logs are structured JSON emitted to stdout. Each entry carries [the correlation IDs this application carries, beginning with `request_id` (from the `X-Request-ID` header)] and `error_code` where applicable. [Where to look for ad-hoc investigation, e.g. the database console or documented SQL queries.]
+````
