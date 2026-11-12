@@ -4,6 +4,8 @@
 # Files the commands write while running
 .agents/plans/
 .agents/reports/
+docs/plans/
+docs/reports/
 
 # Python
 __pycache__/
