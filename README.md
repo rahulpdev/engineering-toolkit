@@ -15,7 +15,7 @@ The three dotted folders are laid out exactly as a project expects them, so inst
 
 | Copy this folder | Into your project as | You get |
 |---|---|---|
-| `.claude/` | `.claude/` | slash commands, sub-agents and output styles for Claude Code |
+| `.claude/` | `.claude/` | slash commands, sub-agents, skills and output styles for Claude Code |
 | `.codex/` | `.codex/` | the same sub-agents for Codex |
 | `.agents/` | `.agents/` | the files the commands read while running, and the templates a new project starts from |
 
@@ -39,6 +39,7 @@ Each item below is a top-level folder. Its own README lists the files inside it.
 
 - [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — commands organised in groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
 - [`.claude/agents/`](.claude/agents/README.md): **Claude Code sub-agents** — `document-reviewer`, `navigator` and `pathfinder`. Copy to a project's `.claude/agents/`.
+- [`.claude/skills/`](.claude/skills/README.md): **Claude Code skills** — `task-structuring`, which turns a rough request into a tightly scoped work brief for another LLM; run it with `/task-structuring`. Copy to a project's `.claude/skills/`, or to `~/.claude/skills/` to use it in every project.
 - [`.claude/output-styles/`](.claude/output-styles/README.md): **Claude Code output styles** — `project-ideator`, which shapes a vague software idea into one Objective with measurable Key Results. Copy to a project's `.claude/output-styles/`, or to `~/.claude/output-styles/` to use it in every project.
 - [`.codex/`](.codex/README.md): **Codex sub-agents** — the same three sub-agents in TOML, generated from the Claude versions and never edited by hand. Copy to a project's `.codex/`.
 - [`.agents/reference/`](.agents/reference/README.md): **Reference standards and guides** — the command and sub-agent templates, the writing standard, the rules the review chain audits against, the planning framework and the worktree setup. Copy to a project's `.agents/reference/`; several commands read these files by that path.
