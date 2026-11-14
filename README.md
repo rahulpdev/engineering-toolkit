@@ -15,7 +15,7 @@ The three dotted folders are laid out exactly as a project expects them, so inst
 
 | Copy this folder | Into your project as | You get |
 |---|---|---|
-| `.claude/` | `.claude/` | 37 slash commands and 3 sub-agents for Claude Code |
+| `.claude/` | `.claude/` | slash commands, sub-agents and output styles for Claude Code |
 | `.codex/` | `.codex/` | the same sub-agents for Codex |
 | `.agents/` | `.agents/` | the files the commands read while running, and the templates a new project starts from |
 
@@ -39,6 +39,7 @@ Each item below is a top-level folder. Its own README lists the files inside it.
 
 - [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — 37 commands in eight groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
 - [`.claude/agents/`](.claude/agents/README.md): **Claude Code sub-agents** — `document-reviewer`, `navigator` and `pathfinder`. Copy to a project's `.claude/agents/`.
+- [`.claude/output-styles/`](.claude/output-styles/README.md): **Claude Code output styles** — `project-ideator`, which shapes a vague software idea into one Objective with measurable Key Results. Copy to a project's `.claude/output-styles/`, or to `~/.claude/output-styles/` to use it in every project.
 - [`.codex/`](.codex/README.md): **Codex sub-agents** — the same three sub-agents in TOML, generated from the Claude versions and never edited by hand. Copy to a project's `.codex/`.
 - [`.agents/reference/`](.agents/reference/README.md): **Reference standards and guides** — the command and sub-agent templates, the writing standard, the rules the review chain audits against, the planning framework and the worktree setup. Copy to a project's `.agents/reference/`; several commands read these files by that path.
 - [`.agents/templates/`](.agents/templates/README.md): **Project templates** — idea intake, project blueprints, README and `CLAUDE.md` templates shared by every kind of project, and two codebase setup specifications that build a repository's foundation in twelve validated, committed steps: one for a Python backend (FastAPI, Supabase and Docker) and one for an Obsidian plugin in TypeScript. Each specification supplies its own stack's validation checks and README and `CLAUDE.md` content. The Obsidian plugin specification has improvements the Python one lacks, so bring those across before building the next Python backend. Copy to a project's `.agents/templates/`.
