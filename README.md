@@ -37,7 +37,7 @@ Five files are adapted from the Dynamous Agentic Coding course by Cole Medin, an
 
 Each item below is a top-level folder. Its own README lists the files inside it.
 
-- [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — 37 commands in eight groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
+- [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — commands organised in groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
 - [`.claude/agents/`](.claude/agents/README.md): **Claude Code sub-agents** — `document-reviewer`, `navigator` and `pathfinder`. Copy to a project's `.claude/agents/`.
 - [`.claude/output-styles/`](.claude/output-styles/README.md): **Claude Code output styles** — `project-ideator`, which shapes a vague software idea into one Objective with measurable Key Results. Copy to a project's `.claude/output-styles/`, or to `~/.claude/output-styles/` to use it in every project.
 - [`.codex/`](.codex/README.md): **Codex sub-agents** — the same three sub-agents in TOML, generated from the Claude versions and never edited by hand. Copy to a project's `.codex/`.
