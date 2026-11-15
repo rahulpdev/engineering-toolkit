@@ -13,7 +13,7 @@ An edit is not an appendix. Once applied, the passage must read as if the origin
 1. **Rewrite, do not accrete.** When new meaning is needed, rework the sentence or paragraph so the voice and structure absorb it. Do not bolt a qualifier, a parenthesis or a trailing clause onto an existing sentence to fit the new point in.
 2. **Leave no trace of the edit in the file.** The document serves its future reader, not the record of how it changed. No "updated to clarify", no "added because", no "note: this now covers". Nothing that reveals a revision happened.
 3. **Write to the principle, not the incident.** The issue that triggered the edit is one symptom. The file must govern every future case of the same kind, including cases that look nothing like the trigger. Any example must show the principle in general, not record the case at hand.
-4. **Write plainly, to a stated standard.** New sentences are where an editor's own habits leak in. Hold them to the writing standard in step 4. Be strictest where the edit is an Insert with little surrounding prose to match.
+4. **Hold new sentences to the communication standard.** Be strictest where the edit is an Insert with little surrounding prose to match.
 
 ## Invocation & Arguments (INPUT)
 
@@ -48,7 +48,7 @@ An edit is not an appendix. Once applied, the passage must read as if the origin
 **Read these files (auto-load into context)**
 
 - The target document identified above, **in full**. Do not operate on excerpts.
-- `.agents/reference/writing-standard.md`, **in full**. If this file is not found, stop and ask for it. Do not continue on a remembered version of the standard.
+- `.agents/reference/communication-standard.md`, **in full**. If this file is not found, stop and ask for it.
 
 ## Process (PROCESS)
 
@@ -71,10 +71,10 @@ Follow these steps in order:
    - **Insert** a new sentence or short passage when the point is genuinely new and does not belong inside an existing sentence.
    - **Never append** a qualifier, clause or parenthesis to an existing sentence just to fit the new meaning in. If your instinct is to attach ", noting that" or ", and also" to a sentence, reject it and rewrite the sentence instead.
 
-4. **Match the original voice, and hold the writing standard.**
-   - The writing standard is the **Standard** section of `.agents/reference/writing-standard.md`. A standard the conversation set for this document overrides it; say so in the report.
-   - Before writing, scan the passage the edit will sit next to for cadence, formality, heading style, example style and terminology. The document wins on terminology and structure. The standard sets the ceiling on sentence length and density.
-   - Write the edit so an independent reader cannot distinguish it from its neighbours. An Insert has the least to match, so hold it to the standard most strictly.
+4. **Match the original voice, and hold the communication standard.**
+   - Before writing, scan the passage the edit will sit next to for cadence, formality, heading style, example style and terminology, and match them.
+   - Where the document's own style conflicts with the communication standard, follow the document. In everything else, the new sentences follow the communication standard.
+   - Write the edit so an independent reader cannot distinguish it from its neighbours.
 
 5. **Apply each edit surgically to the file.**
    - Use `Edit` for targeted replacements; use `Write` only if a full rewrite is genuinely required.
@@ -99,16 +99,12 @@ Follow these steps in order:
 8. **Congruity sweep.**
    - Re-read the full document once more. Confirm that terminology, cross-references, ordering, and any rules stated elsewhere in the file remain consistent with the newly edited passages. Resolve any incongruities the edits introduced, at minimum-change discipline.
 
-9. **Verification checks from the standard.**
-   - Apply the **Verification** section of `.agents/reference/writing-standard.md` to the edited passages: the defined-term check, the mechanical prompt and the exceptions rule.
-   - The accuracy review and writing review in that section are already covered by steps 5 and 6. Where a rule cannot be met without losing precision, keep the precise form and name it in the report.
-
-10. **Handoff: produce the final response using the OUTPUT section below.**
+9. **Handoff: produce the final response using the OUTPUT section below.**
 
 **Decision discipline**
 
 - If the agreed edit set is ambiguous, stop and ask. Do not synthesise edits that were not explicitly agreed.
-- If an edit cannot be applied without violating one of the four disciplines (no accretion, no in-file rationale, no over-fitting, plain writing), stop and propose a reformulation before writing.
+- If an edit cannot be applied without violating one of the four disciplines (no accretion, no in-file rationale, no over-fitting, the communication standard), stop and propose a reformulation before writing.
 
 **Quality/Safety constraints**
 
@@ -129,7 +125,6 @@ Return a concise summary in plain language:
 - **Integration mode used** for each edit: Rewrite | Insert (should almost never be "Append")
 - **Seam test result**: confirm each edited passage reads seamlessly with its surroundings, or flag any passage where the seam could not be fully hidden and why
 - **Principle test result**: confirm each edit governs the underlying class, or flag any edit that remains tied to the triggering example and why
-- **Writing standard result**: confirm each edited passage meets the standard, or list every sentence kept over the limit and why its length is needed
 - **Incongruities resolved**: any consistency issues the edits introduced elsewhere in the file, and how they were reconciled
 - **Not done**: anything the user might have expected but that was outside the agreed edit set, listed so the user can confirm the scope was correct
 - **Questions (only if blocked)**: numbered list

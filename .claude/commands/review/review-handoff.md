@@ -161,7 +161,7 @@ Follow these steps in order:
 
 ### Human-Readable Report (for humans)
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
+Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Partial | Blocked
 - **Handoffs applied**: source reviews consumed and their statuses

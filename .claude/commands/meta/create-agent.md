@@ -125,7 +125,7 @@ Follow these steps in order:
 
 ### Human-Readable Report
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
+Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Blocked
 - **What you understood**: 1-3 bullets covering the requested agent, its scope, and the three selected modes

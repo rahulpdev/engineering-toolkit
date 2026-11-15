@@ -123,7 +123,7 @@ Follow these steps in order:
 
 ### Human-Readable Report (for humans)
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level that lets a human verify you “got it”:
+Return a concise, easy-to-scan summary that lets a human verify you “got it”:
 
 - **Status**: {{Success|Partial|Blocked}}
 - **What you understood**: {{1–3 bullets}}

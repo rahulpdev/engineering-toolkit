@@ -94,7 +94,6 @@ Follow these steps in order:
    - If the target file already exists, stop and ask before overwriting.
 7. **Write the new command file to `.claude/commands/<command-name>.md`.**
 8. **Handoff: produce the final response using the OUTPUT section below.**
-   - Use plain language at a 16-year-old reading level.
 
 **Decision discipline**
 
@@ -112,7 +111,7 @@ Follow these steps in order:
 
 ### Human-Readable Report
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
+Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Blocked
 - **What you understood**: 1–3 bullets describing the command-to-create

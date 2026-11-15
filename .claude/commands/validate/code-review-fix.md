@@ -133,7 +133,7 @@ Follow these steps in order:
 
 ### Human-Readable Report (for humans)
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
+Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Partial | Blocked
 - **Review input**: file path or manual issue description used as the source of fixes

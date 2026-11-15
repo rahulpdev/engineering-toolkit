@@ -48,7 +48,7 @@ A blueprint is read by Product Managers and Engineers who never see the material
 **Read these files in full**
 
 - `.agents/templates/template_software_blueprint.md`
-- `.agents/reference/writing-standard.md`. If this file is not found, stop and ask for it. Do not continue on a remembered version of the standard.
+- `.agents/reference/communication-standard.md`, in full. If this file is not found, stop and ask for it.
 
 ## Process (PROCESS)
 
@@ -59,14 +59,14 @@ Follow these steps in order:
    - Confirm each supplied path leads to an existing file (use Glob, the tool that finds files by name, or Read, the tool that opens a file). If not, stop and name the failing path.
    - Read `$1` and confirm its Sections 1-5 hold answers, not placeholders such as `[Your Answer Here]`. If it is unpopulated, stop and ask for a completed blueprint.
    - Confirm `$1`, `$2` (if given), and the template are three distinct files. If not, stop and report.
-   - Confirm `.agents/reference/writing-standard.md` exists. If not, stop and ask for it.
+   - Confirm `.agents/reference/communication-standard.md` exists. If not, stop and ask for it.
 2. **Check the output target.**
    - The target is `.agents/blueprint.md` under the current working directory.
    - If that file already exists, stop and ask before overwriting. Do not continue until the user answers.
 3. **Read every input in full**, start to finish. Do not search, sample, or skim.
    - **Template** (read it from the path in **Context to Load**): note the header block (title, Project Name, Prepared By, Date, Version), the Introduction, the exact headings, question text, and table columns of Sections 1-5, and the exact text of Sections 6-10.
    - **Sample (`$1`)**: build three lists.
-     - _Voice profile_: punctuation habits, when the author uses bullets, numbered lists, tables, or prose, how questions in 5.3 and 5.4 are phrased, how assumptions are phrased, and how specific the answers are. Note the sample's sentence length, but the writing standard in Step 6 sets the ceiling, not the sample.
+     - _Voice profile_: punctuation habits, when the author uses bullets, numbered lists, tables, or prose, how questions in 5.3 and 5.4 are phrased, how assumptions are phrased, and how specific the answers are.
      - _Vocabulary_: the everyday words and phrases the author uses for common ideas (for example how they say "the system", "the client", "must", "out of scope").
      - _Sample project facts_: every product name, client, technology, figure, feature, and term specific to the sample's project. None of these may appear in the new blueprint unless the factual source independently supports them.
    - **Reference document (`$2`, if given)**: extract every fact relevant to the header and Sections 1-5, and build a _jargon list_ of technical, academic, or research terms that will need rewriting into the sample's vocabulary.
@@ -91,7 +91,7 @@ Follow these steps in order:
      - **Facts**: every project fact comes from `$2` or the conversation. Do not infer facts to make the blueprint look complete.
      - **No trace of the sources**: never mention, cite, or refer to `$2`, the sample, or the conversation. No section references, evidence labels, source notes, or commentary about them. Write directly as the agency.
      - **Voice and vocabulary**: match the sample's voice profile. Rewrite every term on the jargon list into the sample's plain vocabulary, reusing the sample's own words for the same ideas. Reuse the sample's everyday wording freely; only its project facts are banned.
-     - **Plain writing**: apply the **Standard** section of `.agents/reference/writing-standard.md`. Where a template answer needs several ideas, use several bullets under it. The sample's vocabulary and formality still apply; the standard caps length and density.
+     - **Several ideas**: where a template answer needs several ideas, use several bullets under it.
      - **Gaps**: show missing information only through the template's own tools: `TBD` (to be determined) in a table cell or target, a question in 5.3 or 5.4, or an assumption in 2.3 or 5.5. No hedging inside sentences (such as "possibly", "appears to", "it is unclear whether"), no invented markers, no caveat notes. A qualification the source itself states, such as a threshold not expected to be met or a rule that applies only in one region, is a fact and stays in the sentence.
      - **Required content the source lacks**: where the template needs content the source does not supply (for example error handling in 3.2, unusual situations the system must still handle in 3.1, success metrics in 1.3), propose agency-standard content rather than leaving the field empty, and record the proposal as a judgement in Step 9.
      - **Judgement log**: as you write, record every inference, assumption, interpretation, L/M/H rating (Low, Medium or High), Owner assignment, and proposed content, with where it landed. Step 9 depends on this log.
@@ -100,12 +100,11 @@ Follow these steps in order:
    - _Sample check, direction one_: scan the draft for every term on the sample project facts list, matching whole words only. Remove any that the factual source does not independently support.
    - _Sample check, direction two_: scan the draft for every term on the jargon list. Rewrite any that remain.
    - _Voice check_: punctuation, list and table usage, and question phrasing match the voice profile.
-   - _Plain-writing check_: apply the **Verification** section of `.agents/reference/writing-standard.md` to Sections 1-5: the defined-term check, the mechanical prompt and the exceptions rule.
    - _Qualification check_: confirm no fact-bearing qualification was removed by the gap check.
    - _Source-trace check_: no mention of the reference document, the sample, or the conversation, and no citation-like wording (such as "according to", "the report", "the handoff", "see section", "source:").
    - _Gap check_: no hedging phrases inside sentences; every gap sits in a permitted place.
    - If a failure cannot be fixed without inventing a fact, move the gap to a permitted place instead.
-8. **Run the writing review.** Call the document-reviewer sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, passing `standard=.agents/reference/writing-standard.md` and `document=.agents/blueprint.md`. Follow its handoff, except that a finding in Sections 6-10 is ignored, because that text is the template's. After the edits, repeat the checks in Step 7 once.
+8. **Run the document review.** Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it the path `.agents/blueprint.md`. Follow the instruction that closes its report, except that you ignore any finding in Sections 6-10 and do not report it, because that text is the template's. After the edits, repeat the checks in Step 7 once.
 9. **Compile the judgement list** from the Step 6 log: a numbered list in plain English. One item per inference, assumption, interpretation, rating, Owner, framing decision from Step 4, Prepared By choice, and proposed content. Each item states what was decided, why, and where it sits in the blueprint. This list goes in the report, never in the blueprint.
 10. **Report** using the Output section below, then stop and wait for the user to confirm or reject each judgement by number. When the user responds, apply the rulings with minimal edits and repeat Step 7 only before reporting again.
 
@@ -127,14 +126,14 @@ Follow these steps in order:
 
 ### Human-Readable Report (for humans)
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
+Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Blocked
 - **File**: the full path to `.agents/blueprint.md`, or the intended path if blocked
 - **What you did**: the file created (path), the parts populated (header, Introduction, Sections 1-5), and confirmation that Sections 6-10 are untouched
 - **Judgement list**: the numbered list from Step 9, for the user to confirm or reject by number
-- **Check results**: one plain sentence per check from Step 7 (template, sample direction one, sample direction two, voice, plain writing, qualification, source-trace, gap), stating that it passed or what was fixed. No scores.
-- **Writing exceptions**: each reviewer finding refused and why, each sentence kept over the limit and why its length is needed, or a statement that there are none
+- **Check results**: one plain sentence per check from Step 7 (template, sample direction one, sample direction two, voice, qualification, source-trace, gap), stating that it passed or what was fixed. No scores.
+- **Reviewer findings left unchanged**: each finding you left that affects what the reader would understand, and why, or a statement that there are none
 - **Could not be determined**: each item the sources did not settle, and where it landed (a `TBD`, a 5.3 or 5.4 question, or a 2.3 or 5.5 assumption)
 - **Questions (only if blocked)**: numbered list
 
@@ -142,6 +141,6 @@ Return a concise, easy-to-scan summary in plain language at a 16-year-old readin
 
 - The template is read from the target folder: `.agents/templates`. Place a copy there before running the command.
 - Commands work only in the project whose folder holds them, so copy this file into the target project's `.claude/commands/drafting/` and run it from that project's root (its top folder); the blueprint lands in that project's `.agents/` folder.
-- The document-reviewer sub-agent must be present in the target project's `.claude/agents/` folder, or the writing review in Step 8 cannot run.
+- The document-reviewer sub-agent must be present in the target project's `.claude/agents/` folder, or the document review in Step 8 cannot run.
 - This command stops at Section 5 by design. Sections 6-10 are the Product Management and Engineering teams' guidance and remain template text until those teams act on them.
 - The optional project-context document adds facts; it does not replace relevant factual context already supplied in the conversation.

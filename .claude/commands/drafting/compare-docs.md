@@ -159,7 +159,7 @@ Include the summary table, diffs, and RCAs and present a fully complete output r
 
 ### Human-Readable Report
 
-Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
+Return a concise, easy-to-scan summary:
 
 - **Documents compared**:
   - Ours: `[file path]`
