@@ -430,10 +430,6 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 
 **Confidence Score**: #/10 that execution will succeed on first attempt
 
-## Document Review
-
-After creating the Plan, start the `document-reviewer` sub-agent once with two paths, `.agents/reference/communication-standard.md` as the standard and the full path to the Plan file as the document, and follow the instruction that closes its response, except that you ignore any finding against a heading or task keyword the Plan template fixes.
-
 ## Report
 
 After creating the Plan, provide:
@@ -443,4 +439,3 @@ After creating the Plan, provide:
 - Complexity assessment
 - Key implementation risks or considerations
 - Estimated confidence score for one-pass success
-- Document-reviewer findings left unchanged, with the reason for each

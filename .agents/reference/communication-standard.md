@@ -8,9 +8,11 @@ An example under a rule shows the kind of change the rule asks for. It is not wo
 
 ## The reader
 
-The reader is the user. The user directs the work and decides what is built, in what order and at what risk. They have the technical knowledge of a junior software engineer, but they do not read code. They read to understand what was found or done, to decide what happens next and to stay in control of the work.
+Unless a task names another reader, the reader is the user. The user directs the work and decides what is built, in what order and at what risk. They have the technical knowledge of a junior software engineer, but they do not read code. They read to understand what was found or done, to decide what happens next and to stay in control of the work.
 
 Assume the reader can follow any reasoning that is set out in full. Assume they do not know a programming term, the name of a tool or a name taken from the code until the conversation shows that they do.
+
+Where a document is written for another AI agent, the reader is that agent. Assume it has seen nothing of the conversation.
 
 ## Every message to the user and every document
 

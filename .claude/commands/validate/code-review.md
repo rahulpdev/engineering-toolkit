@@ -1,7 +1,7 @@
 ---
 description: Audit scoped code changes for real technical issues via Git, then write a human-readable code review report with verified findings and concrete fix suggestions.
 argument-hint: '[additional context] (optional - e.g., "review git commit abc123", "review git commit abc123 def456", "review git range abc123..def456", "focus on backend/")'
-allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(date:*), Write, Edit, Agent, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(date:*), Write, AskUserQuestion
 ---
 
 # /code-review: Technical Code Review
@@ -101,15 +101,9 @@ Follow these steps in order:
    - Write the report to `.agents/reports/review/code-review-<YYYY-MM-DD-HHMMSS>.md`.
    - If no issues are found, the report must include: `Code review passed. No technical issues detected.`
 
-6. **Run the document review.**
-   - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths: `.agents/reference/communication-standard.md` as the standard and the report written in Step 5 as the document.
-   - Follow the instruction that closes its response, using Edit on the report file only.
-   - Correct wording only. Do not add, remove, or re-rate an issue, and ignore any finding against a heading or field name the report format fixes.
-
-7. **Return a concise summary.**
+6. **Return a concise summary.**
    - Report the absolute path to the created code review file on its own line.
    - Summarize the number of findings by severity, change stats, and any skipped files.
-   - List each document-reviewer finding left unchanged that affects what the reader would understand, and why.
    - Do not apply fixes, stage files, commit files, or modify code.
 
 **Decision discipline**
@@ -120,7 +114,7 @@ Follow these steps in order:
 
 **Quality/Safety constraints**
 
-- Do not modify source files. Only write and correct the code review report.
+- Do not modify source files. Only write the code review report.
 - Derive review scope only from `$ARGUMENTS` and Git state.
 - Do not include unrelated staged, unstaged, or untracked changes when commit or range scope is provided unless explicitly requested.
 - Do not run tests, builds, or arbitrary code execution.
@@ -201,4 +195,3 @@ Code review passed. No technical issues detected.
 ## Notes
 
 - This command reviews Git diffs together with full file context.
-- The `document-reviewer` sub-agent must be present in the project's `.claude/agents/` folder, or the document review in Step 6 cannot run.
