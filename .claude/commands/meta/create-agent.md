@@ -1,7 +1,7 @@
 ---
 description: Create a new sub-agent in `.claude/agents/` from the standard sub-agent template, using one required argument and three optional mode arguments
 argument-hint: "<agent-spec: required, quote if it contains spaces> [invocation-mode: optional trailing arg, default=manual, values=autonomous|manual|hybrid] [handoff-mode: optional trailing arg, default=stop-and-wait, values=act-immediately|stop-and-wait|conditional] [artifact-mode: optional trailing arg, default=none, values=report|none]"
-allowed-tools: Read, Write, Bash(mkdir:*), Bash(ls:*), Bash(test:*), AskUserQuestion
+allowed-tools: Read, Write, Edit, Agent, Bash(mkdir:*), Bash(ls:*), Bash(test:*), AskUserQuestion
 ---
 
 # /create-agent: Create a Sub-Agent
@@ -105,7 +105,11 @@ Follow these steps in order:
    - Confirm the primary agent can choose the next action from the sub-agent’s output alone, without inferring missing context, (if it may act or branch conditionally) and any assumptions or inferences made by the primary agent are clearly stated.
    - Confirm the output section preserves the template’s YAML handoff contract, including `status`, `summary`, `artifacts`, `assumptions`, and `recommended_next_action`.
 9. Write the final file to `.claude/agents/<agent-name>.md`.
-10. Return the final response using the Human-Readable Report section below.
+10. Run the document review.
+    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it the path of the file written in step 9.
+    - Follow the instruction that closes its response, except that you ignore any finding against a heading or field name the template fixes.
+    - After the edits, repeat the checks in step 8 once.
+11. Return the final response using the Human-Readable Report section below.
 
 **Decision discipline**
 
@@ -132,8 +136,10 @@ Return a concise, easy-to-scan summary:
 - **Artifact**: `.claude/agents/<agent-name>.md` (or intended path if blocked)
 - **How to run**: exact `/create-agent` invocation used, plus the created agent name
 - **Key design choices**: chosen model, allowed tools rationale, notable scope boundaries, and any artifact path convention used
+- **Reviewer findings left unchanged**: each finding you left that affects what the reader would understand, and why, or a statement that there are none
 - **Questions (only if needed)**: numbered list (only if blocked)
 
 ## Notes
 
 - The template at `@.agents/reference/subagent_template.md` is mandatory. If it feels insufficient, improve the template rather than bypassing it.
+- The `document-reviewer` sub-agent must be present in `.claude/agents/`, or the document review in step 10 cannot run.

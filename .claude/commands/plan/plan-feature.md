@@ -150,7 +150,7 @@ Whats below here is a template for you to fill for the implementation agent:
 ```markdown
 # Feature: <feature-name>
 
-The following plan should be complete, but its important that you validate documentation and codebase patterns and task sanity before you start implementing.
+The following plan is written for the AI agent that implements it. It should be complete, but its important that you validate documentation and codebase patterns and task sanity before you start implementing.
 
 Pay special attention to naming of existing utils types and models. Import from the right files etc.
 
@@ -430,6 +430,10 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 
 **Confidence Score**: #/10 that execution will succeed on first attempt
 
+## Document Review
+
+After creating the Plan, start the `document-reviewer` sub-agent once with the full path to the Plan file, and follow the instruction that closes its response.
+
 ## Report
 
 After creating the Plan, provide:
@@ -439,3 +443,4 @@ After creating the Plan, provide:
 - Complexity assessment
 - Key implementation risks or considerations
 - Estimated confidence score for one-pass success
+- Document-reviewer findings left unchanged, with the reason for each
