@@ -104,7 +104,7 @@ Follow these steps in order:
 6. **Run the document review.**
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths: `.agents/reference/communication-standard.md` as the standard and the report written in Step 5 as the document.
    - Follow the instruction that closes its response, using Edit on the report file only.
-   - Correct wording only. Do not add, remove, or re-rate an issue, and do not change the report's headings or field names.
+   - Correct wording only. Do not add, remove, or re-rate an issue, and ignore any finding against a heading or field name the report format fixes.
 
 7. **Return a concise summary.**
    - Report the absolute path to the created code review file on its own line.

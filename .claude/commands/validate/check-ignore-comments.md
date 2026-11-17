@@ -7,8 +7,6 @@ Find all noqa/type:ignore comments in the codebase, investigate why they exist, 
 
 Create a markdown report file (create the reports directory if not created yet): `.agents/reports/ignore-comments-report-{YYYY-MM-DD}.md`
 
-Once the report is written, start the `document-reviewer` sub-agent once with two paths, `.agents/reference/communication-standard.md` as the standard and the report as the document, and follow the instruction that closes its response.
-
 For each ignore comment found, include in the report:
 
 ---
@@ -46,3 +44,5 @@ For each ignore comment found, include in the report:
 ---
 
 {Repeat for each comment}
+
+Once the report is written, start the `document-reviewer` sub-agent once with two paths, `.agents/reference/communication-standard.md` as the standard and the report as the document, and follow the instruction that closes its response. Correct wording only: do not change a recommendation, and ignore any finding against a field label the format above fixes.

@@ -150,7 +150,7 @@ Whats below here is a template for you to fill for the implementation agent:
 ```markdown
 # Feature: <feature-name>
 
-The following plan is written for the AI agent that implements it. It should be complete, but its important that you validate documentation and codebase patterns and task sanity before you start implementing.
+The following plan should be complete, but its important that you validate documentation and codebase patterns and task sanity before you start implementing.
 
 Pay special attention to naming of existing utils types and models. Import from the right files etc.
 
@@ -432,7 +432,7 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 
 ## Document Review
 
-After creating the Plan, start the `document-reviewer` sub-agent once with two paths, `.agents/reference/communication-standard.md` as the standard and the full path to the Plan file as the document, and follow the instruction that closes its response.
+After creating the Plan, start the `document-reviewer` sub-agent once with two paths, `.agents/reference/communication-standard.md` as the standard and the full path to the Plan file as the document, and follow the instruction that closes its response, except that you ignore any finding against a heading or task keyword the Plan template fixes.
 
 ## Report
 
