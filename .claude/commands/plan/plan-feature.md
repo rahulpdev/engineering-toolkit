@@ -432,7 +432,7 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 
 ## Document Review
 
-After creating the Plan, start the `document-reviewer` sub-agent once with the full path to the Plan file, and follow the instruction that closes its response.
+After creating the Plan, start the `document-reviewer` sub-agent once with two paths, `.agents/reference/communication-standard.md` as the standard and the full path to the Plan file as the document, and follow the instruction that closes its response.
 
 ## Report
 

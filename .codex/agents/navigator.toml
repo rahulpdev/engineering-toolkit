@@ -97,11 +97,11 @@ When the differences between options are only marginal — when options address 
 
 9. **Write the artifact report.** Write the report to the path specified in the Artifact Contract section, using the current timestamp.
 
-10. **Run the document review.** Start the `document-reviewer` sub-agent once and pass it the artifact path and nothing else. Follow the instruction that closes its response, with these limits:
+10. **Run the document review.** Start the `document-reviewer` sub-agent once and pass it two paths and nothing else: `.agents/reference/communication-standard.md` as the standard and the artifact path as the document. Follow the instruction that closes its response, with these limits:
    - Correct wording only. Do not change a ranking, an alignment score, a reversibility rating, or a tie-break.
    - Ignore any finding against a heading, table column, or field name the report template fixes.
    - Record each finding you leave that affects what the reader would understand, with the reason, under `document_review` in your output.
-   - If the sub-agent cannot be started, set `document_review.status` to `not-run` and continue.
+   - If the sub-agent cannot be started, or reports that it is blocked, set `document_review.status` to `not-run` and continue.
 
 11. **Return the YAML handoff.** Produce the final YAML block as specified in the Output section.
 

@@ -106,7 +106,7 @@ Follow these steps in order:
    - Confirm the output section preserves the template’s YAML handoff contract, including `status`, `summary`, `artifacts`, `assumptions`, and `recommended_next_action`.
 9. Write the final file to `.claude/agents/<agent-name>.md`.
 10. Run the document review.
-    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it the path of the file written in step 9.
+    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths: `.agents/reference/communication-standard.md` as the standard and the file written in step 9 as the document.
     - Follow the instruction that closes its response, except that you ignore any finding against a heading or field name the template fixes.
     - After the edits, repeat the checks in step 8 once.
 11. Return the final response using the Human-Readable Report section below.

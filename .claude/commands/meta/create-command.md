@@ -94,7 +94,7 @@ Follow these steps in order:
    - If the target file already exists, stop and ask before overwriting.
 7. **Write the new command file to `.claude/commands/<command-name>.md`.**
 8. **Run the document review.**
-   - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it the path of the file written in Step 7.
+   - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths: `.agents/reference/communication-standard.md` as the standard and the file written in Step 7 as the document.
    - Follow the instruction that closes its response, except that you ignore any finding against a heading the template fixes.
    - After the edits, repeat the checks in Step 6 once.
 9. **Handoff: produce the final response using the OUTPUT section below.**
