@@ -221,6 +221,7 @@ These files exist in the repository before planning starts. The planning agent v
 | `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md` | This specification |
 | `.agents/reference/vertical-slice-architecture-setup-guide.md` | Researched by the planning agent for Steps 8 and 11 |
 | `.agents/reference/obsidian-community-plugin-development.md` | The Obsidian plugin development reference: policies, manifest, guidelines, testing, release; researched by the planning agent for Steps 1, 2, 9, 10 and 11 |
+| `.agents/reference/communication-standard.md` | The rules for messages to the user and for documents; loaded by the `CLAUDE.md` written in Step 12 |
 | `.agents/templates/template_readme.md` | The structure, format and voice of `README.md`; followed in Step 12 |
 | `.agents/templates/template_claude_md.md` | The structure, format and voice of `CLAUDE.md`; followed in Step 12 |
 | `.claude/commands/git/commit.md` | `/git:commit` — used at every commit boundary |
@@ -518,7 +519,7 @@ The foundation is complete when all of the following hold:
 .
 ├── .agents/
 │   ├── PRD.md · TAD.md
-│   ├── reference/  (ai_optimized_codebase_setup_obsidian_plugin, vertical-slice-architecture-setup-guide, obsidian-community-plugin-development)
+│   ├── reference/  (ai_optimized_codebase_setup_obsidian_plugin, vertical-slice-architecture-setup-guide, obsidian-community-plugin-development, communication-standard)
 │   └── templates/  (template_readme, template_claude_md)
 ├── .claude/commands/  (git/commit, validate/validate)
 ├── .github/
