@@ -1,6 +1,6 @@
 ---
 description: Find every noqa and type-ignore comment in the codebase, investigate why each exists, and write a report with resolution options and a recommendation for each.
-allowed-tools: Read, Glob, Grep, Bash(mkdir:*), Bash(date:*), Write
+allowed-tools: Read, Glob, Grep, Bash(mkdir:*), Bash(date:*), Write, Edit, Agent
 ---
 
 Find all noqa/type:ignore comments in the codebase, investigate why they exist, and provide recommendations for resolution or justification.
@@ -44,3 +44,5 @@ For each ignore comment found, include in the report:
 ---
 
 {Repeat for each comment}
+
+Once the report is written, start the `document-reviewer` sub-agent once and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the report. Follow the instruction that closes its response. Correct wording only: do not change a recommendation, and ignore any finding against a field label the format above fixes.

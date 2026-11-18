@@ -1,7 +1,7 @@
 ---
 description: Create a new custom slash command in `.claude/commands/` using the standard template
 argument-hint: "[extra-context] (optional - description, constraints, or examples for the command you want to create)"
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash(mkdir:*), Bash(ls:*), Bash(test:*), AskUserQuestion
+allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(mkdir:*), Bash(ls:*), Bash(test:*), AskUserQuestion
 ---
 
 # /create-command: Create a Custom Slash Command
@@ -93,7 +93,11 @@ Follow these steps in order:
      - No absolute or machine-specific file paths (every path is project-relative or home-relative)
    - If the target file already exists, stop and ask before overwriting.
 7. **Write the new command file to `.claude/commands/<command-name>.md`.**
-8. **Handoff: produce the final response using the OUTPUT section below.**
+8. **Run the document review.**
+   - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in Step 7.
+   - Follow the instruction that closes its response, except that you ignore any finding against a heading the template fixes.
+   - After the edits, repeat the checks in Step 6 once.
+9. **Handoff: produce the final response using the OUTPUT section below.**
 
 **Decision discipline**
 
@@ -119,7 +123,9 @@ Return a concise, easy-to-scan summary:
 - **Artifact**: the created file path (or intended path if blocked)
 - **How to run**: exact `/command-name` invocation examples
 - **Key design choices**: argument policy + output consumer + `allowed-tools` rationale
+- **Document review**: what the document-reviewer's closing instruction says to tell the user
 
 ## Notes
 
 - The template is the standard. If it seems insufficient for a particular command, the right move is to improve the template — not to bypass it.
+- The `document-reviewer` sub-agent must be present in `.claude/agents/`, or the document review in Step 8 cannot run.

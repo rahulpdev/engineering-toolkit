@@ -104,7 +104,7 @@ Follow these steps in order:
    - _Source-trace check_: no mention of the reference document, the sample, or the conversation, and no citation-like wording (such as "according to", "the report", "the handoff", "see section", "source:").
    - _Gap check_: no hedging phrases inside sentences; every gap sits in a permitted place.
    - If a failure cannot be fixed without inventing a fact, move the gap to a permitted place instead.
-8. **Run the document review.** Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it the path `.agents/blueprint.md`. Follow the instruction that closes its report, except that you ignore any finding in Sections 6-10 and do not report it, because that text is the template's. After the edits, repeat the checks in Step 7 once.
+8. **Run the document review.** Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the document at `.agents/blueprint.md`. Follow the instruction that closes its report, except that you ignore any finding in Sections 6-10 and do not report it, because that text is the template's. After the edits, repeat the checks in Step 7 once.
 9. **Compile the judgement list** from the Step 6 log: a numbered list in plain English. One item per inference, assumption, interpretation, rating, Owner, framing decision from Step 4, Prepared By choice, and proposed content. Each item states what was decided, why, and where it sits in the blueprint. This list goes in the report, never in the blueprint.
 10. **Report** using the Output section below, then stop and wait for the user to confirm or reject each judgement by number. When the user responds, apply the rulings with minimal edits and repeat Step 7 only before reporting again.
 
@@ -133,7 +133,7 @@ Return a concise, easy-to-scan summary:
 - **What you did**: the file created (path), the parts populated (header, Introduction, Sections 1-5), and confirmation that Sections 6-10 are untouched
 - **Judgement list**: the numbered list from Step 9, for the user to confirm or reject by number
 - **Check results**: one plain sentence per check from Step 7 (template, sample direction one, sample direction two, voice, qualification, source-trace, gap), stating that it passed or what was fixed. No scores.
-- **Reviewer findings left unchanged**: each finding you left that affects what the reader would understand, and why, or a statement that there are none
+- **Document review**: what the document-reviewer's closing instruction says to tell the user
 - **Could not be determined**: each item the sources did not settle, and where it landed (a `TBD`, a 5.3 or 5.4 question, or a 2.3 or 5.5 assumption)
 - **Questions (only if blocked)**: numbered list
 
