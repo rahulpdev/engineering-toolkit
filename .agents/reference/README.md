@@ -8,7 +8,7 @@
 
 ## Overview
 
-This folder holds the files that commands and sub-agents read while they run, and the guides that explain the thinking behind them. It installs into a project as `.agents/reference/`, and the path matters: `/meta:create-command` and `/meta:create-agent` load the two templates from here, the four review-chain audits load `repo_change_hygiene.md` from here, `/drafting:draft-blueprint` and `/drafting:seamless-edit` load `communication-standard.md` from here and stop if it is missing, and every command and sub-agent that starts the document reviewer hands it that file's path. Two files are design documents whose tooling has not been built; they are marked as such below. The vertical-slice architecture guide that the codebase setup specifications and `/plan:set-heading` can use is not in this folder, because it is Rasmus Widing's work; a project that needs it places the author's copy at `.agents/reference/vertical-slice-architecture-setup-guide.md`.
+This folder holds the files that commands and sub-agents read while they run, and the guides that explain the thinking behind them. It installs into a project as `.agents/reference/`, and the path matters: `/meta:create-command` and `/meta:create-agent` load the two templates from here, the four review-chain audits load `repo_change_hygiene.md` from here, `/drafting:draft-blueprint` and `/drafting:seamless-edit` load `communication-standard.md` from here and stop if it is missing, and every command, skill and sub-agent that starts the document reviewer hands it that file's path. Two files are design documents whose tooling has not been built; they are marked as such below. The vertical-slice architecture guide that the codebase setup specifications and `/plan:set-heading` can use is not in this folder, because it is Rasmus Widing's work; a project that needs it places the author's copy at `.agents/reference/vertical-slice-architecture-setup-guide.md`.
 
 ## Key Features
 
@@ -30,7 +30,7 @@ Each item below is a file in this folder.
 - [`structured_solution_planning.md`](structured_solution_planning.md): **Structured solution planning** — an eight-stage problem-solving framework (frame, build context, define, generate options, evaluate, structure, validate, plan) mapped onto the planning chain, with the competencies and failure modes of each stage.
 - [`piv_loop_reference.md`](piv_loop_reference.md): **PIV loop reference** — a summary of the Plan, Implement, Validate development loop, its command system, the five-level validation pyramid and the practice of evolving commands and rules from each loop's friction.
 - [`classify_command_processes.md`](classify_command_processes.md): **Classifying command processes by determinism** — a framework for deciding which steps of a command need an AI's judgement and which should be a script, plus specifications for two meta commands that would apply it. Specification only: neither meta command has been built.
-- [`convert_command_to_skill.md`](convert_command_to_skill.md): **Commands versus skills** — how Claude Code slash commands and skills differ, how a skill is ported to Codex, and specifications for two conversion scripts with error codes and rollback rules. The reference section is current; the two scripts have not been built.
+- [`convert_command_to_skill.md`](convert_command_to_skill.md): **Commands versus skills** — how Claude Code slash commands and skills differ, how a skill is ported to Codex, and specifications for two conversion scripts with error codes and rollback rules. The reference section predates three facts: commands and skills are now one feature, a skill inside a group subfolder is not found, and a skill can run in a separate agent. The two scripts have not been built.
 - [`external_services.md`](external_services.md): **Third-party external services** — rules for requesting, validating and storing credentials and for integrating an external service.
 - [`delivery_and_deployment.md`](delivery_and_deployment.md): **CI/CD and deployment** — digest-pinned image deployment to DigitalOcean App Platform with Terraform, and Python module resolution inside Docker.
 - [`LLM_docs.md`](LLM_docs.md): **Documentation links** — the official Claude Code and Codex pages on skills and sub-agents.
@@ -41,5 +41,5 @@ When adding or changing files in this folder:
 
 - Keep this README list in sync with the files present.
 - A change to either template changes every command or sub-agent created afterwards; re-check the meta commands that load it.
-- A change to `communication-standard.md` or `repo_change_hygiene.md` changes the behaviour of the commands that read it at run time; re-read those commands.
+- A change to `communication-standard.md` or `repo_change_hygiene.md` changes the behaviour of the commands and skills that read it at run time; re-read them.
 - Mark any file that specifies unbuilt tooling as such in its entry here.

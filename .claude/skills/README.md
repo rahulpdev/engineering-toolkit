@@ -8,7 +8,7 @@
 
 ## Overview
 
-This folder contains Claude Code skills: one folder per skill, each holding a `SKILL.md` with YAML frontmatter and any supporting files it links to. Claude reads a supporting file only when `SKILL.md` tells it to, so long or verbatim material can sit in its own file. The frontmatter names the skill, describes when to use it, can stop Claude from starting it on its own (`disable-model-invocation: true`), so that it runs only when invoked as `/<name>`, and can run the skill in a separate agent that has not seen the conversation (`context: fork`).
+This folder contains Claude Code skills: one folder per skill, each holding a `SKILL.md` with YAML frontmatter and any supporting files it links to. Claude reads a supporting file only when `SKILL.md` tells it to, so long or verbatim material can sit in its own file. The frontmatter names the skill and describes when to use it. It can also stop Claude from starting the skill on its own (`disable-model-invocation: true`), so that it runs only when invoked as `/<name>`, and can run the skill in a separate agent that has not seen the conversation (`context: fork`).
 
 ## Key Features
 
@@ -33,5 +33,7 @@ Each item below is a skill folder in this directory.
 When adding or changing skills in this folder:
 
 - Keep this `README.md` list in sync with the skill folders present.
+- Place each skill folder directly in this folder; Claude Code does not find a skill inside a group subfolder.
+- Draft a skill by converting an existing command.
 - Give every `SKILL.md` a `name` and a `description` that says when to use the skill, and link every supporting file from `SKILL.md`.
 - Set `disable-model-invocation: true` for a skill that should run only when the user invokes it.

@@ -8,7 +8,7 @@
 
 ## Overview
 
-This folder holds the Codex form of the three sub-agents defined in `.claude/agents/`. Each TOML file is generated from its Markdown counterpart by `scripts/claude_to_codex_subagent_converter.py`: the name and description are copied, the Markdown body becomes `developer_instructions`, and the Claude model tier and effort are translated through the script's mapping tables. The files are never edited by hand; after a change to a Claude sub-agent, the Codex file is regenerated and the tests in `scripts/tests/` confirm the two agree. The folder installs into a project as `.codex/`. Codex has no slash commands, so the commands in `.claude/commands/` are run there by asking Codex to read and follow a command file in full.
+This folder holds the Codex form of the three sub-agents defined in `.claude/agents/`. Each TOML file is generated from its Markdown counterpart by `scripts/claude_to_codex_subagent_converter.py`: the name and description are copied, the Markdown body becomes `developer_instructions`, and the Claude model tier and effort are translated through the script's mapping tables. The files are never edited by hand; after a change to a Claude sub-agent, the Codex file is regenerated and the tests in `scripts/tests/` confirm the two agree. The folder installs into a project as `.codex/`. Codex has no slash commands, so the commands in `.claude/commands/` and the skills in `.claude/skills/` are run there by asking Codex to read and follow the file in full.
 
 ## Key Features
 
