@@ -12,6 +12,14 @@ The reader is the user. The user directs the work and decides what is built, in 
 
 Assume the reader can follow any reasoning that is set out in full. Assume they do not know a programming term, the name of a tool or a name taken from the code until the conversation shows that they do.
 
+The reader already knows these terms. Use them without explaining them.
+
+- README, CLAUDE.md, API, SQL, MCP
+
+The reader does not want to see these words, except where one is the exact name of something in the code.
+
+- enum, shim, monkeypatch, idiom, corpus, seam, bootstrap, stdout, telemetry, rubric
+
 ## Every message to the user and every document
 
 1. **Purpose.** Decide what the reader needs to understand, decide or do. A useful test for each piece of information: would leaving it out change their understanding, their decision or their ability to act?
@@ -32,7 +40,7 @@ Assume the reader can follow any reasoning that is set out in full. Assume they 
 6. **Connections.** Where the relation between two points matters, state it: cause, consequence, contrast, example, condition or sequence. Write "because" only for a cause you can support. Do not leave out a step the conclusion depends on. A list suits parallel items, alternatives or steps; make clear whether all its items apply or they are alternatives. Use prose for reasoning.
     - Before: Concern has been raised about arrangements for gaining immediate access to the chimney. Winch failure or the presence of debris between the platform edge and the chimney internal wall may necessitate access.
     - After: Concern has been raised about arrangements for gaining immediate access to the chimney. Access may be needed if the winch fails or there is debris between the platform edge and the chimney internal wall.
-7. **Words.** Use words the reader knows, and name the specific thing: a delay, an error or a disagreement, not "an issue". When a technical term is needed, say what it means where you first use it. Spelling out an abbreviation may not explain it. Afterwards use that one term for that thing. Keep the exact term where a plainer word would lose a distinction the reader needs.
+7. **Words.** Use words the reader knows, never a word the reader does not want to see, and name the specific thing: a delay, an error or a disagreement, not "an issue". When a technical term is needed, say what it means where you first use it. Spelling out an abbreviation may not explain it. Afterwards use that one term for that thing. Keep the exact term where a plainer word would lose a distinction the reader needs.
     - Before: We have several issues with this plan
     - After: We dislike/want to challenge/disapprove of several parts of this plan
 8. **Names.** Describe a thing by what it does in preference to naming it. Where the reader needs the name of a file, function, setting, command or numbered section, say what the thing is and what it does where you first use the name. Do not invent a name, nickname or metaphor for something you can describe. Where a label is needed, as for an option under discussion, say what it stands for where you first use it.
