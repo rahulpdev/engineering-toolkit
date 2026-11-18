@@ -1,10 +1,13 @@
 ---
+name: technical-code-review
 description: Audit scoped code changes for real technical issues via Git, then write a human-readable code review report with verified findings and concrete fix suggestions.
 argument-hint: '[additional context] (optional - e.g., "review git commit abc123", "review git commit abc123 def456", "review git range abc123..def456", "focus on backend/")'
 allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(date:*), Write, Edit, Agent, AskUserQuestion
+context: fork
+agent: general-purpose
 ---
 
-# /code-review: Technical Code Review
+# /technical-code-review: Technical Code Review
 
 ## Philosophy (Why this exists)
 
@@ -14,11 +17,11 @@ Code can drift away from quality, security, and performance standards as it chan
 
 **Usage examples**
 
-- `/code-review`
-- `/code-review review git commit abc123`
-- `/code-review review git commit abc123 def456`
-- `/code-review review git range abc123..def456`
-- `/code-review focus on backend/`
+- `/technical-code-review`
+- `/technical-code-review review git commit abc123`
+- `/technical-code-review review git commit abc123 def456`
+- `/technical-code-review review git range abc123..def456`
+- `/technical-code-review focus on backend/`
 
 **Arguments received**
 

@@ -1,6 +1,9 @@
 ---
+name: check-ignore-comments
 description: Find every noqa and type-ignore comment in the codebase, investigate why each exists, and write a report with resolution options and a recommendation for each.
 allowed-tools: Read, Glob, Grep, Bash(mkdir:*), Bash(date:*), Write, Edit, Agent
+context: fork
+agent: general-purpose
 ---
 
 Find all noqa/type:ignore comments in the codebase, investigate why they exist, and provide recommendations for resolution or justification.

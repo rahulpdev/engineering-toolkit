@@ -39,7 +39,7 @@ Each item below is a top-level folder. Its own README lists the files inside it.
 
 - [`.claude/commands/`](.claude/commands/README.md): **Claude Code slash commands** — commands organised in groups; the group folder is the command namespace (`git/commit.md` is `/git:commit`). Copy to a project's `.claude/commands/`.
 - [`.claude/agents/`](.claude/agents/README.md): **Claude Code sub-agents** — `document-reviewer`, `navigator` and `pathfinder`. Copy to a project's `.claude/agents/`.
-- [`.claude/skills/`](.claude/skills/README.md): **Claude Code skills** — `task-structuring`, which turns a rough request into a tightly scoped work brief for another LLM; run it with `/task-structuring`. Copy to a project's `.claude/skills/`, or to `~/.claude/skills/` to use it in every project.
+- [`.claude/skills/`](.claude/skills/README.md): **Claude Code skills** — `check-ignore-comments`, which reports on every comment that switches off a code check, `new-worktree` and `merge-worktrees`, which start and finish a piece of work in its own worktree, `task-structuring`, which turns a rough request into a tightly scoped work brief for another LLM, and `technical-code-review`, which audits code changes and writes a review report; run each as `/<name>`. Copy to a project's `.claude/skills/`, or to `~/.claude/skills/` to use it in every project.
 - [`.claude/output-styles/`](.claude/output-styles/README.md): **Claude Code output styles** — `project-ideator`, which shapes a vague software idea into one Objective with measurable Key Results. Copy to a project's `.claude/output-styles/`, or to `~/.claude/output-styles/` to use it in every project.
 - [`.codex/`](.codex/README.md): **Codex sub-agents** — the same three sub-agents in TOML, generated from the Claude versions and never edited by hand. Copy to a project's `.codex/`.
 - [`.agents/reference/`](.agents/reference/README.md): **Reference standards and guides** — the command and sub-agent templates, the communication standard, the rules the review chain audits against, the planning framework and the worktree setup. Copy to a project's `.agents/reference/`; several commands read these files by that path.
@@ -53,6 +53,11 @@ Each item below is a top-level folder. Its own README lists the files inside it.
 When adding or changing files in this repository:
 
 - Keep each folder's README in sync with the files it holds, and keep this README's folder list in sync with the folders.
+- Decide what a new set of instructions becomes by asking these questions in order and stopping at the first yes:
+  - Should it govern every reply of a session, as a role, a tone or a way of holding the whole conversation? Make it an output style. One is active at a time, and it can drop Claude Code's built-in coding instructions.
+  - Should the work go to a separate helper that sees none of the conversation and reports back? Make it a sub-agent. Use one where the work needs a view independent of the conversation, or would crowd it.
+  - Is it a task called for partway through other work, which needs supporting files of its own or which Claude should be able to start unasked? Make it a skill, a folder that carries those files with it.
+  - Is it a single file run only by typing its name, such as one step in a chain run by hand? Make it a command.
 - Create commands with `/meta:create-command` and sub-agents with `/meta:create-agent` so they follow the shared templates; do not draft them freehand.
 - After changing a Claude sub-agent, regenerate its Codex file with the script in `scripts/` and run the tests there.
 - Keep every path project-relative or home-relative; never commit a machine-specific path, a credential or a `.env` file.

@@ -8,7 +8,7 @@ allowed-tools: Read, Edit, Write, Glob, Grep, Bash(git:*), Bash(npm:*), Bash(pnp
 
 ## Philosophy (Why this exists)
 
-A code review is only useful when its findings get turned into real, verified fixes. This command takes the output of `/code-review`, or a clearly described manual issue, fixes only the stated problems one at a time — proves each fix with the narrowest relevant test — and then runs the project's validate command so the whole codebase is checked once everything is done.
+A code review is only useful when its findings get turned into real, verified fixes. This command takes the output of `/technical-code-review`, or a clearly described manual issue, fixes only the stated problems one at a time — proves each fix with the narrowest relevant test — and then runs the project's validate command so the whole codebase is checked once everything is done.
 
 ## Invocation & Arguments (INPUT)
 
@@ -152,5 +152,5 @@ Return a concise, easy-to-scan summary:
 
 ## Notes
 
-- This command is designed to consume the report produced by `/code-review`, but it also accepts a clearly described manual issue when the user has spotted a problem during testing.
+- This command is designed to consume the report produced by `/technical-code-review`, but it also accepts a clearly described manual issue when the user has spotted a problem during testing.
 - Final validation should be a single comprehensive sweep over the codebase so the user knows the fixes did not break anything else.
