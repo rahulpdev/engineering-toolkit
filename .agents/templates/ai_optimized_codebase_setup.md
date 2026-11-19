@@ -2,7 +2,7 @@
 
 **What this is:** the specification for building the technical foundation of a new Python backend repository. A planning agent reads it, together with the repository's PRD and TAD, and writes an implementation plan. An implementation agent executes that plan. The specification fixes the tooling, structure and conventions of the foundation, and names the few decisions that must be resolved from the PRD and TAD.
 **Prepared by:** Rahul Parmar
-**Version:** 1.7 — 2026-11-12
+**Version:** 1.8 — 2026-11-19
 **Location:** copied unchanged into every new repository at `.agents/reference/ai_optimized_codebase_setup.md`.
 
 ---
@@ -483,7 +483,7 @@ The two files divide the material between them and never repeat it. `CLAUDE.md` 
   - a local-server smoke test: uvicorn on `{{APP_PORT}}`, every endpoint Section 6 lists, the `X-Request-ID` header on each response, then the server stopped
   - a Docker check: `docker compose up -d --build`, the same endpoints, `docker compose logs` showing structured JSON with `request_id` and the startup event, then `docker compose down`
 
-**Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches `pyproject.toml`, and each development command has been run and succeeded (one that would create a migration is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its ports, commands and configuration table against the repository.
+**Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; `CLAUDE.md` names neither the PRD nor the TAD; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches `pyproject.toml`, and each development command has been run and succeeded (one that would create a migration is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its ports, commands and configuration table against the repository.
 **Commit:** `docs: add README and global development rules (CLAUDE.md)`
 
 ---
@@ -995,7 +995,7 @@ All configuration is via environment variables. Copy `.env.example` to `.env` to
 | `ALLOWED_ORIGINS` | No       | `["http://localhost:3000","http://localhost:[port]"]`  | CORS allowed origins (JSON array)                       |
 | [`VARIABLE`]      | [Yes/No] | [default or —]                                         | [one line — one row per application-specific setting]   |
 
-[Where any further configuration reference lives, e.g. a TAD section.]
+[Where any further configuration reference lives.]
 
 **Local database connection string:**
 

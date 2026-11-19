@@ -2,7 +2,7 @@
 
 **What this is:** the specification for building the technical foundation of a new Obsidian plugin repository in TypeScript. A planning agent reads it, together with the repository's PRD and TAD, and writes an implementation plan. An implementation agent executes that plan. The specification fixes the tooling, structure and conventions of the foundation, and names the few decisions that must be resolved from the PRD and TAD.
 **Prepared by:** Rahul Parmar
-**Version:** 1.5 — 2026-11-12
+**Version:** 1.6 — 2026-11-19
 **Location:** copied unchanged into every new plugin repository at `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md`.
 
 ---
@@ -490,7 +490,7 @@ The two files divide the material between them and never repeat it. `CLAUDE.md` 
   - a bundle check: `main.js`, `manifest.json` and `styles.css` at the root, `obsidian` left external, and `main.js` within the Step 11 size budget
   - `[D2]` one operation run through the test client's command line against a copy of `test-vault/`, confirming that its log lines carry the `correlationId` of its `Result`
 
-**Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches the lockfile, and each development command has been run and succeeded (one that would create a version or a release is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its commands, settings table and disclosures against the repository.
+**Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; `CLAUDE.md` names neither the PRD nor the TAD; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches the lockfile, and each development command has been run and succeeded (one that would create a version or a release is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its commands, settings table and disclosures against the repository.
 **Commit:** `docs: add README and global development rules (CLAUDE.md)`
 
 ---
@@ -645,6 +645,7 @@ scripts/                    # Build checks, version bump, manifest check
 - `shared/` — only code used by **3 or more** feature slices; never feature-specific logic
 - Each feature slice is self-contained; a slice uses only what another slice publishes through its `index.ts`
 - `main.ts` does lifecycle and nothing else
+- A write to a note states the value it expects to replace; where the note holds a different value, that value stays and the write reports the conflict
 - [The process-model rule for this application: what Obsidian loads, and any other program built from this repository]
 ````
 
@@ -701,7 +702,7 @@ export const CustomerSchema = z.object({
 export type Customer = z.infer<typeof CustomerSchema>;
 ```
 
-> **Vault data exception:** Fields written to a note keep exactly the names the PRD fixes (e.g., `id`, `status`), however short. Variables, properties and types inside the code must always use verbose names. When a schema describes vault data, its keys are the PRD's names and the code maps them to verbose names where it reads them.
+> **Vault data exception:** Fields written to a note keep exactly the names used in the note's front matter (e.g., `id`, `status`), however short. Variables, properties and types inside the code must always use verbose names. When a schema describes vault data, its keys are those names and the code maps them to verbose names where it reads them.
 ````
 
 #### logger setup
@@ -1008,7 +1009,7 @@ All configuration is through the plugin's settings tab in Obsidian. No environme
 | ----------- | ------------- | -------------------------------------------- |
 | [`Setting`] | [default]     | [one line — one row per setting]             |
 
-[Where the settings are stored, and where any further configuration reference lives, e.g. a TAD section.]
+[Where the settings are stored, and where any further configuration reference lives.]
 
 **Database connection strings:** Not applicable — a plugin has no database. [Where plugin-owned data is kept.]
 ````

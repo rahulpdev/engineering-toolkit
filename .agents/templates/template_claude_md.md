@@ -6,10 +6,12 @@ with this application's content from the PRD and TAD, then remove the brackets.
 A slot of the form [Stack block: name] is replaced by the block of that name in
 the appendix of the codebase setup specification, and that block's own slots
 are filled the same way. Everything outside brackets is kept as written. The
-code examples are kept as written too: they show format, and their customer and
-order names are placeholders. Only their error codes change, and only where
-this application's error-code format differs from the one they use. Delete this
-comment block from the finished file.
+finished file states every rule in its own words: no line names the PRD or the
+TAD or cites a section of either. The code examples are kept as written too:
+they show format, and their customer and order names are placeholders. Only
+their error codes change, and only where this application's error-code format
+differs from the one they use. Delete this comment block from the finished
+file.
 -->
 
 # [Application name] — Global Agent Rules
@@ -39,7 +41,7 @@ comment block from the finished file.
 
 **REQUIREMENT ALIGNMENT IS REQUIRED**
 
-- Maintain a three-way match between: stated requirements (PRD, TAD), implementation plan, and final code
+- Maintain a three-way match between: the requirements the implementation plan was written from, the implementation plan, and the final code
 - When a change makes any statement in this file untrue, correct this file in the same change
 
 [Stack block: documentation comment rule]
