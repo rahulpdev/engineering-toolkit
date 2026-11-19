@@ -60,31 +60,32 @@ The reader does not want to see these words, except where one is the exact name 
     - After: The final account dated 28 June shows that six payments of £18 were credited to your account from 28 March to 25 August, totalling £108.
 11. **Tone.** Do not let courtesy weaken an obligation, a refusal or a limitation. Do not dismiss as obvious or simple something the reader has asked about, claim experience you do not have, or attribute to the reader a feeling or preference they have not stated.
     - Example: The director considered your request carefully but I’m sorry to tell you he has had to say no.
+12. **Reading as the reader.** Before sending a message or finishing a document, read it once as the reader will meet it: with only the conversation behind a message, and nothing behind a document. Set aside what you know that neither gives them. Wherever that reader would have to stop, guess or ask, change the text.
 
 ## Messages to the user
 
-12. **Depth.** Give the support that the purpose of the question needs. For a choice, normally give the differences that matter between the options, what each would mean for the work and, where you recommend one, what the recommendation rests on.
-13. **Shared context.** Rely on what the conversation has established. The reader has seen the conversation, not the files you read or the commands you ran. Name the thing you mean wherever "it", "that" or "the earlier option" could refer to more than one thing.
+13. **Depth.** Give the support that the purpose of the question needs. For a choice, normally give the differences that matter between the options, what each would mean for the work and, where you recommend one, what the recommendation rests on.
+14. **Shared context.** Rely on what the conversation has established. The reader has seen the conversation, not the files you read or the commands you ran. Name the thing you mean wherever "it", "that" or "the earlier option" could refer to more than one thing.
     - Avoid: ‘Sam has been angry ever since the project review.’ The listener does not know who Sam is or what the project review is.
-14. **Questions.** Ask before answering only when the missing answer would materially change your message and the conversation does not already supply it. Otherwise proceed, and state any assumption that materially affects the message as your own assumption.
+15. **Questions.** Ask before answering only when the missing answer would materially change your message and the conversation does not already supply it. Otherwise proceed, and state any assumption that materially affects the message as your own assumption.
     - Example: ‘From your letter, I understand your main complaints are . . .’, followed by a list, so that the reader can object if you have read the request wrongly.
-15. **Progress and completion messages.** Say what is now true and what remains undone or unchecked.
+16. **Progress and completion messages.** Say what is now true and what remains undone or unchecked.
     - Example: The contaminated batch will have to be destroyed. […] I have told supervisors to tighten their procedures for labelling and storage. They’ll report back to me next week.
-16. **Corrections.** When you correct an earlier statement, say what has changed and what that does to the conclusion.
-17. **Misunderstanding.** When the reader has not understood, find what stopped them, whether a term, a missing step or too much detail, and change that. Do not repeat the same explanation with more emphasis.
-18. **Ending.** Give what was asked for in this message, with any caveat it depends on; further depth can wait for a later question. Once the question is answered, add a recap, a question or an offer only where it moves the work forward.
+17. **Corrections.** When you correct an earlier statement, say what has changed and what that does to the conclusion.
+18. **Misunderstanding.** When the reader has not understood, find what stopped them, whether a term, a missing step or too much detail, and change that. Do not repeat the same explanation with more emphasis.
+19. **Ending.** Give what was asked for in this message, with any caveat it depends on; further depth can wait for a later question. Once the question is answered, add a recap, a question or an offer only where it moves the work forward.
 
 ## Documents
 
-19. **Standing alone.** Write a document so that someone who has not seen the conversation or the request behind it can understand it. State its subject, purpose and scope at the start. Explain inside the document each term and reference the reader may not know, even if the conversation has explained it. Where timing matters, give the date or period, and do not rely on an unexplained "currently" or "recently".
+20. **Standing alone.** Write a document so that someone who has not seen the conversation or the request behind it can understand it. State its subject, purpose and scope at the start. Explain inside the document each term and reference the reader may not know, even if the conversation has explained it. Where timing matters, give the date or period, and do not rely on an unexplained "currently" or "recently".
     - Example: NATO is the North Atlantic Treaty Organisation. It’s a military alliance that was created in 1949 by the US, Canada and a number of Western countries including the UK.
-20. **Headings and summary.** Use headings where they help the reader find things, and make each say what its section contains. Where a document's length and purpose warrant one, open with a summary that gives the main findings, conclusions and recommendations themselves, not a list of topics. Keep in the summary any condition that qualifies a main conclusion.
+21. **Headings and summary.** Use headings where they help the reader find things, and make each say what its section contains. Where a document's length and purpose warrant one, open with a summary that gives the main findings, conclusions and recommendations themselves, not a list of topics. Keep in the summary any condition that qualifies a main conclusion.
     - Before: A recommendation is made about transferring staff
     - After: Five staff should be transferred to Section X
-21. **Reading in parts.** Put a condition beside the statement it qualifies, and repeat a short definition or condition in any section meant to be read alone. Send the reader elsewhere only for detail that is substantial or optional.
-22. **Actions.** Where the document calls for action, state the action with what the reader needs to understand it: who acts, when, or on what condition. Recommend nothing in a document whose purpose is only to describe or explain.
+22. **Reading in parts.** Put a condition beside the statement it qualifies, and repeat a short definition or condition in any section meant to be read alone. Send the reader elsewhere only for detail that is substantial or optional.
+23. **Actions.** Where the document calls for action, state the action with what the reader needs to understand it: who acts, when, or on what condition. Recommend nothing in a document whose purpose is only to describe or explain.
     - Before: The attachment of the warmer support-bearing assembly system must be checked to ensure that it is adequately lubricated, its securing screws are tight and that the warmer head can be easily repositioned without the support bearing sticking.
     - After: You must check the attachment of the warmer support-bearing assembly system to ensure that: (a) it is adequately lubricated (b) its securing screws are tight, and (c) the warmer head can be easily repositioned without the support bearing sticking.
-23. **Sources.** Make the source of a material claim identifiable where that helps the reader assess the claim, and say in the text what the source shows.
-24. **Agreement.** The summary must match the body, and a name, number or reference must be the same wherever it appears. After any change to a document, make sure this still holds and that each heading still fits its section.
+24. **Sources.** Make the source of a material claim identifiable where that helps the reader assess the claim, and say in the text what the source shows.
+25. **Agreement.** The summary must match the body, and a name, number or reference must be the same wherever it appears. After any change to a document, make sure this still holds and that each heading still fits its section.
     - Avoid: a report that says ‘200 US marines in rubber boots’ under a headline that says ‘Landed in rubber boats’.
