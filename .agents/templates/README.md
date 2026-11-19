@@ -8,7 +8,7 @@
 
 ## Overview
 
-This folder holds the documents a new project is started from. Each is copied into the project and filled in there; none is edited in place. They form a chain: the idea intake captures a hypothesis, the blueprint turns it into a brief for Product Management and Engineering (who write the PRD, the product requirements document, and the TAD, the technical architecture document, from it), and a codebase setup specification then tells a planning agent and an implementation agent how to build the repository's foundation in validated, committed steps before any feature is written. The README and `CLAUDE.md` templates are used at the last step of that build. They are shared by every kind of project, and each setup specification's appendix supplies the parts that belong to its own stack. The folder installs into a project as `.agents/templates/`; `/drafting:draft-blueprint` copies the software blueprint from that path, and each setup specification's Day-0 kit names the README and `CLAUDE.md` templates by that path.
+This folder holds the documents a new project is started from. Each is copied into the project and filled in there; none is edited in place. They form a chain: the idea intake captures a hypothesis, the blueprint turns it into a brief for Product Management and Engineering (who write the PRD, the product requirements document, and the TAD, the technical architecture document, from it), and a codebase setup specification then tells a planning agent and an implementation agent how to build the repository's foundation in validated, committed steps before any feature is written. The README and `CLAUDE.md` templates are used at the last step of that build. They are shared by every kind of project, and each setup specification's appendix supplies the parts that belong to its own stack. The folder installs into a project as `.agents/templates/`; `/draft-project-document` copies the software blueprint from that path, and each setup specification's Day-0 kit names the README and `CLAUDE.md` templates by that path.
 
 ## Key Features
 
@@ -34,6 +34,6 @@ Each item below is a file in this folder, in the order a project uses them.
 When adding or changing files in this folder:
 
 - Keep this README list in sync with the files present and in the order a project uses them.
-- Each setup specification lists its Day-0 kit and expected final layout; when a template is renamed or moved, update both specifications and `/drafting:draft-blueprint`.
+- Each setup specification lists its Day-0 kit and expected final layout; when a template is renamed or moved, update both specifications and `/draft-project-document`.
 - A change to the README or `CLAUDE.md` template that adds, renames or removes a stack block is made to every setup specification's appendix in the same commit.
 - Bump the version line in a specification whenever its steps change.
