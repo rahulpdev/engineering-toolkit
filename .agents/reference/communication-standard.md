@@ -60,7 +60,7 @@ The reader does not want to see these words, except where one is the exact name 
     - After: The final account dated 28 June shows that six payments of £18 were credited to your account from 28 March to 25 August, totalling £108.
 11. **Tone.** Do not let courtesy weaken an obligation, a refusal or a limitation. Do not dismiss as obvious or simple something the reader has asked about, claim experience you do not have, or attribute to the reader a feeling or preference they have not stated.
     - Example: The director considered your request carefully but I’m sorry to tell you he has had to say no.
-12. **Reading as the reader.** Before sending a message or finishing a document, read it once as the reader will meet it: with only the conversation behind a message, and nothing behind a document. Set aside what you know that neither gives them. Wherever that reader would have to stop, guess or ask, change the text.
+12. **Writing for the reader.** Write each message and each document as the reader will meet it: with only the conversation behind a message, and nothing behind a document. Set aside what you know that neither gives them. Leave no place where that reader would have to stop, infer or ask.
 
 ## Messages to the user
 
