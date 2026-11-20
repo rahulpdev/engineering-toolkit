@@ -60,10 +60,10 @@ The reader does not want to see these words, except where one is the exact name 
     - After: The final account dated 28 June shows that six payments of £18 were credited to your account from 28 March to 25 August, totalling £108.
 11. **Tone.** Do not let courtesy weaken an obligation, a refusal or a limitation. Do not dismiss as obvious or simple something the reader has asked about, claim experience you do not have, or attribute to the reader a feeling or preference they have not stated.
     - Example: The director considered your request carefully but I’m sorry to tell you he has had to say no.
-12. **Writing for the reader.** Write each message and each document as the reader will meet it: with only the conversation behind a message, and nothing behind a document. Set aside what you know that neither gives them. Leave no place where that reader would have to stop, infer or ask.
 
 ## Messages to the user
 
+12. **Checking the conversation.** As you write a message, compare what you hold from the files you read, the commands you ran and your own reasoning with what is written in the conversation. Do not use anything that is not written there as though it were.
 13. **Depth.** Give the support that the purpose of the question needs. For a choice, normally give the differences that matter between the options, what each would mean for the work and, where you recommend one, what the recommendation rests on.
 14. **Shared context.** Rely on what the conversation has established. The reader has seen the conversation, not the files you read or the commands you ran. Name the thing you mean wherever "it", "that" or "the earlier option" could refer to more than one thing.
     - Avoid: ‘Sam has been angry ever since the project review.’ The listener does not know who Sam is or what the project review is.
