@@ -2,7 +2,7 @@
 
 **What this is:** the specification for building the technical foundation of a new Python backend repository. A planning agent reads it, together with the repository's PRD and TAD, and writes an implementation plan. An implementation agent executes that plan. The specification fixes the tooling, structure and conventions of the foundation, and names the few decisions that must be resolved from the PRD and TAD.
 **Prepared by:** Rahul Parmar
-**Version:** 1.8 — 2026-11-19
+**Version:** 1.9 — 2026-11-20
 **Location:** copied unchanged into every new repository at `.agents/reference/ai_optimized_codebase_setup.md`.
 
 ---
@@ -13,7 +13,7 @@
 
 Starting from a repository that contains only planning documents and a small kit of agent tooling, the foundation is built in twelve sequential steps:
 
-- validation tooling: Ruff, MyPy, Pyright, pytest
+- validation tooling: Ruff, MyPy, Pyright, pytest, an import boundary check and a dependency audit
 - structured JSON logging with correlation IDs
 - a FastAPI application with typed settings, request-logging middleware and a canonical error model
 - Docker packaging and a local Docker Compose setup
@@ -48,7 +48,7 @@ The plan also resolves the Decision Register (Section 3): for each parameter and
 - A fresh context window per step is acceptable. The context needed is the plan and the files the step creates or changes.
 - **No step is complete while any validation check fails.** Never skip a check to move on.
 - From Step 8 onward every step ends with the **suppression loop** (Section 5.0).
-- `# type: ignore` and `# noqa` are forbidden without a documented reason on the same line.
+- `# type: ignore`, `# pyright: ignore` and `# noqa` are forbidden without a documented reason on the same line.
 - Dependencies are added with `uv add` / `uv add --dev` only. `pyproject.toml` dependency lists and `uv.lock` are never edited by hand.
 - Files are staged explicitly for each commit. `git add .`, `git add -A` and `git add --all` are never used.
 
@@ -67,6 +67,9 @@ These apply to every repository built from this specification. They are not deci
 | Lint and format | Ruff — 88 characters, double quotes, rules `E W F I UP B SIM RUF`, `fixable = ["ALL"]` |
 | Type checking | **Both** MyPy strict **and** Pyright strict must pass |
 | Testing | pytest + pytest-asyncio (`asyncio_mode = "auto"`) + pytest-cov reporting on every run; `--strict-markers --strict-config` |
+| Coverage floor | 80% line coverage of `app/core`, checked by its own command after the unit-test run |
+| Import boundaries | import-linter contracts in `pyproject.toml` that fail when an import breaks a layout rule in Section 2.2 |
+| Dependency audit | uv's own audit command, checking `uv.lock` against the public database of known vulnerabilities |
 | Logging | structlog, JSON to stdout, correlation IDs via context variables |
 | Web framework | FastAPI + Pydantic v2 + pydantic-settings; Uvicorn |
 | Database | Supabase Postgres; migrations as SQL managed by the Supabase CLI (no Alembic); local development via `supabase start` |
@@ -100,7 +103,7 @@ app/
 └── main.py               # FastAPI entry point (see D1 for the worker variant)
 ```
 
-Rules: `app/core/` never imports feature slices or `app/shared/`. `app/shared/` holds only code used by three or more slices. Slices never import each other; cross-slice code goes through `app/shared/`. The decision rule for `app/core/`: if deleting every feature slice would still require this code, it belongs in core.
+Rules: `app/core/` never imports feature slices or `app/shared/`. `app/shared/` holds only code used by three or more slices. Slices never import each other; cross-slice code goes through `app/shared/`. The import boundary check from Step 11 fails when an import breaks any of these three rules. The decision rule for `app/core/`: if deleting every feature slice would still require this code, it belongs in core.
 
 ### 2.3 Naming and code style
 
@@ -116,6 +119,7 @@ Rules: `app/core/` never imports feature slices or `app/shared/`. `app/shared/` 
 
 - `from app.core.logging import get_logger` then `log = get_logger(__name__)` — the module variable is named `log`.
 - Event names use the **hybrid dotted namespace**: `domain.component.action_state`, exactly three dot-separated parts. The domain is the package the code lives in — `core` for infrastructure, otherwise the feature-slice name — so logs can be filtered by slice. Examples: `core.request.dispatch_completed`, `core.health.db_check_failed`, `ingestion.document.validation_started`. States: `_started`, `_completed`, `_failed` (general); `_validated`, `_rejected` (validation).
+- Every event name is checked when the line is written. A name that does not have the three-part form is never written as given: an error line `core.logging.event_rejected`, carrying the rejected name, is written in its place. The check never raises an exception, so a logging mistake cannot break a request.
 - Every operation logs a start and a completion (or failure) pair, always with contextual key-value fields. Never a bare message.
 - `request_id` is set by the request middleware from the `X-Request-ID` header (generated when absent) and attached to every log line during a request.
 - A correlation ID that is not set is **omitted from the log line entirely** — never written as `null` or an empty string.
@@ -142,6 +146,7 @@ Rules: `app/core/` never imports feature slices or `app/shared/`. `app/shared/` 
 - Integration tests: HTTP-level via `httpx.AsyncClient` + `ASGITransport`; real local Supabase; external providers still mocked.
 - Integration tests **must** use the `test_db_engine` / `test_db_session` fixtures from `app/tests/conftest.py` and never import `engine` / `AsyncSessionLocal` from `app.core.database` directly. The module-level engine binds to the first event loop; pytest-asyncio creates a new loop per test. pytest exposes a `conftest.py` only to tests beneath it, which is one more reason integration tests live in `app/tests/` and nowhere else.
 - Test names: `test_<function>_<condition>_<expected_result>`. Cover happy paths, edge cases, boundaries and failure paths.
+- Line coverage of `app/core`, test files excluded, stays at or above 80%. The floor is checked by its own command after the unit-test run, not by the test run itself, so a partial run such as the integration tests alone still passes. The floor is raised as coverage grows and never lowered to make a check pass.
 
 ### 2.7 Configuration and secrets
 
@@ -154,9 +159,14 @@ Rules: `app/core/` never imports feature slices or `app/shared/`. `app/shared/` 
 uv run ruff check . && uv run ruff format --check .
 uv run mypy app/
 uv run pyright app/
+uv run lint-imports                     # import boundary check (from Step 11)
 uv run pytest -m "not integration"      # fast, no database
+uv run coverage report --include="app/core/*" --omit="*/tests/*" --fail-under=80   # coverage floor, read from the run above
 uv run pytest                           # all, requires `supabase start`
+uv audit                                # known vulnerabilities in locked dependencies
 ```
+
+The planning agent confirms the form of the import boundary, coverage floor and audit commands against each tool's current documentation and records the form it uses in the plan.
 
 Step 12 writes these into `/validate:validate` as its checks, followed by a local-server smoke test and a Docker check. Until then, the command finds the project's validation commands for itself.
 
@@ -247,8 +257,8 @@ Each step specifies: scope, documentation for the planning agent to research, in
 
 Linters and type checkers tempt agents to silence warnings instead of fixing them. After a step's own validation passes:
 
-1. Search for suppression comments: `grep -rnE "# (noqa|type: ignore)" app/`.
-2. For every `noqa` or `type: ignore` found: remove it by fixing the code, or keep it with a documented reason on the same line.
+1. Search every Python file in the repository for suppression comments: `git grep --untracked -nE "#.*(noqa|type: *ignore|pyright: *ignore)" -- '*.py'`.
+2. For every `noqa`, `type: ignore` or `pyright: ignore` found: remove it by fixing the code, or keep it with a documented reason on the same line.
 3. Run `/validate:validate`.
 4. Commit. Fixes are folded into the step's own commit, never left as trailing commits.
 
@@ -315,7 +325,7 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 **Required outcome:**
 - `[tool.pyright]`: `pythonVersion = "3.12"`, `typeCheckingMode = "strict"`, exclusions for `.venv` and caches, and five rules strict mode leaves off: `reportImportCycles` and `reportUninitializedInstanceVariable` as `"error"`; `reportUnnecessaryTypeIgnoreComment`, `reportImplicitStringConcatenation` and `reportMissingSuperCall` as `"warning"` — high signal, but noisy enough around framework base classes that they inform rather than block. No `include` list: the path to check is passed on the command line.
 - `main.py` expanded to cover Pyright-specific patterns: `Final` constants, `TypedDict`, `Protocol` structural subtyping, exhaustive `match` statements, flow-based narrowing.
-- No `# type: ignore` without a documented reason on the same line.
+- No `# type: ignore` or `# pyright: ignore` without a documented reason on the same line.
 
 **Validation:** Ruff, MyPy and `uv run pyright main.py` clean.
 **Commit:** `chore: add Pyright strict-mode config and expand type-checker test suite`
@@ -329,7 +339,7 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 **Install:** `uv add --dev pytest pytest-asyncio pytest-cov`
 
 **Required outcome:**
-- `[tool.pytest.ini_options]`: `asyncio_mode = "auto"`, `asyncio_default_fixture_loop_scope = "function"`, `testpaths = ["app", "tests"]`, `addopts = ["--cov", "--cov-report=term-missing", "--strict-markers", "--strict-config", "-q"]` (coverage is reported on every run and never enforced per run, so a partial run such as the integration tests alone still passes; the 80% target for `app/core` is read from the full-suite report), and the marker `integration: requires a running local Supabase (deselect with -m 'not integration')`.
+- `[tool.pytest.ini_options]`: `asyncio_mode = "auto"`, `asyncio_default_fixture_loop_scope = "function"`, `testpaths = ["app", "tests"]`, `addopts = ["--cov", "--cov-report=term-missing", "--strict-markers", "--strict-config", "-q"]` (coverage is reported on every run and never enforced by the test run itself, so a partial run such as the integration tests alone still passes; the 80% floor for `app/core` is enforced from Step 8 by the separate coverage command in Section 2.8), and the marker `integration: requires a running local Supabase (deselect with -m 'not integration')`.
 - `[tool.coverage.run]`: `branch = true`, `source = ["main"]` for now (switched to `["app"]` in Step 6).
 - `tests/test_main.py` covering every public function in `main.py`, including async tests and an async fixture. No `tests/__init__.py`.
 - Anything Ruff flags in the process (e.g. `UP047` → PEP 695 syntax) migrated.
@@ -353,9 +363,10 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
   - `request_id` as a `ContextVar` with `get_request_id()`, `set_request_id(value=None)` (generates a UUID when none is given) and `clear_request_id()`
   - `[D2]` a second `ContextVar` `{{JOB_ID_FIELD}}` with set/clear helpers
   - a processor that injects the correlation IDs into every event and **omits** any ID that is unset — never `null`, never an empty string
-  - the event-name convention `domain.component.action_state` (exactly three dot-separated parts) documented in the module docstring with examples, plus a `validate_event_name()` helper used by tests
+  - the event-name convention `domain.component.action_state` (exactly three dot-separated parts) documented in the module docstring with examples, plus a `validate_event_name()` helper
+  - a processor that runs `validate_event_name()` on every event before it is rendered: a malformed name is replaced by an error-level `core.logging.event_rejected` line carrying the rejected name, and the processor never raises
   - exception rendering via `exc_info` for full stack traces
-- `app/core/tests/__init__.py` and `app/core/tests/test_logging.py` covering: JSON shape; `request_id` injected when set and generated when absent; `[D2]` job ID present when set, absent (not null) when unset, cleared correctly; log-level filtering; exception rendering; event-name validation.
+- `app/core/tests/__init__.py` and `app/core/tests/test_logging.py` covering: JSON shape; `request_id` injected when set and generated when absent; `[D2]` job ID present when set, absent (not null) when unset, cleared correctly; log-level filtering; exception rendering; event-name validation; a malformed event name replaced by `core.logging.event_rejected` without raising.
 - `app/main.py`: a temporary demo runnable with `uv run python -m app.main` showing a start/complete pair and a failure logged with `exc_info`. Replaced in Step 8.
 - `pyproject.toml`: coverage `source = ["app"]`.
 
@@ -398,7 +409,7 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 
 **Validation:**
 - Local run: uvicorn on `{{APP_PORT}}`; `GET /` and `/docs` respond; a request with `X-Request-ID: test-123` produces a JSON log line with `request_id "test-123"` and the response echoes the header.
-- `pytest -v` with coverage above 80% for `app/core`; Ruff, `mypy app/`, `pyright app/` clean.
+- `pytest -v` and the coverage floor command in Section 2.8 pass; Ruff, `mypy app/`, `pyright app/` clean.
 - Suppression loop (Section 5.0).
 
 **Commit:** `feat(api): set up FastAPI with pydantic-settings, request logging middleware and error model`
@@ -454,17 +465,20 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 
 **Scope:** the utilities every future slice will use, created once so AI-generated code stays uniform.
 
-**Documentation to research:** the vertical slice architecture guide's "used by 3+ features" rule; SQLAlchemy's official documentation on mixins and `declared_attr`; Section 2.2 and Decision D3 of this specification.
+**Documentation to research:** the vertical slice architecture guide's "used by 3+ features" rule; SQLAlchemy's official documentation on mixins and `declared_attr`; import-linter's official documentation on contract types, wildcards and `pyproject.toml` configuration; Section 2.2 and Decision D3 of this specification.
+
+**Install:** `uv add --dev import-linter`
 
 **Required outcome:**
 - `app/shared/__init__.py` (empty).
 - `app/shared/models.py`: `TimestampMixin` with `created_at` and `updated_at` as `DateTime(timezone=True)`, not null, `default=utcnow`, `onupdate=utcnow`, declared the way the ORM's current documentation gives for columns shared through a mixin. `[D3]` `OrgScopedMixin`: `organisation_id` as a not-null, indexed foreign key to the organisations table (the migration must also add a row-level-security policy keyed on it). `[D3]` `RetentionMixin`: `expires_at` nullable `DateTime(timezone=True)`. `[D3]` `SoftDeleteMixin`: `deleted_at` nullable `DateTime(timezone=True)`.
 - `app/shared/schemas.py`: `PaginationParams(BaseModel)` with `page` (default 1, `ge=1`), `page_size` (default 20, `ge=1`, `le=100`), computed `offset = (page - 1) * page_size`; `PaginatedResponse[T](BaseModel, Generic[T])` with `items`, `total`, `page`, `page_size`, computed `total_pages` (rounded up). `ErrorResponse` already lives in `app/core/exceptions.py` and is not duplicated. Any enumeration the PRD defines for the whole application — typically a status lifecycle such as `queued` / `processing` / `succeeded` / `failed` — is added here as a `StrEnum` with the PRD's exact values, so every slice and the API share one definition.
 - `app/shared/utils.py`: `utcnow()` → timezone-aware UTC datetime; `format_iso(dt)` → ISO 8601 string.
+- `pyproject.toml`: import-linter contracts that enforce the three import rules in Section 2.2 — `app.core` imports neither `app.shared` nor any feature slice; `app.shared` imports no feature slice; no feature slice imports another. The contracts cover a slice added later without being edited, by wildcard where the tool's documentation allows it. Where it does not, the plan states the line each new slice adds, and Step 12 records that instruction in `CLAUDE.md`. Entry-point modules and `app/tests/` are outside the contracts.
 - Tests: `app/shared/tests/__init__.py`; `test_models.py` (mixin columns exist with timezone-aware types and callable defaults); `test_schemas.py` (pagination defaults, bounds, offset, `total_pages`; enum values where one was added); `test_utils.py` (timezone awareness, ISO formatting); and `app/tests/test_shared_models_integration.py` (`@pytest.mark.integration`) persisting a throwaway model through `test_db_session` and checking both timestamps are set — it lives under `app/tests/` because that is where the database fixtures are visible and where integration tests belong.
 
-**Validation:** unit tests pass without a database; the integration test is marked and passes against local Supabase; Ruff, MyPy, Pyright clean; suppression loop.
-**Commit:** `feat(shared): add cross-feature utilities — mixins, schemas, utils`
+**Validation:** unit tests pass without a database; the integration test is marked and passes against local Supabase; Ruff, MyPy, Pyright clean; `uv run lint-imports` passes, and fails on a deliberate import of `app.shared` from `app/core` that is then removed; suppression loop.
+**Commit:** `feat(shared): add cross-feature utilities and the import boundary check`
 
 ### Step 12 — README, global rules and final validation
 
@@ -493,10 +507,14 @@ The two files divide the material between them and never repeat it. `CLAUDE.md` 
 The foundation is complete when all of the following hold:
 
 - [ ] `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy app/`, `uv run pyright app/` report zero issues.
+- [ ] The import boundary check passes, and the plan records that a deliberate breach made it fail.
+- [ ] The dependency audit reports no known vulnerability.
 - [ ] `uv run pytest` passes with local Supabase running; `uv run pytest -m "not integration"` passes without it.
-- [ ] No `noqa` or `type: ignore` exists without a documented reason on the same line (the Section 5.0 search finds none without one).
+- [ ] Line coverage of `app/core` is at or above 80%.
+- [ ] No `noqa`, `type: ignore` or `pyright: ignore` exists in any Python file without a documented reason on the same line (the Section 5.0 search finds none without one).
 - [ ] `GET /`, `/docs`, `/health`, `/health/db`, `/health/ready` respond correctly both locally and from `docker compose up`.
 - [ ] Every request log line carries `request_id`; no log line contains a `null` correlation ID.
+- [ ] A malformed event name is written as `core.logging.event_rejected`, never as given.
 - [ ] An `AppException` and an unhandled exception both return the `ErrorResponse` shape; 5xx bodies are generic.
 - [ ] `supabase db reset` applies the initial migration cleanly.
 - [ ] `CLAUDE.md` and `.env.example` describe the repository as it actually is; `README.md` describes the product the PRD and TAD define and states nothing beyond them.
@@ -531,7 +549,7 @@ The foundation is complete when all of the following hold:
 
 ## 8. Provenance
 
-The step sequence and the principle of researching official documentation before configuring each tool come from Cole Medin's Dynamous Agentic Coding Live Workshop #2, "Creating an AI-Optimized Codebase", and its instructor guide. This specification departs from that workshop in these ways: Supabase with CLI-managed migrations instead of a Postgres container with Alembic; both type checkers mandatory; the tooling and `.gitignore` in place from day 0 rather than created mid-sequence; FastAPI before Docker; one scaffold-cleanup commit; a structured `AppException`/`ErrorResponse` error model; the suppression loop after every step from Step 8; the Decision Register; and `CLAUDE.md` written at the end from the fixed conventions.
+The step sequence and the principle of researching official documentation before configuring each tool come from Cole Medin's Dynamous Agentic Coding Live Workshop #2, "Creating an AI-Optimized Codebase", and its instructor guide. This specification departs from that workshop in these ways: Supabase with CLI-managed migrations instead of a Postgres container with Alembic; both type checkers mandatory; the tooling and `.gitignore` in place from day 0 rather than created mid-sequence; FastAPI before Docker; one scaffold-cleanup commit; a structured `AppException`/`ErrorResponse` error model; the suppression loop after every step from Step 8; an import boundary check, a coverage floor on `app/core`, a dependency audit and event names checked as each line is written; the Decision Register; and `CLAUDE.md` written at the end from the fixed conventions.
 
 ---
 
@@ -558,7 +576,7 @@ Use environment variables or managed secrets; never store credentials in plainte
 ````markdown
 - Full type hints on every function signature
 - Both configured type checkers must pass in strict mode
-- No `# type: ignore` or `# noqa` without a documented reason on the same line
+- No `# type: ignore`, `# pyright: ignore` or `# noqa` without a documented reason on the same line
 ````
 
 #### documentation comment rule
@@ -622,6 +640,8 @@ app/
 - `app/core/` — infrastructure only; never imports feature slices or `app/shared/`
 - `app/shared/` — only code used by **3 or more** feature slices; never feature-specific logic
 - Each feature slice is self-contained; cross-slice dependencies go through `app/shared/`
+- The import boundary check fails validation when an import breaks any of the three rules above
+- [Whether the import boundary contracts cover a new slice automatically, or the line a new slice adds to them]
 - [The process-model rule for this application: how many services, from how many images, with which entry points]
 ````
 
@@ -733,6 +753,8 @@ log.error(
 )
 ```
 
+A malformed event name is never written as given: `core.logging.event_rejected` is written in its place, at error level.
+
 [How each correlation ID this application uses is set and cleared, beginning: **`request_id`** is set automatically by `RequestLoggingMiddleware` on every inbound request.]
 ````
 
@@ -753,6 +775,7 @@ log.error(
 - Unit tests: no real DB, no HTTP, no external provider calls -- mocks acceptable at slice boundaries
 - Integration tests: HTTP-level through the async test client against the application; still mock external providers
 - Test names: `test_<function>_<condition>_<expected_result>`
+- The coverage floor on `app/core` fails validation when coverage falls; raise the floor as coverage grows, never lower it to make a check pass
 - Async test mode is configured -- no per-test async marker needed
 - Integration test fixtures live in `app/tests/conftest.py` -- always use `test_db_engine` / `test_db_session` fixtures, never import `engine` / `AsyncSessionLocal` from `app.core.database` directly (event loop mismatch)
 ````
@@ -847,10 +870,13 @@ cp .env.example .env                                       # Create local env fi
 [unit-tests-only command]                                  # Unit tests only (fast)
 [all-tests command]                                        # All tests (requires the local database)
 [integration-tests-only command]                           # Integration tests only
+[core coverage floor command]                              # Fails below 80% on app/core; run after the unit tests
 
 # Lint, format, type checking (run all before committing)
 [lint and format command]
 [type checker command, one line per checker]
+[import boundary check command]
+[dependency audit command]                                 # Known vulnerabilities in locked dependencies
 
 # Containers
 [build-and-start command]                                  # [the services] in containers
