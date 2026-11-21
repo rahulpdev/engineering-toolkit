@@ -2,10 +2,8 @@
 .claude/settings.local.json
 
 # Files the commands write while running
-.agents/plans/
-.agents/reports/
-docs/plans/
-docs/reports/
+docs/options/
+docs/reviews/
 
 # Python
 __pycache__/

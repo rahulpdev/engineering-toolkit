@@ -1,5 +1,5 @@
 ---
-description: Establish the scope of recent codebase changes via Git and write a structured report of changed file paths to .agents/reports/review/ for downstream commands to consume.
+description: Establish the scope of recent codebase changes via Git and write a structured report of changed file paths to docs/reviews/ for downstream commands to consume.
 argument-hint: '[additional context] (optional - e.g., "review git commit abc123", "review git commit abc123 def456", "review git range abc123..def456", "focus on backend/")'
 allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(date:*), Write, AskUserQuestion
 ---
@@ -69,8 +69,8 @@ Follow these steps in order:
    - Sort changed file paths alphabetically.
 
 3. **Write the report file.**
-   - Ensure the `.agents/reports/review/` directory exists.
-   - Write the report to `.agents/reports/review/change-review-<YYYY-MM-DD-HHMMSS>.yaml` using the **Structured Agent Handoff** format below.
+   - Ensure the `docs/reviews/` directory exists.
+   - Write the report to `docs/reviews/change-review-<YYYY-MM-DD-HHMMSS>.yaml` using the **Structured Agent Handoff** format below.
    - Return the absolute path of the written report to the user on its own line.
 
 **Decision discipline**

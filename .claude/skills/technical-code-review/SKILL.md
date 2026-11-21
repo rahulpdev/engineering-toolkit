@@ -98,10 +98,10 @@ Follow these steps in order:
    - If a concern cannot be verified from the available code context, omit it or list it under "Review Notes" rather than as a finding.
 
 5. **Write the code review report.**
-   - Ensure the `.agents/reports/review/` directory exists.
+   - Ensure the `docs/reviews/` directory exists.
    - Use the **Human-Readable Report** format below.
    - Populate `**Review scope:**` with the Git source reviewed, such as current working tree, commit hash list, range, or focused directory.
-   - Write the report to `.agents/reports/review/code-review-<YYYY-MM-DD-HHMMSS>.md`.
+   - Write the report to `docs/reviews/code-review-<YYYY-MM-DD-HHMMSS>.md`.
    - If no issues are found, the report must include: `Code review passed. No technical issues detected.`
 
 6. **Run the document review.**
@@ -135,7 +135,7 @@ Follow these steps in order:
 
 ### Human-Readable Report (for humans)
 
-Write the following Markdown structure to `.agents/reports/review/code-review-<timestamp>.md`.
+Write the following Markdown structure to `docs/reviews/code-review-<timestamp>.md`.
 
 ````markdown
 # Code Review Report

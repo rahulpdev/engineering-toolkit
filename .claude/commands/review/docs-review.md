@@ -14,7 +14,7 @@ README.md can drift out of alignment with the codebase over time. This command c
 
 **Usage examples**
 
-- `/docs-review .agents/reports/review/change-review-2026-03-30-143022.yaml`
+- `/docs-review docs/reviews/change-review-2026-03-30-143022.yaml`
 
 **Arguments received**
 

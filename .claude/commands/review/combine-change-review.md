@@ -14,8 +14,8 @@ Review commands need one clear scope of what changed. When changes span two sour
 
 **Usage examples**
 
-- `/combine-change-review .agents/reports/review/change-review-a.yaml .agents/reports/review/change-review-b.yaml`
-- `/combine-change-review .agents/reports/review/change-review-a.yaml .agents/reports/review/change-review-b.yaml -- focus backend review notes, but record any scope filtering`
+- `/combine-change-review docs/reviews/change-review-a.yaml docs/reviews/change-review-b.yaml`
+- `/combine-change-review docs/reviews/change-review-a.yaml docs/reviews/change-review-b.yaml -- focus backend review notes, but record any scope filtering`
 
 **Arguments received**
 
@@ -90,8 +90,8 @@ Follow these steps in order:
    - If additional context conflicts with the report-derived scope and cannot be applied without guessing, set `status: partial` and record the conflict under `assumptions` or `blockers`.
 
 4. **Write the combined report file.**
-   - Ensure the `.agents/reports/review/` directory exists.
-   - Write the report to `.agents/reports/review/change-review-combined-<YYYY-MM-DD-HHMMSS>.yaml` using the **Structured Agent Handoff** format below.
+   - Ensure the `docs/reviews/` directory exists.
+   - Write the report to `docs/reviews/change-review-combined-<YYYY-MM-DD-HHMMSS>.yaml` using the **Structured Agent Handoff** format below.
    - Return the absolute path of the written report to the user on its own line.
 
 **Decision discipline**

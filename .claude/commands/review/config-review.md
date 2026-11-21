@@ -14,7 +14,7 @@ Configuration can drift or become unsafe when code changes introduce new setting
 
 **Usage examples**
 
-- `/config-review .agents/reports/review/change-review-2026-03-30-143022.yaml`
+- `/config-review docs/reviews/change-review-2026-03-30-143022.yaml`
 
 **Arguments received**
 

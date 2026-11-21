@@ -27,7 +27,7 @@ The foundation is deliberately application-agnostic. It accomplishes nothing for
 
 Before planning starts, the repository must contain:
 
-- the PRD and TAD for the application (default paths `.agents/PRD.md`, `.agents/TAD.md`)
+- the PRD and TAD for the application (default paths `docs/PRD.md`, `docs/TAD.md`)
 - the Day-0 kit in Section 4
 
 ### 1.3 How the plan is written
@@ -217,7 +217,7 @@ These files exist in the repository before planning starts. The planning agent v
 
 | Path | Purpose |
 |---|---|
-| `.agents/PRD.md`, `.agents/TAD.md` | The requirements this foundation serves; Section 3 is resolved from them |
+| `docs/PRD.md`, `docs/TAD.md` | The requirements this foundation serves; Section 3 is resolved from them |
 | `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md` | This specification |
 | `.agents/reference/vertical-slice-architecture-setup-guide.md` | Researched by the planning agent for Steps 8 and 11 |
 | `.agents/reference/obsidian-community-plugin-development.md` | The Obsidian plugin development reference: policies, manifest, guidelines, testing, release; researched by the planning agent for Steps 1, 2, 9, 10 and 11 |
@@ -249,8 +249,8 @@ test-vault/.obsidian/plugins/*/main.js
 .env
 
 # Agent working files
-.agents/reports/
-.agents/docs/
+docs/options/
+docs/reviews/
 
 # OS
 .DS_Store
@@ -518,10 +518,10 @@ The foundation is complete when all of the following hold:
 ```
 .
 ├── .agents/
-│   ├── PRD.md · TAD.md
 │   ├── reference/  (ai_optimized_codebase_setup_obsidian_plugin, vertical-slice-architecture-setup-guide, obsidian-community-plugin-development, communication-standard)
 │   └── templates/  (template_readme, template_claude_md)
 ├── .claude/commands/  (git/commit, validate/validate)
+├── docs/  (PRD.md · TAD.md, plans/)
 ├── .github/
 │   ├── workflows/  (ci, release, e2e, check_for_new_obsidian)
 │   └── dependabot.yml

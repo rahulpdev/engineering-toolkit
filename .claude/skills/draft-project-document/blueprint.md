@@ -4,7 +4,7 @@ This file holds what is specific to drafting a software blueprint, the brief tha
 
 A blueprint is read by Product Managers and Engineers who never see the material it was built from. It must be accurate to that material yet show no trace of it, and it must read as one author's work in one plain voice. The template, the blank blueprint that the skill copies, sets the structure. The sample blueprint, a completed blueprint that the user supplies, sets the voice.
 
-The skill copies the template into `.agents/blueprint.md` and populates the header, the Introduction, and Sections 1-5. Sections 1-4 hold the project's context, requirements, scope and exclusions. Section 5 holds the questions, quality requirements and risks raised by the agency, the firm that writes the blueprint for its client. Sections 6-10 are guidance for Product Management and Engineering, and the skill leaves them as the template gives them.
+The skill copies the template into `docs/blueprint.md` and populates the header, the Introduction, and Sections 1-5. Sections 1-4 hold the project's context, requirements, scope and exclusions. Section 5 holds the questions, quality requirements and risks raised by the agency, the firm that writes the blueprint for its client. Sections 6-10 are guidance for Product Management and Engineering, and the skill leaves them as the template gives them.
 
 ## Arguments
 
@@ -25,7 +25,7 @@ The skill copies the template into `.agents/blueprint.md` and populates the head
 - Read the template at `.agents/templates/template_software_blueprint.md`.
 - Read the sample blueprint, and the reference document if one was given.
 - Re-read the conversation from the first turn.
-- Write the blueprint to `.agents/blueprint.md` under the current working directory.
+- Write the blueprint to `docs/blueprint.md` under the current working directory.
 
 ## What to take from each input
 
@@ -53,8 +53,8 @@ A point is not settled if any of the first four is not stated, or if any such co
 ## Drafting
 
 1. **Create the file from the template.**
-   - Run `mkdir -p .agents`.
-   - Run `cp .agents/templates/template_software_blueprint.md .agents/blueprint.md`.
+   - Run `mkdir -p docs`.
+   - Run `cp .agents/templates/template_software_blueprint.md docs/blueprint.md`.
    - Run `diff` between the template and the new file and confirm no differences. If the copy failed or differs, stop and report.
 2. **Populate the header, Introduction, and Sections 1-5** of the new file with Edit. Do not touch Sections 6-10.
    - Header: keep the title as the template gives it, put the project name on the Project Name line, the Prepared By name settled under _Points to settle before writing_, today's date as `YYYY-MM-DD`, and keep the Version value unchanged. In the Introduction, replace only the project name.

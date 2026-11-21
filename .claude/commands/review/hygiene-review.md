@@ -14,7 +14,7 @@ Ignore lists can drift out of alignment with the codebase over time, and secrets
 
 **Usage examples**
 
-- `/hygiene-review .agents/reports/review/change-review-2026-03-30-143022.yaml`
+- `/hygiene-review docs/reviews/change-review-2026-03-30-143022.yaml`
 
 **Arguments received**
 

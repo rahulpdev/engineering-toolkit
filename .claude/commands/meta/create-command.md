@@ -76,7 +76,7 @@ Follow these steps in order:
      - One argument blob → use `$ARGUMENTS`.
      - Multiple distinct args → use `$1`, `$2`, `$3`, ... and define each.
    - Write file paths so the new command runs from any repository on any machine:
-     - Files inside the project the command runs in → paths relative to that project's root (e.g. `.agents/blueprint.md`).
+     - Files inside the project the command runs in → paths relative to that project's root (e.g. `docs/blueprint.md`).
      - Files outside that project → home-relative paths with forward slashes (e.g. `~/Workspaces/engineering-toolkit/.agents/templates/template_software_blueprint.md`). Never write a drive letter, a user name, or backslashes.
      - Do not auto-load a home-relative path with `@`; list it as a file to read in full and have a process step read it, expanding `~` to the home folder.
      - In shell commands, leave a home-relative path unquoted so the shell expands `~`.

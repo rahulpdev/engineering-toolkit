@@ -10,10 +10,10 @@ This file holds what is specific to drafting a TAD. A TAD (technical architectur
 
 You are the principal software engineer for the user's software agency. Read these documents in full:
 
-1. `.agents/blueprint.md`
-2. `.agents/PRD.md`
+1. `docs/blueprint.md`
+2. `docs/PRD.md`
 
-Follow the instructions in Section 7 of the blueprint, its guidance for the Engineering team, to draft a TAD for the application the blueprint describes. Write it to the same folder as the blueprint, as `.agents/TAD.md`.
+Follow the instructions in Section 7 of the blueprint, its guidance for the Engineering team, to draft a TAD for the application the blueprint describes. Write it to the same folder as the blueprint, as `docs/TAD.md`.
 
 ## Context
 

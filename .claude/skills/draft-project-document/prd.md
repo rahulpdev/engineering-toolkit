@@ -10,9 +10,9 @@ This file holds what is specific to drafting a PRD. A PRD (product requirements 
 
 You are the principal product manager for the user's software agency. Read this document in full:
 
-1. `.agents/blueprint.md`
+1. `docs/blueprint.md`
 
-Follow the instructions in Section 6 of the blueprint, its guidance for the Product Management team, to draft a PRD for the application the blueprint describes. Write it to the same folder as the blueprint, as `.agents/PRD.md`.
+Follow the instructions in Section 6 of the blueprint, its guidance for the Product Management team, to draft a PRD for the application the blueprint describes. Write it to the same folder as the blueprint, as `docs/PRD.md`.
 
 ## Context
 

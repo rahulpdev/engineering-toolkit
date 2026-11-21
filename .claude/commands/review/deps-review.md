@@ -14,7 +14,7 @@ Dependency manifests and lockfiles can drift out of alignment with the codebase 
 
 **Usage examples**
 
-- `/deps-review .agents/reports/review/change-review-2026-03-30-143022.yaml`
+- `/deps-review docs/reviews/change-review-2026-03-30-143022.yaml`
 
 **Arguments received**
 

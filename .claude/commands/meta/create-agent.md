@@ -90,7 +90,7 @@ Follow these steps in order:
    - Apply `$2` exactly as the template requires for Decision 1.
    - Apply `$3` exactly as the template requires for Decision 2.
    - Apply `$4` exactly as the template requires for Decision 3.
-   - If `$4` is `report` and the current context does not imply a stronger location, use the default artifact path pattern `.agents/reports/<agent-name>-<timestamp>-<scope>.md`.
+   - If `$4` is `report` and the current context does not imply a stronger location, use the default artifact path pattern `docs/reviews/<agent-name>-<timestamp>-<scope>.md`.
    - Keep the sub-agent self-contained. Do not rely on unstated chat history inside the generated sub-agent.
    - Remove any sections that do not apply — no empty stubs.
 8. Validate the draft before writing it.

@@ -14,8 +14,8 @@ A code review is only useful when its findings get turned into real, verified fi
 
 **Usage examples**
 
-- `/code-review-fix .agents/reports/review/code-review-2026-04-30-143000.md`
-- `/code-review-fix .agents/reports/review/code-review-2026-04-30-143000.md src/auth`
+- `/code-review-fix docs/reviews/code-review-2026-04-30-143000.md`
+- `/code-review-fix docs/reviews/code-review-2026-04-30-143000.md src/auth`
 - `/code-review-fix "I ran the app manually and noticed none of the tools are working. Please fix it."`
 - `/code-review-fix "Login accepts expired tokens" src/auth`
 

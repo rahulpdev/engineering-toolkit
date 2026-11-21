@@ -27,7 +27,7 @@ The foundation is deliberately application-agnostic. It accomplishes nothing for
 
 Before planning starts, the repository must contain:
 
-- the PRD and TAD for the application (default paths `.agents/PRD.md`, `.agents/TAD.md`)
+- the PRD and TAD for the application (default paths `docs/PRD.md`, `docs/TAD.md`)
 - the Day-0 kit in Section 4
 
 ### 1.3 How the plan is written
@@ -207,7 +207,7 @@ These files exist in the repository before planning starts. The planning agent v
 
 | Path | Purpose |
 |---|---|
-| `.agents/PRD.md`, `.agents/TAD.md` | The requirements this foundation serves; Section 3 is resolved from them |
+| `docs/PRD.md`, `docs/TAD.md` | The requirements this foundation serves; Section 3 is resolved from them |
 | `.agents/reference/ai_optimized_codebase_setup.md` | This specification |
 | `.agents/reference/vertical-slice-architecture-setup-guide.md` | Researched by the planning agent for Steps 8, 10 and 11 |
 | `.agents/reference/communication-standard.md` | The rules for messages to the user and for documents; loaded by the `CLAUDE.md` written in Step 12 |
@@ -240,8 +240,8 @@ wheels/
 .env
 
 # Agent working files
-.agents/reports/
-.agents/docs/
+docs/options/
+docs/reviews/
 
 # OS
 .DS_Store
@@ -423,7 +423,7 @@ Linters and type checkers tempt agents to silence warnings instead of fixing the
 **Required outcome:**
 - `pyproject.toml`: `[build-system]` with hatchling and `[tool.hatch.build.targets.wheel] packages = ["app"]`, so `uv sync --no-editable` can build and install the project wheel.
 - `Dockerfile`, multi-stage: builder from the official slim Python 3.12 image with the uv binary copied from uv's official image at a **pinned version**; `UV_COMPILE_BYTECODE=1`, `UV_LINK_MODE=copy`; layer 1 installs dependencies only (`uv sync --locked --no-install-project --no-dev`) with a uv cache mount and bind mounts of `uv.lock` and `pyproject.toml`, so it is invalidated only when those change; layer 2 copies the source and runs `uv sync --locked --no-dev --no-editable`; the runtime stage is the same slim base as a non-root user, copies only `/app/.venv`, sets `PATH` to the venv, exposes `{{APP_PORT}}`, and bakes in **no `CMD`** — each service declares its command in Compose.
-- `.dockerignore`: `.venv`, `__pycache__`, `*.pyc`, all tool caches, `.coverage`, `.git`, `.env`, and the agent folders `.agents/` and `.claude/` — planning documents and commands have no place in the image.
+- `.dockerignore`: `.venv`, `__pycache__`, `*.pyc`, all tool caches, `.coverage`, `.git`, `.env`, the agent folders `.agents/` and `.claude/`, and `docs/` — planning documents and commands have no place in the image.
 - `docker-compose.yml`: service `app` built from `.`, image `{{PROJECT_SLUG}}:local`, command running uvicorn on `{{ENTRY_POINT}}`'s app with `--host 0.0.0.0 --port {{APP_PORT}} --reload`, port mapping `{{APP_PORT}}:{{APP_PORT}}`, volumes `.:/app` plus an anonymous `/app/.venv` so the host copy never overwrites the container's venv, `env_file: .env` with `required: false`.
   `[D1]` two services from the same image: `api` (the uvicorn command) and `worker` (`python -m app.worker`), same volumes and env_file.
 
@@ -528,10 +528,10 @@ The foundation is complete when all of the following hold:
 ```
 .
 ├── .agents/
-│   ├── PRD.md · TAD.md
 │   ├── reference/  (ai_optimized_codebase_setup, vertical-slice-architecture-setup-guide, communication-standard)
 │   └── templates/  (template_readme, template_claude_md)
 ├── .claude/commands/  (git/commit, validate/validate)
+├── docs/  (PRD.md · TAD.md, plans/)
 ├── app/
 │   ├── core/    (config, logging, middleware, exceptions, database, health, README, tests/)
 │   ├── shared/  (models, schemas, utils, tests/)

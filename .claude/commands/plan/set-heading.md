@@ -14,8 +14,8 @@ Feature recommendations are never neutral: they answer an implicit question abou
 
 **Usage examples**
 
-- `/plan:set-heading .agents/PRD.md .agents/TAD.md`
-- `/plan:set-heading .agents/PRD.md .agents/TAD.md .agents/reference/vertical-slice-architecture-setup-guide.md`
+- `/plan:set-heading docs/PRD.md docs/TAD.md`
+- `/plan:set-heading docs/PRD.md docs/TAD.md .agents/reference/vertical-slice-architecture-setup-guide.md`
 
 **Arguments received**
 

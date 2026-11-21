@@ -1,6 +1,6 @@
 ---
 name: draft-project-document
-description: Draft one of three project documents in the project's `.agents/` folder, a software blueprint, a PRD (product requirements document) or a TAD (technical architecture document), then check the draft, have the document-reviewer sub-agent read it, and report every judgement call for the user to confirm.
+description: Draft one of three project documents in the project's `docs/` folder, a software blueprint, a PRD (product requirements document) or a TAD (technical architecture document), then check the draft, have the document-reviewer sub-agent read it, and report every judgement call for the user to confirm.
 argument-hint: "<blueprint|prd|tad> [paths] (required - the document to draft, in any letter case; then, for a blueprint - a required sample blueprint and an optional reference document; for a PRD or a TAD - any number of reference documents, or none)"
 disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Glob, Agent, AskUserQuestion, Bash(mkdir:*), Bash(cp:*), Bash(diff:*)
@@ -16,8 +16,8 @@ This skill drafts three project documents: the blueprint (the brief that starts 
 
 **Usage examples**
 
-- `/draft-project-document blueprint ../<another-project>/.agents/blueprint.md`
-- `/draft-project-document blueprint ../<another-project>/.agents/blueprint.md .agents/reference/<project-context>.md`
+- `/draft-project-document blueprint ../<another-project>/docs/blueprint.md`
+- `/draft-project-document blueprint ../<another-project>/docs/blueprint.md .agents/reference/<project-context>.md`
 - `/draft-project-document PRD`
 - `/draft-project-document prd .agents/reference/<platform-guide>.md`
 - `/draft-project-document Tad .agents/reference/<platform-guide>.md .agents/reference/<architecture-guide>.md`
@@ -122,7 +122,7 @@ Return a concise, easy-to-scan summary:
 
 ## Notes (Optional)
 
-- The documents are drafted in order. A PRD needs the blueprint at `.agents/blueprint.md`, and a TAD needs both the blueprint and the PRD at `.agents/PRD.md`.
+- The documents are drafted in order. A PRD needs the blueprint at `docs/blueprint.md`, and a TAD needs both the blueprint and the PRD at `docs/PRD.md`.
 - This skill runs only when the user invokes it by name. Claude does not start it on its own.
-- A skill works only in the project whose folder holds it, so copy this skill's folder into the target project's `.claude/skills/` and run it from that project's root (its top folder); the document lands in that project's `.agents/` folder.
+- A skill works only in the project whose folder holds it, so copy this skill's folder into the target project's `.claude/skills/` and run it from that project's root (its top folder); the document lands in that project's `docs/` folder.
 - The document-reviewer sub-agent must be present in the target project's `.claude/agents/` folder, or the document review in Step 9 cannot run.
