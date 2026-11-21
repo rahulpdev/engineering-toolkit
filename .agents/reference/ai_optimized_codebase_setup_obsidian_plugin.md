@@ -2,7 +2,7 @@
 
 **What this is:** the specification for building the technical foundation of a new Obsidian plugin repository in TypeScript. A planning agent reads it, together with the repository's PRD and TAD, and writes an implementation plan. An implementation agent executes that plan. The specification fixes the tooling, structure and conventions of the foundation, and names the few decisions that must be resolved from the PRD and TAD.
 **Prepared by:** Rahul Parmar
-**Version:** 1.6 — 2026-11-19
+**Version:** 1.7 — 2026-11-21
 **Location:** copied unchanged into every new plugin repository at `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md`.
 
 ---
@@ -74,7 +74,7 @@ These apply to every repository built from this specification. They are not deci
 | Identifiers | `crypto.randomUUID()` from the Web Crypto API, available in Obsidian and Node |
 | Logging | JSON Lines (one JSON object per line) through a log-sink port; the plugin adapter writes diagnostics with `console.debug` / `warn` / `error`, never `console.log` |
 | Architecture | Vertical slice architecture inside the core per `.agents/reference/vertical-slice-architecture-setup-guide.md`; ports and adapters between the core and everything outside it |
-| Agent tooling | Claude Code slash commands in `.claude/commands/`; global rules in `CLAUDE.md` |
+| Agent tooling | Claude Code slash commands in `.claude/commands/`; the document-reviewer sub-agent in `.claude/agents/`; global rules in `CLAUDE.md` |
 
 ### 2.2 Repository layout
 
@@ -221,9 +221,10 @@ These files exist in the repository before planning starts. The planning agent v
 | `.agents/reference/ai_optimized_codebase_setup_obsidian_plugin.md` | This specification |
 | `.agents/reference/vertical-slice-architecture-setup-guide.md` | Researched by the planning agent for Steps 8 and 11 |
 | `.agents/reference/obsidian-community-plugin-development.md` | The Obsidian plugin development reference: policies, manifest, guidelines, testing, release; researched by the planning agent for Steps 1, 2, 9, 10 and 11 |
-| `.agents/reference/communication-standard.md` | The rules for messages to the user and for documents; loaded by the `CLAUDE.md` written in Step 12 |
+| `.agents/reference/communication-standard.md` | The rules for messages to the user and for documents; the `CLAUDE.md` written in Step 12 loads it, and the document review in that step judges both documents against it |
 | `.agents/templates/template_readme.md` | The structure, format and voice of `README.md`; followed in Step 12 |
 | `.agents/templates/template_claude_md.md` | The structure, format and voice of `CLAUDE.md`; followed in Step 12 |
+| `.claude/agents/document-reviewer.md` | The sub-agent that reads `README.md` and `CLAUDE.md` in Step 12 and reports where each breaks the communication standard |
 | `.claude/commands/git/commit.md` | `/git:commit` — used at every commit boundary |
 | `.claude/commands/validate/validate.md` | `/validate:validate` — full local validation; its checks are written in Step 12 |
 | `.gitignore` | Complete from day 0 (entries below), so no housekeeping commits interrupt the sequence |
@@ -490,6 +491,8 @@ The two files divide the material between them and never repeat it. `CLAUDE.md` 
   - a bundle check: `main.js`, `manifest.json` and `styles.css` at the root, `obsidian` left external, and `main.js` within the Step 11 size budget
   - `[D2]` one operation run through the test client's command line against a copy of `test-vault/`, confirming that its log lines carry the `correlationId` of its `Result`
 
+**Document review:** once both files are written, the `document-reviewer` sub-agent is started once for each, with two paths and nothing else: `.agents/reference/communication-standard.md` and the file. The instruction that closes each response is followed within two limits. A correction changes wording only, never a rule, a command, a fact or a disclosure. A finding against anything a template or a stack block fixes — section order, headings, formatting, code examples — is ignored. What the instruction says to tell the user is reported to the project owner. If the sub-agent cannot be started, or reports that it is blocked, the step continues and the review is reported as not run. The validation below runs on the corrected files.
+
 **Validation:** `/validate:validate` passes end to end; every standing rule in the plan appears in `CLAUDE.md`; `CLAUDE.md` names neither the PRD nor the TAD; and every fact `CLAUDE.md` states is checked against the repository — each path in the architecture tree and the reference table exists (a planned slice is checked against the TAD instead), each version in the tech stack matches the lockfile, and each development command has been run and succeeded (one that would create a version or a release is confirmed to exist instead). `README.md` is checked the same way: what it says of the product against the PRD and TAD, and its commands, settings table and disclosures against the repository.
 **Commit:** `docs: add README and global development rules (CLAUDE.md)`
 
@@ -520,7 +523,9 @@ The foundation is complete when all of the following hold:
 ├── .agents/
 │   ├── reference/  (ai_optimized_codebase_setup_obsidian_plugin, vertical-slice-architecture-setup-guide, obsidian-community-plugin-development, communication-standard)
 │   └── templates/  (template_readme, template_claude_md)
-├── .claude/commands/  (git/commit, validate/validate)
+├── .claude/
+│   ├── agents/    (document-reviewer)
+│   └── commands/  (git/commit, validate/validate)
 ├── docs/  (PRD.md · TAD.md, plans/)
 ├── .github/
 │   ├── workflows/  (ci, release, e2e, check_for_new_obsidian)
