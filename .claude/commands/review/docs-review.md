@@ -1,7 +1,7 @@
 ---
-description: Audit README.md against the current codebase changes; produce a structured agent handoff with all required updates for a downstream agent to execute.
+description: Audit README.md against the current codebase changes; write a structured agent handoff with all required updates for a downstream agent to execute.
 argument-hint: "<report-path> (required - path to change-review report YAML file)"
-allowed-tools: Read, Glob, Grep, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Bash(mkdir:*), Write, AskUserQuestion
 ---
 
 # /docs-review: Pre-Merge README Audit
@@ -50,7 +50,7 @@ Follow these steps in order:
    - Read the YAML report file at `$ARGUMENTS`.
    - Validate it is a well-formed change-review report (has `status`, `changed_files`, etc.).
    - From the flat list of changed file paths, exclude files that definitively cannot affect documentation (e.g., lockfiles, ignore files, generated files).
-   - If all changed files are excluded, skip subsequent steps and produce the handoff with `status: success` and a summary indicating no documentation updates are needed.
+   - If all changed files are excluded, skip to Step 4 and write the handoff with `status: success` and a summary indicating no documentation updates are needed.
 
 2. **Assess README.md state.**
    - Check whether `README.md` exists in the repo root. If it does not exist, record its creation in the handoff and note that a comprehensive project documentation review may be needed beyond the scope of the changed files.
@@ -67,12 +67,14 @@ Follow these steps in order:
      - Code examples or paths in README.md that no longer match the codebase.
    - Record all required changes: specific sections to add, update, or remove, with concrete edit instructions.
 
-4. **Produce the structured agent handoff.**
+4. **Write the structured agent handoff.**
    - Review all recorded changes from Step 3.
    - Do **not** apply any changes.
-   - Do **not** write any files or create any artifacts. This step produces a response only.
    - Package **all** required changes into the **Structured Agent Handoff** format below.
    - If no issues were found, produce the handoff with `status: success` and a summary indicating no documentation updates are needed.
+   - Name the handoff file after the report at `$ARGUMENTS`: replace the leading `change-review` in the report's filename with `docs-review` and keep the rest, so that `change-review-2026-03-30-143022.yaml` gives `docs-review-2026-03-30-143022.yaml`.
+   - Write the handoff to `docs/reviews/` under that filename, creating the folder if it does not exist.
+   - Return the absolute path of the written handoff to the user on its own line.
 
 **Decision discipline**
 
@@ -82,7 +84,7 @@ Follow these steps in order:
 
 **Quality/Safety constraints**
 
-- Do not modify any files. This command is read-only.
+- Do not modify any files other than the handoff file.
 - Do not add speculative or unverified content to edit instructions — flag uncertainties for the downstream agent or user to resolve.
 - Stage nothing and commit nothing.
 
@@ -90,7 +92,7 @@ Follow these steps in order:
 
 ### Structured Agent Handoff (for AI agents)
 
-Return a single structured block that another agent can execute without conversation context.
+Write a single structured block to the handoff file that another agent can execute without conversation context.
 
 **Required format (YAML)**
 Include only non-empty fields. Omit empty lists/objects entirely.

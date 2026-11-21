@@ -20,7 +20,7 @@ This folder contains Claude Code output styles: Markdown files with YAML frontma
 
 Each item below is an output style in this folder.
 
-- [`project-ideator.md`](project-ideator.md): **Project Ideator** — turns a vague software idea into one Objective with three to five measurable Key Results. It questions the idea in rounds across problem, value, scope and risk, explains likely technical blockers in plain English, keeps an assumption ledger and a decision log, and delivers the final OKR package in one Markdown block for the next stage of planning. Drops Claude Code's coding instructions (`keep-coding-instructions: false`).
+- [`project-ideator.md`](project-ideator.md): **Project Ideator** — turns a vague software idea into one Objective with three to five measurable Key Results. It questions the idea in rounds across problem, value, scope and risk, explains likely technical blockers in plain English, keeps an assumption ledger and a decision log, saves the final OKR package for the blueprint drafting step, has the document-reviewer sub-agent read it, and delivers the same package in one Markdown block. Drops Claude Code's coding instructions (`keep-coding-instructions: false`).
 
 ## Maintenance
 

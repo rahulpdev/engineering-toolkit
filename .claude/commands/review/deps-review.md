@@ -1,7 +1,7 @@
 ---
-description: Audit dependency manifests and lockfiles against the current codebase; produce a structured agent handoff with all required fixes for a downstream agent to execute.
+description: Audit dependency manifests and lockfiles against the current codebase; write a structured agent handoff with all required fixes for a downstream agent to execute.
 argument-hint: "<report-path> (required - path to change-review report YAML file)"
-allowed-tools: Read, Glob, Grep, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Bash(mkdir:*), Write, AskUserQuestion
 ---
 
 # /deps-review: Pre-Merge Dependency & Lockfile Audit
@@ -50,7 +50,7 @@ Follow these steps in order:
    - Read the YAML report file at `$ARGUMENTS`.
    - Validate it is a well-formed change-review report (has `status`, `changed_files`, etc.).
    - From the flat list of changed file paths, exclude files that definitively cannot affect dependency declarations (e.g., documentation files, ignore files, data files).
-   - If all changed files are excluded, skip subsequent steps and produce the handoff with `status: success` and a summary indicating no relevant changes were found.
+   - If all changed files are excluded, skip to Step 4 and write the handoff with `status: success` and a summary indicating no relevant changes were found.
 
 2. **Audit dependency declarations.**
    - Locate all dependency manifests in the repo (e.g., `requirements.txt`, `pyproject.toml`, `package.json`, `Dockerfile`, etc.).
@@ -68,12 +68,14 @@ Follow these steps in order:
    - Check whether lockfiles appear stale relative to manifest changes detected in Step 2.
    - Lockfiles must never be manually edited. If a lockfile needs regeneration, record the regeneration command.
 
-4. **Produce the structured agent handoff.**
+4. **Write the structured agent handoff.**
    - Review all recorded changes from Steps 2–3.
    - Do **not** apply any changes.
-   - Do **not** write any files or create any artifacts. This step produces a response only.
    - Package **all** required changes into the **Structured Agent Handoff** format below.
    - If no issues were found, produce the handoff with `status: success` and a summary indicating no issues were found.
+   - Name the handoff file after the report at `$ARGUMENTS`: replace the leading `change-review` in the report's filename with `deps-review` and keep the rest, so that `change-review-2026-03-30-143022.yaml` gives `deps-review-2026-03-30-143022.yaml`.
+   - Write the handoff to `docs/reviews/` under that filename, creating the folder if it does not exist.
+   - Return the absolute path of the written handoff to the user on its own line.
 
 **Decision discipline**
 
@@ -82,7 +84,7 @@ Follow these steps in order:
 
 **Quality/Safety constraints**
 
-- Do not modify any files. This command is read-only.
+- Do not modify any files other than the handoff file.
 - Do not execute package manager commands, build commands, or test commands.
 - Stage nothing and commit nothing.
 
@@ -90,7 +92,7 @@ Follow these steps in order:
 
 ### Structured Agent Handoff (for AI agents)
 
-Return a single structured block that another agent can execute without conversation context.
+Write a single structured block to the handoff file that another agent can execute without conversation context.
 
 **Required format (YAML)**
 Include only non-empty fields. Omit empty lists/objects entirely.

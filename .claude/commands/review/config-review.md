@@ -1,7 +1,7 @@
 ---
-description: Audit runtime configuration definitions and usage against scoped code changes; produce a structured agent handoff with all required updates for a downstream agent to execute.
+description: Audit runtime configuration definitions and usage against scoped code changes; write a structured agent handoff with all required updates for a downstream agent to execute.
 argument-hint: "<report-path> (required - path to change-review report YAML file)"
-allowed-tools: Read, Glob, Grep, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Bash(mkdir:*), Write, AskUserQuestion
 ---
 
 # /config-review: Pre-Merge Configuration Audit
@@ -50,7 +50,7 @@ Follow these steps in order:
    - Read the YAML report file at `$ARGUMENTS`.
    - Validate it is a well-formed change-review report (has `status`, `changed_files`, etc.).
    - From the flat list of changed file paths, exclude files that definitively cannot affect configuration (e.g., images, static assets, data files).
-   - If all changed files are excluded, skip subsequent steps and produce the handoff with `status: success` and a summary indicating no configuration-impacting changes were found.
+   - If all changed files are excluded, skip to Step 5 and write the handoff with `status: success` and a summary indicating no configuration-impacting changes were found.
 
 2. **Map configuration sources touched by the change.**
    - Identify configuration artifacts in the repo: `.env*` files (including examples), `config/` directories, `settings.*`, `*.yml`/`*.yaml`/`*.json`/`*.toml` configs, `docker-compose*.yml`, Helm charts/values, CI/CD workflow env definitions, and language-specific config modules.
@@ -67,12 +67,14 @@ Follow these steps in order:
    - Ensure configuration samples use placeholders (not real secrets) and note where each secret must live (local env file, CI secret store, production secret manager).
    - Note required rotations or follow-up tasks (e.g., update CI secrets store, refresh deployment config) as explicit instructions.
 
-5. **Produce the structured agent handoff.**
+5. **Write the structured agent handoff.**
    - Review all recorded changes from Steps 3-4.
    - Do **not** apply any changes.
-   - Do **not** write any files or create any artifacts. This step produces a response only.
    - Package **all** required changes into the **Structured Agent Handoff** format below.
    - If no issues were found, produce the handoff with `status: success` and a summary indicating no configuration issues were found.
+   - Name the handoff file after the report at `$ARGUMENTS`: replace the leading `change-review` in the report's filename with `config-review` and keep the rest, so that `change-review-2026-03-30-143022.yaml` gives `config-review-2026-03-30-143022.yaml`.
+   - Write the handoff to `docs/reviews/` under that filename, creating the folder if it does not exist.
+   - Return the absolute path of the written handoff to the user on its own line.
 
 **Decision discipline**
 
@@ -81,7 +83,7 @@ Follow these steps in order:
 
 **Quality/Safety constraints**
 
-- Do not modify any files. This command is read-only.
+- Do not modify any files other than the handoff file.
 - Do not execute configuration, deployment, or secret-management commands.
 - Stage nothing and commit nothing.
 
@@ -89,7 +91,7 @@ Follow these steps in order:
 
 ### Structured Agent Handoff (for AI agents)
 
-Return a single structured block that another agent can execute without conversation context.
+Write a single structured block to the handoff file that another agent can execute without conversation context.
 
 **Required format (YAML)**
 Include only non-empty fields. Omit empty lists/objects entirely.

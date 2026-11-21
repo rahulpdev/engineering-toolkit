@@ -1,7 +1,7 @@
 ---
-description: Fix actionable issues from a code review report or manual issue description one by one, write and run tests for each fix, run final project validation, and report exactly what changed.
+description: Fix actionable issues from a code review report or manual issue description one by one, write and run tests for each fix, run final project validation, write a report of exactly what changed, then have the document-reviewer sub-agent read the report and correct its wording.
 argument-hint: "<code-review-file-or-description> [scope] (required - path to a code review report file OR a description of the issues to fix; optional - focus area such as a directory, file, or feature to narrow the fixes)"
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*), Bash(uv:*), Bash(poetry:*), Bash(pip:*), Bash(python:*), Bash(pytest:*), Bash(ruff:*), Bash(mypy:*), Bash(go:*), Bash(cargo:*), Bash(mvn:*), Bash(gradle:*), Bash(make:*), AskUserQuestion
+allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(mkdir:*), Bash(date:*), Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*), Bash(uv:*), Bash(poetry:*), Bash(pip:*), Bash(python:*), Bash(pytest:*), Bash(ruff:*), Bash(mypy:*), Bash(go:*), Bash(cargo:*), Bash(mvn:*), Bash(gradle:*), Bash(make:*), AskUserQuestion
 ---
 
 # /code-review-fix: Fix Code Review Issues
@@ -108,11 +108,25 @@ Follow these steps in order:
    - Confirm every changed file is tied to a fixed issue, an added/updated test, or a validation requirement.
    - If an unexpected file changed, inspect it and either explain why it was required or stop and ask how to proceed.
 
-8. **Return the completion report.**
+8. **Write the completion report.**
    - Use the **Human-Readable Report** format below.
    - Include the original issue numbers from the review report when available.
    - For each fixed issue, explain what was wrong, show the fix with file references and a concise code or diff summary, and list the test command that verified it.
    - List any issues that were intentionally not fixed and explain why (e.g., already resolved, not a real defect, deferred per documentation).
+   - Name the report file after the review input. If `$1` is a file whose name begins with `code-review`, replace that leading `code-review` with `code-review-fix` and keep the rest, so that `code-review-2026-04-30-143000.md` gives `code-review-fix-2026-04-30-143000.md`. Otherwise use `code-review-fix-<YYYY-MM-DD-HHMMSS>.md`, taking the time from `date '+%Y-%m-%d-%H%M%S'`.
+   - Ensure the `docs/reviews/` directory exists.
+   - Write the report to `docs/reviews/` under that filename.
+
+9. **Run the document review.**
+   - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the report written in Step 8.
+   - Follow the instruction that closes its response, using Edit on the report file only.
+   - Correct wording only. Do not change which issues are recorded as fixed or not fixed, a test or validation result, or a file reference, and ignore any finding against a field name the report format fixes.
+   - If the sub-agent cannot be started, or reports that it is blocked, leave the report as written in Step 8 and say so in the summary.
+
+10. **Return a concise summary.**
+    - Report the absolute path to the completion report on its own line.
+    - Give the status, the number of issues fixed and not fixed, and the final validation result.
+    - Report what the document-reviewer's closing instruction says to tell the user, or that the review did not run.
 
 **Decision discipline**
 
@@ -133,8 +147,9 @@ Follow these steps in order:
 
 ### Human-Readable Report (for humans)
 
-Return a concise, easy-to-scan summary:
+Write a concise, easy-to-scan summary to the report file:
 
+- **Title**: a first-level heading, `# Code Review Fix Report`, then the date and time
 - **Status**: Success | Partial | Blocked
 - **Review input**: file path or manual issue description used as the source of fixes
 - **Scope**: scope applied from `$2`, or `Full review input`
@@ -154,3 +169,4 @@ Return a concise, easy-to-scan summary:
 
 - This command is designed to consume the report produced by `/technical-code-review`, but it also accepts a clearly described manual issue when the user has spotted a problem during testing.
 - Final validation should be a single comprehensive sweep over the codebase so the user knows the fixes did not break anything else.
+- The `document-reviewer` sub-agent must be present in `.claude/agents/`, or the document review in Step 9 cannot run.

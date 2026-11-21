@@ -1,5 +1,6 @@
 ---
-description: Merge and apply structured review handoffs already present in the current conversation, requiring the complete review set before resolving overlapping file instructions, escalating conflicts and running follow-up actions.
+description: Merge and apply the structured review handoffs for one change-review report, requiring the complete review set before resolving overlapping file instructions, escalating conflicts and running follow-up actions.
+argument-hint: "<report-path> (required - path to the change-review report YAML file the four reviews audited)"
 allowed-tools: Read, Edit, Write, Glob, Grep, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*), Bash(uv:*), Bash(pip:*), Bash(poetry:*), AskUserQuestion
 ---
 
@@ -13,32 +14,32 @@ Structured review handoffs are useful only when their instructions are merged ag
 
 **Usage examples**
 
-- `/review-handoff`
+- `/review-handoff docs/reviews/change-review-2026-03-30-143022.yaml`
 
 **Arguments received**
 
-- None
+- All args as a single string: `$ARGUMENTS`
 
 **Arguments policy**
 
-- **None**: This command must be invoked with no arguments. If provided, stop and ask to re-run without args.
+- **Mandatory**: `$ARGUMENTS` is required. If missing or invalid, stop and ask.
 
 **Argument contract**
 
-- Required args: None
+- Required args: `$ARGUMENTS` = path to the change-review report YAML file that the four reviews audited
 - Optional args: None
 - Defaults: None
-- Validation rules: No arguments are accepted.
+- Validation rules: The filename must begin with `change-review`.
 
 **If arguments are missing/invalid**
 
-- If any arguments are provided, stop and ask the user to re-run `/review-handoff` with no arguments.
+- Stop and ask the user for the report path. Suggest running `/change-review` and the four reviews first if no report exists.
 
 ## Context to Load (INPUT)
 
-**Conversation context required**
+**Read these files (auto-load into context)**
 
-- The current conversation must contain at least one structured handoff YAML block from each required review source:
+- The four handoff files named after the report at `$ARGUMENTS`, one from each required review source:
   - `hygiene-review`
   - `deps-review`
   - `config-review`
@@ -58,11 +59,10 @@ Structured review handoffs are useful only when their instructions are merged ag
 Follow these steps in order:
 
 1. **Resolve and validate handoff inputs.**
-   - Identify the structured YAML handoff blocks present in the current conversation context by their root `source_review` fields.
-   - Validate each identified handoff has `status`, `summary`.
-   - Confirm at least one handoff from each required source is present.
-   - If a required source appears more than once, use the latest occurrence in the conversation context and record the ignored duplicate under `Assumptions`; if recency cannot be determined, stop and ask.
-   - If any required source is missing, any `source_review` value is unknown, or any handoff is malformed, stop and report the exact source(s) that must be corrected before proceeding.
+   - For each required source, replace the leading `change-review` in the filename of the report at `$ARGUMENTS` with the source's name, so that `change-review-2026-03-30-143022.yaml` gives `hygiene-review-2026-03-30-143022.yaml`.
+   - Read the four handoff files of those names in `docs/reviews/`.
+   - Validate each handoff has `status`, `summary`.
+   - If any required handoff file is missing, any `source_review` value is unknown, or any handoff is malformed, stop and report the exact source(s) that must be run or corrected before proceeding. `hygiene-review` writes no handoff when it finds a secret.
 
 2. **Apply hard stops before planning.**
    - If any handoff has `status: blocked`, stop and report the blocker(s).
@@ -164,7 +164,7 @@ Follow these steps in order:
 Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Partial | Blocked
-- **Handoffs applied**: source reviews consumed and their statuses
+- **Handoffs applied**: source reviews consumed, with each handoff's path and status
 - **Merge summary**: counts for duplicate, additive, complementary, order-dependent, and conflicting items
 - **Conflicts auto-resolved**: target, chosen source review and instruction, rejected source review and instruction, and one-sentence reason grounded in the handoffs
 - **Conflicts user-resolved**: target, chosen source review and instruction, rejected source review and instruction, question asked, and user's answer
