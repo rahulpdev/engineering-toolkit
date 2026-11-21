@@ -40,7 +40,7 @@ This command exists to enforce a single standard and common structure for a grow
 
 **Read these files (auto-load into context)**
 
-- @.agents/reference/custom_command_template.md
+- @.agents/templates/custom_command_template.md
 
 **Optional: capture live state (auto-run bash, if allowed)**
 
@@ -67,7 +67,7 @@ Follow these steps in order:
 3. **Ensure the target directory exists.**
    - Run `mkdir -p .claude/commands`.
 4. **Important: Draft the new command using the required template (do not draft freehand).**
-   - Start by copying the template from `@.agents/reference/custom_command_template.md`.
+   - Start by copying the template from `@.agents/templates/custom_command_template.md`.
    - Remove the template’s internal instruction comment before saving the final command.
    - Replace all placeholders with concrete content.
    - Delete any sections that do not apply (do not leave empty stubs).

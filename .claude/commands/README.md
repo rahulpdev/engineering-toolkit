@@ -48,8 +48,8 @@ Each item below is a command definition in this folder, grouped by subfolder.
 
 ### meta
 
-- [`create-agent.md`](meta/create-agent.md): **`/meta:create-agent`** — creates a new sub-agent in `.claude/agents/` from `.agents/reference/subagent_template.md`. It takes one required agent-spec argument plus optional invocation, handoff, and artifact mode arguments, validates those modes, enforces least-privilege tools, has the document-reviewer sub-agent read the new file, and produces a human-readable creation report.
-- [`create-command.md`](meta/create-command.md): **`/meta:create-command`** — creates a new slash command in `.claude/commands/` from `.agents/reference/custom_command_template.md`. It accepts optional free-form context about desired behavior, constraints, or examples, enforces correct argument handling and a single output section, has the document-reviewer sub-agent read the new file, and keeps generated commands aligned with the repository's INPUT -> PROCESS -> OUTPUT standard.
+- [`create-agent.md`](meta/create-agent.md): **`/meta:create-agent`** — creates a new sub-agent in `.claude/agents/` from `.agents/templates/subagent_template.md`. It takes one required agent-spec argument plus optional invocation, handoff, and artifact mode arguments, validates those modes, enforces least-privilege tools, has the document-reviewer sub-agent read the new file, and produces a human-readable creation report.
+- [`create-command.md`](meta/create-command.md): **`/meta:create-command`** — creates a new slash command in `.claude/commands/` from `.agents/templates/custom_command_template.md`. It accepts optional free-form context about desired behavior, constraints, or examples, enforces correct argument handling and a single output section, has the document-reviewer sub-agent read the new file, and keeps generated commands aligned with the repository's INPUT -> PROCESS -> OUTPUT standard.
 
 ### plan
 

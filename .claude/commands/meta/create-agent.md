@@ -54,7 +54,7 @@ Sub-agents are most effective when they are narrow, predictable, and reusable. B
 
 **Read these files (auto-load into context)**
 
-- @.agents/reference/subagent_template.md
+- @.agents/templates/subagent_template.md
 
 **Optional: capture live state (auto-run bash, if allowed)**
 
@@ -82,7 +82,7 @@ Follow these steps in order:
    - If the primary agent may branch conditionally, make that rule explicit and observable from the sub-agent’s output alone, and ensure the output is sufficient for that decision.
    - Instruct the primary agent to state any assumptions or material inferences if the handoff contract allows it to proceed.
    - Specify precise next-action instructions the primary agent should follow, avoid vague instructions such as "report back", "summarize findings", or "continue if appropriate".
-7. Draft the new sub-agent using `@.agents/reference/subagent_template.md`. Do not draft freehand.
+7. Draft the new sub-agent using `@.agents/templates/subagent_template.md`. Do not draft freehand.
    - Remove the template instruction comment block before saving.
    - Replace every placeholder with concrete, project-specific content derived from the current context and `$1`.
    - Embed concrete standards from the current context and `$1` when they materially shape the sub-agent’s behavior, including tool restrictions, missing-context policy, exact path conventions, naming rules, severity levels, output fields, artifact structure and other materially relevant project constraints.
@@ -123,7 +123,7 @@ Follow these steps in order:
 - Do not overwrite an existing sub-agent without explicit user approval.
 - Keep the new agent’s system prompt focused on a single area of expertise.
 - Keep `tools` for the new agent minimal (only what the agent truly needs).
-- Keep the generated sub-agent aligned to the common standard enforced by `@.agents/reference/subagent_template.md`.
+- Keep the generated sub-agent aligned to the common standard enforced by `@.agents/templates/subagent_template.md`.
 
 ## Output (OUTPUT)
 
@@ -141,5 +141,5 @@ Return a concise, easy-to-scan summary:
 
 ## Notes
 
-- The template at `@.agents/reference/subagent_template.md` is mandatory. If it feels insufficient, improve the template rather than bypassing it.
+- The template at `@.agents/templates/subagent_template.md` is mandatory. If it feels insufficient, improve the template rather than bypassing it.
 - The `document-reviewer` sub-agent must be present in `.claude/agents/`, or the document review in step 10 cannot run.
