@@ -60,5 +60,10 @@ When adding or changing files in this repository:
   - Is it a single file run only by typing its name, such as one step in a chain run by hand? Make it a command.
 - Create commands with `/meta:create-command` and sub-agents with `/meta:create-agent` so they follow the shared templates; do not draft them freehand. Draft a skill by converting an existing command.
 - After changing a Claude sub-agent, regenerate its Codex file with the script in `scripts/` and run the tests there.
+- Markdown or YAML documents created by a command, skill or sub-agent are written to `docs/` folder, to one of the following subfolders:
+  - `docs/plans/`: implementation plans from `/plan:plan-feature`.
+  - `docs/options/`: documents that weigh choices before a plan is written, such as a problem definition, its solution options and their ranking.
+  - `docs/reviews/`: reviews, audits and change-scope reports.
+  - `docs/backlog/`: the response log and notes to act on later.
 - Keep every path project-relative or home-relative; never commit a machine-specific path, a credential or a `.env` file.
 - Every README in this repository uses the same sections in this order: Badges, Overview, Key Features, Documents, Maintenance, under a title ending in "— Reference".
