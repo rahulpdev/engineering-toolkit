@@ -181,6 +181,19 @@ So that <benefit/value>
 
 ---
 
+## RUNTIME ENVIRONMENT
+
+<For every operation the feature performs outside its own running program, name what the machine that runs it must provide and the line that guarantees it: a task in this plan, an existing runbook entry (a step in the written instructions for operating the system), existing configuration, or another plan that must be finished first. Write "None applicable" for a category only after considering it.>
+
+- **Subprocess and CLI calls**: for each program or shell command the code runs, which machine runs it, what must be on its `$PATH`, and where it is installed
+- **HTTP calls and external services**: for each web address the code calls, whether the machine can reach it, the credentials needed, the timeout, and what the code does when the call fails
+- **Filesystem paths outside the repository**: for each path, whether it must already exist, who owns it, and who can write to it
+- **Environment variables**: for each variable, where it is set on each machine that runs the code, and what happens when it is missing
+- **Credentials and tokens**: for each, where it is kept, how it is renewed, and what breaks when it expires
+- **Services and scheduled jobs**: for each, which machine runs it, how it is started, and how a failure shows up
+
+---
+
 ## CONTEXT REFERENCES
 
 ### Relevant Codebase Files IMPORTANT: YOU MUST READ THESE FILES BEFORE IMPLEMENTING!
@@ -406,6 +419,7 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 - [ ] Tasks ordered by dependency (can execute top-to-bottom)
 - [ ] Each task is atomic and independently testable
 - [ ] Pattern references include specific file:line numbers
+- [ ] Every operation outside the program traces, in RUNTIME ENVIRONMENT, to the line that sets up what it needs
 
 ### Pattern Consistency ✓
 
