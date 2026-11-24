@@ -165,6 +165,8 @@ Write a concise, easy-to-scan summary to the report file:
 - **Risks / gotchas**: only real remaining risks or test gaps
 - **Next steps**: follow-up actions needed before commit
 
+The saved file contains only the parts above. Explain a term inside the part where it first appears.
+
 ## Notes
 
 - This command is designed to consume the report produced by `/technical-code-review`, but it also accepts a clearly described manual issue when the user has spotted a problem during testing.

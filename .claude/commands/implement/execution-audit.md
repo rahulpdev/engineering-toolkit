@@ -204,6 +204,8 @@ If gaps were found, write one numbered section per gap:
 - **Notes:** <confirm the report avoids code-only explanations and is suitable for a reader who does not inspect the code>
 ```
 
+The saved file contains only the parts in the structure above. Explain a term inside the part where it first appears.
+
 After writing the report, return a concise chat summary:
 
 - **Status**: Success | Partial | Blocked

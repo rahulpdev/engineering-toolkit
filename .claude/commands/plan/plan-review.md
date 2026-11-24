@@ -190,6 +190,8 @@ Write the review to the target path computed in Step 4 using this structure:
 **Value-prop-amputating?**: <no | yes, alternative preserving cure: ... | yes, no preserving cure in scope, operator decision needed: <trade-off>>
 ```
 
+The review file contains only the parts in the two structures above. Explain a term inside the part where it first appears.
+
 ## Output (OUTPUT)
 
 ### Human-Readable Report
