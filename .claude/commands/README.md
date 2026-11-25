@@ -10,7 +10,7 @@
 
 This folder contains Claude Code slash-command definitions: single-purpose Markdown files with YAML frontmatter that package reusable prompts into invokable workflows. Commands are organized by group, and the group folder is the command namespace: drafting utilities live under `drafting/`, the commit command under `git/`, helper utilities under `helper/`, implementation commands under `implement/`, command-building helpers under `meta/`, planning commands under `plan/`, review-chain commands under `review/`, and validation commands under `validate/`. A file `git/commit.md` is invoked as `/git:commit`.
 
-Each active command should follow the INPUT -> PROCESS -> OUTPUT framework: declare its argument contract, identify context to load, define ordered process steps, state decision discipline, and produce exactly one output type, either a Human-Readable Report or a Structured Agent Handoff. To invoke these commands in Codex, use: "Read and follow in full `<command_path>` with this additional context:".
+Each active command should follow the INPUT -> PROCESS -> OUTPUT framework: declare its argument contract, identify context to load, define ordered process steps, state decision discipline, describe any file it saves in a Saved File section, and return exactly one type of final response, either a Human-Readable Report or a Structured Agent Handoff. To invoke these commands in Codex, use: "Read and follow in full `<command_path>` with this additional context:".
 
 ## Key Features
 
@@ -50,7 +50,7 @@ Each item below is a command definition in this folder, grouped by subfolder.
 ### meta
 
 - [`create-agent.md`](meta/create-agent.md): **`/meta:create-agent`** — creates a new sub-agent in `.claude/agents/` from `.agents/templates/subagent_template.md`. It takes one required agent-spec argument plus optional invocation, handoff, and artifact mode arguments, validates those modes, enforces least-privilege tools, has the document-reviewer sub-agent read the new file, and produces a human-readable creation report.
-- [`create-command.md`](meta/create-command.md): **`/meta:create-command`** — creates a new slash command in `.claude/commands/` from `.agents/templates/custom_command_template.md`. It accepts optional free-form context about desired behavior, constraints, or examples, enforces correct argument handling and a single output section, has the document-reviewer sub-agent read the new file, and keeps generated commands aligned with the repository's INPUT -> PROCESS -> OUTPUT standard.
+- [`create-command.md`](meta/create-command.md): **`/meta:create-command`** — creates a new slash command in `.claude/commands/` from `.agents/templates/custom_command_template.md`. It accepts optional free-form context about desired behavior, constraints, or examples, enforces correct argument handling, a Saved File section for any file the new command saves and a single output section for its final response. A new command whose saved file is written for a human gets a step that has the document-reviewer sub-agent read that file. The command has the document-reviewer sub-agent read the new command file, and keeps generated commands aligned with the repository's INPUT -> PROCESS -> OUTPUT standard.
 
 ### plan
 
@@ -85,5 +85,5 @@ When adding or changing commands in this folder:
 
 - Keep this `README.md` list in sync with active command files and their subfolders.
 - Keep active commands in the smallest appropriate folder.
-- Each active command file should declare its argument contract, context to load, ordered process steps, decision discipline, and exactly one output section: Human-Readable Report or Structured Agent Handoff.
+- Each active command file should declare its argument contract, context to load, ordered process steps, decision discipline, a Saved File section when it saves a file, and exactly one output section for its final response: Human-Readable Report or Structured Agent Handoff.
 - Update the description here whenever a command's arguments, inputs, process, output format, output consumer, or file path changes.

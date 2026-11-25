@@ -57,10 +57,14 @@ Follow these steps in order:
      - 1-2 sentence frontmatter `description` written for an AI agent; imperative, unambiguous, and precise
      - Argument policy for the new command (None / Optional / Mandatory) and `argument-hint` (omit both if none)
      - Minimal `allowed-tools` set for the new command (least privilege)
-     - Output consumer: **Human-Readable Report** or **Structured Agent Handoff** (ask if not explictly stated)
+     - Whether the new command saves a new file or edits an existing one
+     - For a saved file: its path and naming rule, who it is written for, what to do if the file already exists, and its layout
+     - Output consumer of the final response: **Human-Readable Report** or **Structured Agent Handoff** (ask if not explictly stated)
 2. **Stop-and-ask gate (do not write files yet).**
    - If any of the following are unclear, stop and ask targeted questions:
      - The new command’s name (cannot be safely inferred)
+     - Whether the new command saves a file
+     - Where the saved file goes and what to do if it already exists (cannot be safely inferred)
      - The output consumer (human vs agent)
      - Any required arguments (and their validation rules)
      - Any tools that must be allowed (and why)
@@ -80,24 +84,25 @@ Follow these steps in order:
      - Files outside that project → home-relative paths with forward slashes (e.g. `~/Workspaces/engineering-toolkit/.agents/templates/template_software_blueprint.md`). Never write a drive letter, a user name, or backslashes.
      - Do not auto-load a home-relative path with `@`; list it as a file to read in full and have a process step read it, expanding `~` to the home folder.
      - In shell commands, leave a home-relative path unquoted so the shell expands `~`.
-5. **Choose and keep exactly one output section in the new command.**
-   - If the output is for humans: keep **Human-Readable Report** and delete **Structured Agent Handoff**.
-   - If the output is for agents: keep **Structured Agent Handoff** and delete **Human-Readable Report**.
+5. **Choose and keep exactly one output section for the new command’s final response.**
+   - If the final response is for humans: keep **Human-Readable Report** and delete **Structured Agent Handoff**.
+   - If the final response is for agents: keep **Structured Agent Handoff** and delete **Human-Readable Report**.
    - If the consumer is still not specified: stop and ask (do not guess).
 6. **Validate the draft before saving.**
    - Confirm the new command contains:
      - Valid YAML frontmatter (`description`, optional `argument-hint`, `allowed-tools`)
      - A clear **Context to Load** section (only if needed)
      - A step-by-step **Process** where each step is verifiable
+     - A **Saved File** section (only if the command saves a file)
+     - An **Output** section that describes the final response only
      - No leftover placeholders (e.g., `{{...}}`) or template instructions
      - No absolute or machine-specific file paths (every path is project-relative or home-relative)
-   - If the target file already exists, stop and ask before overwriting.
-7. **Write the new command file to `.claude/commands/<command-name>.md`.**
+7. **Write the new command file as this command’s own SAVED FILE section below describes.**
 8. **Run the document review.**
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in Step 7.
    - Follow the instruction that closes its response, except that you ignore any finding against a heading the template fixes.
    - After the edits, repeat the checks in Step 6 once.
-9. **Handoff: produce the final response using the OUTPUT section below.**
+9. **Handoff: produce the final response using this command’s own OUTPUT section below.**
 
 **Decision discipline**
 
@@ -111,6 +116,17 @@ Follow these steps in order:
 - Keep `allowed-tools` for the new command minimal (only what the command truly needs).
 - Ensure the new command is internally consistent and ready to run without extra undocumented context.
 
+## SAVED FILE
+
+- **Path**: `.claude/commands/<command-name>.md`
+- **Naming rule**: `<command-name>` is the new command’s kebab-case name from Step 1.
+- **Written for**: the user, who reads it to check what the new command will do. The agent that runs the new command reads it too.
+- **If the file already exists**: Stop and ask before overwriting.
+
+**Layout**
+
+The template at `.agents/templates/custom_command_template.md`, with its instruction comment removed, every placeholder replaced and every section that does not apply deleted.
+
 ## OUTPUT
 
 ### Human-Readable Report
@@ -118,12 +134,12 @@ Follow these steps in order:
 Return a concise, easy-to-scan summary:
 
 - **Status**: Success | Blocked
-- **What you understood**: 1–3 bullets describing the command-to-create
-- **Questions (only if needed)**: numbered list (only if blocked)
-- **Artifact**: the created file path (or intended path if blocked)
-- **How to run**: exact `/command-name` invocation examples
-- **Key design choices**: argument policy + output consumer + `allowed-tools` rationale
+- **File**: the path of the new command file (or intended path if blocked)
+- **Assumptions**: any assumption made while drafting, or `None`
 - **Document review**: what the document-reviewer's closing instruction says to tell the user
+- **Questions (only if blocked)**: numbered list
+
+Repeat nothing that is in the new command file.
 
 ## Notes
 

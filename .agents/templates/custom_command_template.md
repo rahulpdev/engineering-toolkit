@@ -25,10 +25,16 @@
   - If a step depends on a previous step's output, state the dependency (and step number) explicitly.
   - If a step requires judgment, state the criteria for that judgment.
   - If a step can fail, state the failure path before moving to the next step.
+  - If a step writes the saved file or returns the final response, name the section that describes it (`Saved File` or `Output`). Do not write "the format below".
+
+  Saved file:
+  - A saved file is a file the command itself writes as the product of its run. The command may create it, add to an existing file, or save text it received unchanged. A file the command was given to change is not a saved file.
+  - A file is written for a HUMAN when a user reads it, even if an agent also reads it. A file that is only instructions or data for an AGENT or a later command is not.
 
   Output consumer:
-  - If the output is for HUMANS: keep the human section and delete the agent section.
-  - If the output is for AI AGENTS: keep the agent section and delete the human section.
+  - The Output section describes the final response only. A file the command saves is described in the Saved File section.
+  - If the final response is for HUMANS: keep the human section and delete the agent section.
+  - If the final response is for AI AGENTS: keep the agent section and delete the human section.
   - If the consumer is not specified: stop and ask before proceeding. Do not guess.
 -->
 
@@ -99,8 +105,13 @@ Follow these steps in order:
 1. {{STEP_1}}
 2. {{STEP_2}}
 3. {{STEP_3}}
-4. {{STEP_4}}
-5. {{STEP_5}}
+4. {{Write the file as the Saved File section describes}} (omit if no file is saved)
+5. **Run the document review.** (omit unless the saved file is written for a human and the command may correct its wording; if kept, add `Agent` and `Edit` to `allowed-tools`)
+   - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in the step before this one.
+   - Follow the instruction that closes its response, using Edit on the saved file only.
+   - Correct wording only. Change nothing the file states, and ignore any finding against a heading or field name the Saved File section fixes.
+   - If the sub-agent cannot be started, or reports that it is blocked, leave the file as that step wrote it and say so in the final response.
+6. {{Return the final response as the Output section describes}}
 
 **Decision discipline**
 
@@ -113,11 +124,30 @@ Follow these steps in order:
 - {{CONSTRAINT_2}} (e.g., “Avoid large refactors.”)
 - {{CONSTRAINT_3}} (e.g., “Do not introduce new dependencies.”)
 
+## Saved File (OUTPUT) (omit if no file is saved)
+
+- **Path**: `{{folder/and/file-name-pattern}}`
+- **Naming rule**: {{HOW_EACH_PART_OF_THE_NAME_IS_MADE}} (e.g., “`<slug>` is the plan’s file name without `.md`”.)
+- **Written for**: {{a human|an agent or a later command (name it)}}
+- **If the file already exists**: {{Replace it|Stop and ask|Save under a new name|Add to the end}}
+
+**Layout**
+
+```markdown
+{{THE_FILE'S_HEADINGS_OR_FIELDS_IN_ORDER__WITH_WHAT_GOES_UNDER_EACH}}
+{{If the command saves text it received, state that the text is saved unchanged.}}
+```
+
 ## Output (OUTPUT)
 
 **Output consumer (choose ONE)**
 
 - Keep exactly one of the two sections below and delete the other. Do not mix formats.
+
+**If the command saves a file** (omit if no file is saved)
+
+- The final response repeats nothing that is in the file.
+- If the file cannot be written, the status is Blocked and the final response says why.
 
 ---
 
@@ -132,6 +162,14 @@ Return a concise, easy-to-scan summary that lets a human verify you “got it”
 - **Risks / gotchas**: {{bullets, only if real}}
 - **Next steps**: {{bullets}}
 - **Questions (only if needed)**: {{numbered list}}
+
+If the command saves a file, return this list in place of the one above:
+
+- **Status**: {{Success|Partial|Blocked}}
+- **File**: the path of the saved file
+- **Verdict**: {{THE_ONE_VERDICT_THE_COMMAND_EXISTS_TO_PRODUCE}} (omit if the command produces none)
+- **Document review**: what the document-reviewer's closing instruction says to tell the user, or that the review did not run (omit if the command has no document-review step)
+- **Questions (only if blocked)**: {{numbered list}}
 
 ---
 
@@ -151,6 +189,7 @@ arguments:
 
 artifacts:
   # Files created/updated by running this command (or files the next agent must read)
+  # A file described in the Saved File section is listed here by its path.
   - path: "{{relative/or/absolute/path}}"
     purpose: "{{why it exists / what to do with it}}"
 
@@ -198,4 +237,5 @@ next_action:
 
 - {{NOTES_FOR_FUTURE_MAINTAINERS_OR_WHEN_TO_USE_THIS_COMMAND}}
 - {{LINKS_OR_REFS_IF_RELEVANT}}
+- The `document-reviewer` sub-agent must be present in `.claude/agents/`, or the document-review step cannot run. (omit if the command has no document-review step)
 ````
