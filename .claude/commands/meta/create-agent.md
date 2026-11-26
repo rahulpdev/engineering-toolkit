@@ -75,8 +75,8 @@ Follow these steps in order:
      - The spec does not provide enough concrete standards to make the agent self-contained.
      - Any tools that must be allowed (and why).
 4. Ensure the target directory exists by running `mkdir -p .claude/agents`.
-5. Check whether `.claude/agents/<agent-name>.md` already exists.
-   - If it exists, stop and ask before overwriting.
+5. Check whether the file the Saved File section names already exists.
+   - If it exists, follow that section's rule for a file that already exists.
    - If it does not exist, continue.
 6. Design the primary-agent handoff contract as a first-class design problem.
    - If the primary agent may branch conditionally, make that rule explicit and observable from the sub-agent’s output alone, and ensure the output is sufficient for that decision.
@@ -104,12 +104,12 @@ Follow these steps in order:
    - Confirm the new sub-agent is specialized rather than generic.
    - Confirm the primary agent can choose the next action from the sub-agent’s output alone, without inferring missing context, (if it may act or branch conditionally) and any assumptions or inferences made by the primary agent are clearly stated.
    - Confirm the output section preserves the template’s YAML handoff contract, including `status`, `summary`, `artifacts`, `assumptions`, and `recommended_next_action`.
-9. Write the final file to `.claude/agents/<agent-name>.md`.
+9. Write the final file as the Saved File section describes.
 10. Run the document review.
     - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in step 9.
     - Follow the instruction that closes its response, except that you ignore any finding against a heading or field name the template fixes.
     - After the edits, repeat the checks in step 8 once.
-11. Return the final response using the Human-Readable Report section below.
+11. Return the final response using the Human-Readable Report in the Output section.
 
 **Decision discipline**
 
@@ -125,19 +125,28 @@ Follow these steps in order:
 - Keep `tools` for the new agent minimal (only what the agent truly needs).
 - Keep the generated sub-agent aligned to the common standard enforced by `@.agents/templates/subagent_template.md`.
 
+## Saved File (OUTPUT)
+
+- **Path**: `.claude/agents/<agent-name>.md`
+- **Naming rule**: `<agent-name>` is the kebab-case agent name inferred in step 2.
+- **Written for**: a human, who reads it to check what the new sub-agent will do. The primary agent and the sub-agent itself also read it.
+- **If the file already exists**: Stop and ask before overwriting.
+
+**Layout**
+
+The template at `.agents/templates/subagent_template.md`, with its instruction comment block removed, every placeholder replaced and every section that does not apply removed.
+
 ## Output (OUTPUT)
 
 ### Human-Readable Report
 
-Return a concise, easy-to-scan summary:
+Return a concise, easy-to-scan summary, and repeat nothing that is in the new sub-agent file:
 
-- **Status**: Success | Blocked
-- **What you understood**: 1-3 bullets covering the requested agent, its scope, and the three selected modes
-- **Artifact**: `.claude/agents/<agent-name>.md` (or intended path if blocked)
-- **How to run**: exact `/create-agent` invocation used, plus the created agent name
-- **Key design choices**: chosen model, allowed tools rationale, notable scope boundaries, and any artifact path convention used
+- **Status**: `Success`, or `Blocked` with the reason, including when the file could not be written.
+- **File**: `.claude/agents/<agent-name>.md` (or intended path if blocked)
+- **Assumptions**: any assumption made while drafting, or `None`
 - **Document review**: what the document-reviewer's closing instruction says to tell the user
-- **Questions (only if needed)**: numbered list (only if blocked)
+- **Questions (only if blocked)**: numbered list
 
 ## Notes
 

@@ -118,7 +118,7 @@ Follow these steps in order:
 
 - **Path**: `docs/options/<slug>-problem-definition.md`
 - **Naming rule**: `<slug>` is the slug already settled in this conversation. On the first run, make a concise kebab-case slug for the problem, of two to three words.
-- **Written for**: a human. `/plan:plot-routes` and the planning commands that follow it also read it.
+- **Written for**: a human. Later planning commands also read it.
 - **If the file already exists**: Replace it.
 
 **Layout**

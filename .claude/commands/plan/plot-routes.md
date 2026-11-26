@@ -92,7 +92,7 @@ Follow these steps in order:
 
 - **Path**: `<dir>/<slug>-option-<i>.yaml`, one file for each sub-agent
 - **Naming rule**: `<dir>` is the folder of the problem definition, `dirname($ARGUMENTS)`. `<slug>` is the problem definition's filename, `basename($ARGUMENTS)`, with the `-problem-definition.md` ending removed; the filename is the canonical source of truth for the slug. `<i>` is the sub-agent's number in the order its response was received (1 to N).
-- **Written for**: a later command, `/plan:chart-course`.
+- **Written for**: a later command.
 - **If the file already exists**: If any `<slug>-option-<i>.yaml` file is already in `<dir>`, stop and ask before overwriting any of them.
 
 **Layout**

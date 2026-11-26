@@ -128,7 +128,7 @@ Follow these steps in order:
 
 - **Path**: `{{folder/and/file-name-pattern}}`
 - **Naming rule**: {{HOW_EACH_PART_OF_THE_NAME_IS_MADE}} (e.g., “`<slug>` is the plan’s file name without `.md`”.)
-- **Written for**: {{a human|an agent or a later command (name it)}}
+- **Written for**: {{a human|an agent or a later command}}
 - **If the file already exists**: {{Replace it|Stop and ask|Save under a new name|Add to the end}}
 
 **Layout**

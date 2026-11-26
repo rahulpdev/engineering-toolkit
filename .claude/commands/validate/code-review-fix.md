@@ -109,24 +109,21 @@ Follow these steps in order:
    - If an unexpected file changed, inspect it and either explain why it was required or stop and ask how to proceed.
 
 8. **Write the completion report.**
-   - Use the **Human-Readable Report** format below.
+   - Use the layout in the Saved File section.
    - Include the original issue numbers from the review report when available.
    - For each fixed issue, explain what was wrong, show the fix with file references and a concise code or diff summary, and list the test command that verified it.
    - List any issues that were intentionally not fixed and explain why (e.g., already resolved, not a real defect, deferred per documentation).
-   - Name the report file after the review input. If `$1` is a file whose name begins with `code-review`, replace that leading `code-review` with `code-review-fix` and keep the rest, so that `code-review-2026-04-30-143000.md` gives `code-review-fix-2026-04-30-143000.md`. Otherwise use `code-review-fix-<YYYY-MM-DD-HHMMSS>.md`, taking the time from `date '+%Y-%m-%d-%H%M%S'`.
    - Ensure the `docs/reviews/` directory exists.
-   - Write the report to `docs/reviews/` under that filename.
+   - Write the report as the Saved File section describes.
 
 9. **Run the document review.**
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the report written in Step 8.
    - Follow the instruction that closes its response, using Edit on the report file only.
-   - Correct wording only. Do not change which issues are recorded as fixed or not fixed, a test or validation result, or a file reference, and ignore any finding against a field name the report format fixes.
-   - If the sub-agent cannot be started, or reports that it is blocked, leave the report as written in Step 8 and say so in the summary.
+   - Correct wording only. Do not change which issues are recorded as fixed or not fixed, a test or validation result, or a file reference, and ignore any finding against a field name the Saved File section fixes.
+   - If the sub-agent cannot be started, or reports that it is blocked, leave the report as written in Step 8 and say so in the final response.
 
-10. **Return a concise summary.**
-    - Report the absolute path to the completion report on its own line.
-    - Give the status, the number of issues fixed and not fixed, and the final validation result.
-    - Report what the document-reviewer's closing instruction says to tell the user, or that the review did not run.
+10. **Return the final response.**
+    - Use the Human-Readable Report in the Output section.
 
 **Decision discipline**
 
@@ -143,11 +140,16 @@ Follow these steps in order:
 - Do not skip targeted tests for fixed issues unless no test harness exists or the issue is not testable in this repository.
 - Do not mark the task complete unless each attempted fix has a test result, validation result, or documented blocker.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Human-Readable Report (for humans)
+- **Path**: `docs/reviews/<report-name>.md`
+- **Naming rule**: `<report-name>` is taken from the review input. If `$1` is a file whose name begins with `code-review`, replace that leading `code-review` with `code-review-fix` and keep the rest, so that `code-review-2026-04-30-143000.md` gives `code-review-fix-2026-04-30-143000.md`. Otherwise use `code-review-fix-<YYYY-MM-DD-HHMMSS>.md`, taking the time from `date '+%Y-%m-%d-%H%M%S'`.
+- **Written for**: a human.
+- **If the file already exists**: Save under a new name, adding the run's date and time, from `date '+%Y-%m-%d-%H%M%S'`, before `.md`.
 
-Write a concise, easy-to-scan summary to the report file:
+**Layout**
+
+Write a concise, easy-to-scan summary:
 
 - **Title**: a first-level heading, `# Code Review Fix Report`, then the date and time
 - **Status**: Success | Partial | Blocked
@@ -166,6 +168,17 @@ Write a concise, easy-to-scan summary to the report file:
 - **Next steps**: follow-up actions needed before commit
 
 The saved file contains only the parts above. Explain a term inside the part where it first appears.
+
+## Output (OUTPUT)
+
+### Human-Readable Report (for humans)
+
+Return a concise summary. Beyond the items below, repeat nothing that is in the file:
+
+- **Status**: `Success`, `Partial` or `Blocked`. Give the reason with `Blocked`, including when the file could not be written.
+- **File**: the absolute path to the completion report, on its own line.
+- **Final validation**: pass, fail or not run.
+- **Document review**: what the document-reviewer's closing instruction says to tell the user, or that the review did not run.
 
 ## Notes
 

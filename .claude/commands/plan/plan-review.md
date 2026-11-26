@@ -62,8 +62,9 @@ Follow these steps in order:
 
 4. **Prepare the target review file.**
    - Capture the artifacts directory into a shell variable: `DIR="$ARTIFACTS_DIR"`.
-   - If `$DIR` is non-empty, create it with `mkdir -p "$DIR"` and set the target path to `$DIR/plan-review.md` (Archon workflow context).
-   - Otherwise, create `docs/reviews/` with `mkdir -p docs/reviews/` and set the target path to `docs/reviews/<plan-name>-plan-review.md` (a person typed the command).
+   - If `$DIR` is non-empty, create it with `mkdir -p "$DIR"` (Archon workflow context).
+   - Otherwise, create `docs/reviews/` with `mkdir -p docs/reviews/` (a person typed the command).
+   - Set the target path as the Saved File section describes.
 
 5. **Review the plan against every category defined below.**
    - Produce findings in each category listed below. State `no findings` explicitly for any category with zero findings. Silence is not coverage.
@@ -109,19 +110,17 @@ Follow these steps in order:
      - **RE-SCOPE**: plan has structural problems (undefined Problem Statement, multiple value-prop-amputating conflicts with no in-scope cures) that further rounds of fixing cannot resolve; author must re-scope (redraw what the plan covers) before another round.
 
 8. **Write the review file.**
-   - Write the review to the target path computed in Step 4.
-   - Use the file structure defined in the Review File Structure section below.
+   - Write the review to the target path set in Step 4, as the Saved File section describes.
    - Do not write partial reviews; every category must be present.
 
 9. **Have the review's wording checked.**
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the review file written in Step 8.
    - Follow the instruction that closes its response, using Edit on the review file only.
-   - Correct wording only. Do not change a finding, its tag, a count or the Recommended action, and ignore any finding against a heading or field name the Review File Structure fixes, because `/plan:plan-review-fix` reads the review by those names.
-   - If the sub-agent cannot be started, or reports that it is blocked, leave the review as written in Step 8 and say so in the handoff.
+   - Correct wording only. Do not change a finding, its tag, a count or the Recommended action, and ignore any finding against a heading or field name the Saved File section fixes, because `/plan:plan-review-fix` reads the review by those names.
+   - If the sub-agent cannot be started, or reports that it is blocked, leave the review as written in Step 8 and say so in the final response.
 
 10. **Return the handoff report.**
-    - Use the Human-Readable Report format below.
-    - Do not include the review body in the handoff; point to the file.
+    - Use the Human-Readable Report in the Output section.
 
 **Decision discipline**
 
@@ -135,9 +134,16 @@ Follow these steps in order:
 - Do not decide the author's product trade-offs when a cure is value-prop-amputating; name the trade-off and stop.
 - Do not compress the category list or skip a `no findings` line: the record of what was checked is what this command delivers.
 
-## Review File Structure
+## Saved File (OUTPUT)
 
-Write the review to the target path computed in Step 4 using this structure:
+- **Path**: `$DIR/plan-review.md` when a workflow runs the command, which is when `$DIR` is non-empty in Step 4. `docs/reviews/<plan-name>-plan-review.md` when a person typed the command.
+- **Naming rule**: `<plan-name>` is the plan's file name without its folder or its `.md` ending, from Step 1.
+- **Written for**: a human. Another command also reads it, by the headings and field names in the layout.
+- **If the file already exists**: Replace it.
+
+**Layout**
+
+Use this structure:
 
 ```markdown
 # Plan Review: <plan-name>
@@ -198,20 +204,13 @@ The review file contains only the parts in the two structures above. Explain a t
 
 Return a concise, easy-to-scan summary in plain language at a 16-year-old reading level:
 
-- **Status**: `Success` | `Blocked`
-- **Plan reviewed**: `<plan-filepath>`
-- **Review file**: the target path computed in Step 4
-- **Verification**: one short sentence on what was checked against the codebase and what could not be.
+- **Status**: `Success`, or `Blocked` with the reason, including when the file could not be written.
+- **File**: the target path set in Step 4
 - **Recommended action**: `PASS` | `ITERATE` | `RE-SCOPE`
-- **Material findings**: `<N>`
-- **Cosmetic findings**: `<N>`
-- **Uncategorised observations**: `<N | none>`
-- **Findings raised again despite a prior rejection**: `<N | none>`. If any, list which categories and prior cycles.
-- **Value-prop-amputating cures flagged**: `<N | none>`. If any, list which categories.
 - **Document review**: what the document-reviewer's closing instruction says to tell the user, or that the review did not run.
 - **Questions (only if blocked)**: numbered list.
 
-Do not paste the review body into the handoff; point to the file.
+Beyond the items above, repeat nothing that is in the review file.
 
 ## Notes
 

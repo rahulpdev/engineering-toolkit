@@ -104,9 +104,7 @@ Follow these steps in order:
 
 7. **Write the report file.**
    - Run `mkdir -p docs/reviews`, which creates the folder for audit reports if it does not exist yet.
-   - Write the report to `docs/reviews/<slug>-audit.md`.
-   - Ensure the filename ends with `-audit.md`.
-   - If a file with the target report path already exists, create `docs/reviews/<slug>-<YYYY-MM-DD-HHMMSS>-audit.md` instead of overwriting it.
+   - Write the report as the Saved File section describes.
 
 8. **Review the report before responding.**
    - Re-read the report and confirm it is drafted for a non-code-reading audience.
@@ -116,10 +114,10 @@ Follow these steps in order:
 9. **Have the report's wording checked.**
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the report written in Step 7.
    - Follow the instruction that closes its response, using Edit on the report file only.
-   - Correct wording only. Do not change a plan item's status, a severity, a count or the evidence cited, and ignore any finding against a heading or field name the report format fixes.
-   - If the sub-agent cannot be started, or reports that it is blocked, leave the report as written and say so in the chat summary.
+   - Correct wording only. Do not change a plan item's status, a severity, a count or the evidence cited, and ignore any finding against a heading or field name the Saved File section fixes.
+   - If the sub-agent cannot be started, or reports that it is blocked, leave the report as written and say so in the final response.
 
-10. **Handoff: produce the final response using the Output (OUTPUT) section below.**
+10. **Handoff: produce the final response using the Human-Readable Report in the Output section.**
 
 **Decision discipline**
 
@@ -135,11 +133,14 @@ Follow these steps in order:
 - Do not run tests, builds, migrations (changes to the structure of stored data), deployments, or destructive commands; audit the available evidence instead.
 - Do not soften or omit plan gaps to make the implementation look more complete.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Human-Readable Report (for humans)
+- **Path**: `docs/reviews/<slug>-audit.md`
+- **Naming rule**: `<slug>` is the report slug identified in Step 1. The file name ends with `-audit.md`.
+- **Written for**: a human.
+- **If the file already exists**: Save under a new name, `docs/reviews/<slug>-<YYYY-MM-DD-HHMMSS>-audit.md`.
 
-Write the following Markdown structure to `docs/reviews/<slug>-audit.md`.
+**Layout**
 
 ```markdown
 # Execution Audit Report
@@ -206,12 +207,15 @@ If gaps were found, write one numbered section per gap:
 
 The saved file contains only the parts in the structure above. Explain a term inside the part where it first appears.
 
-After writing the report, return a concise chat summary:
+## Output (OUTPUT)
 
-- **Status**: Success | Partial | Blocked
-- **Report**: absolute path to the audit report
+### Human-Readable Report (for humans)
+
+Return a concise summary. Beyond the items below, repeat nothing that is in the file:
+
+- **Status**: `Success`, `Partial` or `Blocked`. Give the reason with `Blocked`, including when the file could not be written.
+- **File**: absolute path to the audit report
 - **Highest severity found**: Critical | High | Medium | Low | None | Unknown
-- **Gap count**: number of missed, skipped, incomplete, or unverifiable plan items
 - **Document review**: what the document-reviewer's closing instruction says to tell the user, or that the review did not run
 - **Questions (only if blocked)**: numbered list
 

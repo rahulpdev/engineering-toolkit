@@ -143,7 +143,16 @@ So that <benefit/value>
 
 ### Phase 5: Plan Structure Generation
 
-**Create comprehensive plan with the following structure:**
+**Create a comprehensive plan in the layout the Saved File section gives.**
+
+## Saved File
+
+- **Path**: `docs/plans/<name>.md`. Create `docs/plans/` if it doesn't exist.
+- **Naming rule**: `<name>` is a short, descriptive feature name in kebab-case, such as `add-user-authentication`, `implement-search-api` or `refactor-database-layer`. When the feature description names a file in `docs/options/`, name the plan `docs/plans/<slug>-plan.md` instead. Take `<slug>` from the problem definition that file belongs to: the `<slug>-problem-definition.md` in the same folder whose slug begins the named file's name. If there is none, use the descriptive name.
+- **Written for**: a human. Other commands also read it.
+- **If the file already exists**: Stop and ask before overwriting it.
+
+**Layout**
 
 Whats below here is a template for you to fill for the implementation agent:
 
@@ -393,16 +402,6 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 <Additional context, design decisions, trade-offs>
 ```
 
-## Output Format
-
-**Filename**: `docs/plans/{kebab-case-descriptive-name}.md`
-
-- Replace `{kebab-case-descriptive-name}` with short, descriptive feature name
-- Examples: `add-user-authentication.md`, `implement-search-api.md`, `refactor-database-layer.md`
-- When the feature description names a file in `docs/options/`, name the plan `docs/plans/<slug>-plan.md` instead. Take `<slug>` from the start of that file's name: the part before `-problem-definition.md`, `-heading.md`, `-option-<i>.yaml` or `-options-evaluation-<timestamp>.md`.
-
-**Directory**: Create `docs/plans/` if it doesn't exist
-
 ## Quality Criteria
 
 ### Context Completeness ✓
@@ -447,15 +446,13 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 
 ## Document Review
 
-After creating the Plan, start the `document-reviewer` sub-agent once and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the full path to the Plan file. Follow the instruction that closes its response, except that you ignore any finding against a heading or task keyword the Plan template fixes.
+After creating the Plan, start the `document-reviewer` sub-agent once and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the full path to the Plan file. Follow the instruction that closes its response, except that you ignore any finding against a heading or task keyword the layout in the Saved File section fixes.
 
-## Report
+## Output
 
-After creating the Plan, provide:
+After creating the Plan, provide the items below. Beyond them, repeat nothing that is in the Plan:
 
-- Summary of feature and approach
+- Status: `Success`, or `Blocked` with the reason if the file could not be written
 - Full path to created Plan file
-- Complexity assessment
-- Key implementation risks or considerations
 - Estimated confidence score for one-pass success
 - What the document-reviewer's closing instruction says to tell the user
