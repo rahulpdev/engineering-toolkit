@@ -25,7 +25,7 @@
   - If a step depends on a previous step's output, state the dependency (and step number) explicitly.
   - If a step requires judgment, state the criteria for that judgment.
   - If a step can fail, state the failure path before moving to the next step.
-  - If a step writes the saved file or returns the final response, name the section that describes it (`Saved File` or `Output`). Do not write "the format below".
+  - If a step writes the saved file or returns the final response, name the section that describes it (`Saved File` or `Output`).
 
   Saved file:
   - A saved file is a file the command itself writes as the product of its run. The command may create it, add to an existing file, or save text it received unchanged. A file the command was given to change is not a saved file.
@@ -135,7 +135,6 @@ Follow these steps in order:
 
 ```markdown
 {{THE_FILE'S_HEADINGS_OR_FIELDS_IN_ORDER__WITH_WHAT_GOES_UNDER_EACH}}
-{{If the command saves text it received, state that the text is saved unchanged.}}
 ```
 
 ## Output (OUTPUT)
@@ -187,7 +186,7 @@ summary: {{one_sentence}}
 arguments:
   raw: "$ARGUMENTS"
 
-artifacts:
+files:
   # Files created/updated by running this command (or files the next agent must read)
   # A file described in the Saved File section is listed here by its path.
   - path: "{{relative/or/absolute/path}}"

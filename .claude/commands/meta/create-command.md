@@ -120,7 +120,7 @@ Follow these steps in order:
 
 - **Path**: `.claude/commands/<command-name>.md`
 - **Naming rule**: `<command-name>` is the new command’s kebab-case name from Step 1.
-- **Written for**: the user, who reads it to check what the new command will do. The agent that runs the new command reads it too.
+- **Written for**: a human. The agent that runs the new command also reads it.
 - **If the file already exists**: Stop and ask before overwriting.
 
 **Layout**

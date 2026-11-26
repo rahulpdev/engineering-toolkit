@@ -104,7 +104,7 @@ Correct wording only. Do not change a status, an **Observed**, **Inferred** or *
 - **Path**: `docs/reviews/prime-<YYYY-MM-DD-HHMMSS>.md`
 - **Naming rule**: `<YYYY-MM-DD-HHMMSS>` is the date and time of the run.
 - **Written for**: a human.
-- **If the file already exists**: Each run saves a new file, because the time in the name differs.
+- **If the file already exists**: Each run saves a new file.
 
 **Layout**
 

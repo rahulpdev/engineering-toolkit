@@ -1,6 +1,6 @@
 ---
 description: Create a new sub-agent in `.claude/agents/` from the standard sub-agent template, using one required argument and three optional mode arguments
-argument-hint: "<agent-spec: required, quote if it contains spaces> [invocation-mode: optional trailing arg, default=manual, values=autonomous|manual|hybrid] [handoff-mode: optional trailing arg, default=stop-and-wait, values=act-immediately|stop-and-wait|conditional] [artifact-mode: optional trailing arg, default=none, values=report|none]"
+argument-hint: "<agent-spec: required, quote if it contains spaces> [invocation-mode: optional trailing arg, default=manual, values=autonomous|manual|hybrid] [handoff-mode: optional trailing arg, default=stop-and-wait, values=act-immediately|stop-and-wait|conditional] [saved-file-mode: optional trailing arg, default=none, values=report|none]"
 allowed-tools: Read, Write, Edit, Agent, Bash(mkdir:*), Bash(ls:*), Bash(test:*), AskUserQuestion
 ---
 
@@ -34,7 +34,7 @@ Sub-agents are most effective when they are narrow, predictable, and reusable. B
 - Optional args:
   - `$2` = invocation mode. Allowed values: `autonomous`, `manual`, `hybrid`
   - `$3` = output handoff mode. Allowed values: `act-immediately`, `stop-and-wait`, `conditional`
-  - `$4` = artifact mode. Allowed values: `report`, `none`
+  - `$4` = saved file mode. Allowed values: `report`, `none`
 - Defaults (if any):
   - If `$2` is omitted, use `manual`
   - If `$3` is omitted, use `stop-and-wait`
@@ -85,25 +85,25 @@ Follow these steps in order:
 7. Draft the new sub-agent using `@.agents/templates/subagent_template.md`. Do not draft freehand.
    - Remove the template instruction comment block before saving.
    - Replace every placeholder with concrete, project-specific content derived from the current context and `$1`.
-   - Embed concrete standards from the current context and `$1` when they materially shape the sub-agent’s behavior, including tool restrictions, missing-context policy, exact path conventions, naming rules, severity levels, output fields, artifact structure and other materially relevant project constraints.
+   - Embed concrete standards from the current context and `$1` when they materially shape the sub-agent’s behavior, including tool restrictions, missing-context policy, exact path conventions, naming rules, severity levels, output fields, saved file structure and other materially relevant project constraints.
    - Do not rely on generic phrases such as "follow project standards", "use existing patterns", or "review against best practices" unless the generated agent makes those standards explicit enough to execute.
    - Apply `$2` exactly as the template requires for Decision 1.
    - Apply `$3` exactly as the template requires for Decision 2.
    - Apply `$4` exactly as the template requires for Decision 3.
-   - If `$4` is `report` and the current context does not imply a stronger location, use the default artifact path pattern `docs/reviews/<agent-name>-<timestamp>-<scope>.md`.
+   - If `$4` is `report` and the current context does not imply a stronger location, use the default saved file path pattern `docs/reviews/<agent-name>-<timestamp>-<scope>.md`.
    - Keep the sub-agent self-contained. Do not rely on unstated chat history inside the generated sub-agent.
    - Remove any sections that do not apply — no empty stubs.
 8. Validate the draft before writing it.
    - Confirm the agent YAML frontmatter is valid (`name`, `description`, optional `model`, `tools`, `color`)
    - Confirm the `description` field aligns with the chosen invocation mode.
    - Confirm the `tools` field (if present) is sufficient to execute every step in the generated process.
-   - Confirm the `Invocation Policy`, `Artifact Contract`, `Output`, and `Primary-Agent Handoff Policy` sections are internally consistent with `$2`, `$3`, and `$4`.
+   - Confirm the `Invocation Policy`, `Saved File`, `Output`, and `Primary-Agent Handoff Policy` sections are internally consistent with `$2`, `$3`, and `$4`.
    - Confirm there are no leftover `{{...}}` placeholders.
    - Confirm the process steps are single, verifiable actions in dependency order.
    - Confirm the generated agent is understandable and executable without relying on unstated repository knowledge or the spec that created it.
    - Confirm the new sub-agent is specialized rather than generic.
    - Confirm the primary agent can choose the next action from the sub-agent’s output alone, without inferring missing context, (if it may act or branch conditionally) and any assumptions or inferences made by the primary agent are clearly stated.
-   - Confirm the output section preserves the template’s YAML handoff contract, including `status`, `summary`, `artifacts`, `assumptions`, and `recommended_next_action`.
+   - Confirm the output section preserves the template’s YAML handoff contract, including `status`, `summary`, `files`, `assumptions`, and `recommended_next_action`.
 9. Write the final file as the Saved File section describes.
 10. Run the document review.
     - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in step 9.
@@ -129,7 +129,7 @@ Follow these steps in order:
 
 - **Path**: `.claude/agents/<agent-name>.md`
 - **Naming rule**: `<agent-name>` is the kebab-case agent name inferred in step 2.
-- **Written for**: a human, who reads it to check what the new sub-agent will do. The primary agent and the sub-agent itself also read it.
+- **Written for**: a human. The primary agent and the sub-agent itself also read it.
 - **If the file already exists**: Stop and ask before overwriting.
 
 **Layout**

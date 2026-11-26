@@ -33,9 +33,10 @@
   - `stop-and-wait`: instruct the primary agent to present the results to the user and wait for user direction.
   - `conditional`: state the conditional rule that decides whether the primary agent should proceed or stop, and make that rule evaluable from the sub-agent's own output (e.g., "If any CRITICAL findings exist, stop and wait; otherwise, proceed to fix all MAJOR and MINOR issues automatically.").
 
-  DECISION 3 — Artifact mode:
-  - If a report artifact is required, keep `Artifact Contract` section, specify the exact path pattern, naming rule, and define the required sections. The final YAML handoff is still mandatory.
-  - If no artifact is required, delete `Artifact Contract` section and set `artifacts: none` in the final YAML handoff.
+  DECISION 3 — Saved file mode:
+  - If a report file is required, keep the `Saved File` section, specify the exact path pattern, the naming rule and what to do if the file already exists, and define the required sections. The final YAML handoff is still mandatory.
+  - If no file is required, delete the `Saved File` section and set `files: none` in the final YAML handoff.
+  - A saved file is written for a HUMAN when a user reads it, even if an agent also reads it.
 
   Quality checklist:
   - Every placeholder has been replaced with project-specific content.
@@ -45,7 +46,7 @@
   - Process steps are single, verifiable actions in dependency order.
   - Handoff protocol matches the chosen post-completion behavior (Decision 2).
   - The Output Contract is parseable and aligned with the chosen handoff mode.
-  - If an artifact is required (Decision 3), the Artifact Contract has a full report template. If not required, the Artifact Contract section has been fully removed - no empty stubs remain.
+  - If a saved file is required (Decision 3), the Saved File section has a full report template. If not required, the Saved File section has been fully removed - no empty stubs remain.
   - The system prompt stays focused on a single area of expertise.
   - If tools are restricted, the restricted set is sufficient for every Process step to be executable.
 -->
@@ -116,8 +117,14 @@ Follow these steps in order:
 2. {{Read only the specific files, docs, or state needed for the task}}
 3. {{Perform the specialized analysis / implementation / validation work}}
 4. {{Cross-check results against relevant standards, constraints, or acceptance criteria}}
-5. {{Produce the final output exactly as specified in the Output section}}
-6. {{If an artifact is required, write it as specified in the Artifact Contract section before returning}}
+5. {{If a saved file is required, write it as specified in the Saved File section}}
+6. **Run the document review.** (omit unless the saved file is written for a human; if kept, the sub-agent needs the agent spawning tool and Edit)
+   - Start the `document-reviewer` sub-agent once and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the path of the saved file.
+   - Follow the instruction that closes its response, using Edit on the saved file only.
+   - Correct wording only. Change nothing the file states, and ignore any finding against a heading, field name or format the Saved File section fixes.
+   - You cannot tell the user anything directly, so record under `document_review` in your output what that instruction says to tell the user.
+   - If the sub-agent cannot be started, or reports that it is blocked, set `document_review.status` to `not-run` and continue.
+7. {{Produce the final output exactly as specified in the Output section}}
 
 ## Decision Discipline
 
@@ -128,13 +135,14 @@ Follow these steps in order:
 - If blocked, stop process as soon as the blocker is clear and report the exact missing input or dependency.
 - If a judgment call is required, state the alternatives considered and why you chose one.
 
-## Artifact Contract (omit entirely if no artifact is required)
+## Saved File (omit entirely if no file is required)
 
 **Write exactly one markdown file:**
 
 - **Path**: `{{exact/output/path/or/pattern}}`
 - **Naming rule**: {{e.g., "kebab-case, include reviewed scope in the name, include ISO datetime"}}
-- **Purpose**: {{why the artifact exists and who/what consumes it}}
+- **Written for**: {{a human|an agent}}
+- **If the file already exists**: {{Replace it|Save under a new name|Stop and report it as a blocker}}
 
 **Report template:**
 
@@ -158,19 +166,19 @@ Follow these steps in order:
 {{SECTION_N_CONTENT_GUIDANCE}}
 ```
 
-**Artifact rules:**
+**Saved file rules:**
 
-- Write the artifact before sending your final response to the primary agent.
-- The artifact must stand alone without chat history — a reader must understand it with no other context.
-- If the artifact cannot be written (missing data, access error), report status as "blocked" and explain why.
+- Write the saved file before sending your final response to the primary agent.
+- The saved file must stand alone without chat history — a reader must understand it with no other context.
+- If the saved file cannot be written (missing data, access error), report status as "blocked" and explain why.
 
 ## Output (OUTPUT)
 
-{{Rename, add, or remove content fields in the report schema to match the sub-agent's actual output structure. Preserve the `artifacts` field, the `assumptions` field, and the contract fields the primary agent depends on for handoff routing: `status`, `summary`, and `recommended_next_action`.}}
+{{Rename, add, or remove content fields in the report schema to match the sub-agent's actual output structure. Preserve the `files` field, the `assumptions` field, and the contract fields the primary agent depends on for handoff routing: `status`, `summary`, and `recommended_next_action`.}}
 
 Return your final response to the primary agent as exactly one YAML block.
-Even when a report artifact is written, the primary agent should act on this YAML block.
-Include only non-empty fields. If no artifact is written, set `artifacts: none`. If no assumptions or material inferences were required, set `assumptions: none`.
+Even when a report file is saved, the primary agent should act on this YAML block.
+Include only non-empty fields. If no file is saved, set `files: none`. If no assumptions or material inferences were required, set `assumptions: none`.
 
 **Report schema:**
 
@@ -188,11 +196,19 @@ findings:
     summary: "{{result, issue, or decision}}"
     recommendation: "{{what should happen next}}"
 
-artifacts: none
-# Replace `none` with a list only when a report artifact is written.
-# artifacts:
+files: none
+# Replace `none` with a list only when a report file is saved.
+# files:
 #   - path: "path/to/file.md"
 #     purpose: "why it exists"
+
+# Keep `document_review` only when the sub-agent has a document-review step.
+# document_review:
+#   status: "{{completed|not-run}}"
+#   findings_saved_at: "{{path of the reviewer's saved findings}}"
+#   findings_left:
+#     - finding: "{{the reviewer's quote and problem}}"
+#       reason: "{{why it was left unchanged}}"
 
 assumptions: none
 # Replace `none` with a list when any assumption or material inference affected the result.
