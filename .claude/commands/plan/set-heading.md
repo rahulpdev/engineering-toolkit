@@ -104,25 +104,22 @@ Follow these steps in order:
      - the smallest useful "done" standard
 
 7. **Prepare the report.**
-   - Use the Human-Readable Report format below.
+   - Use the layout in the Saved File section.
    - Prioritise clear disclosure over persuasion.
    - State uncertainty directly.
    - Do not ask for confirmation before presenting the recommendations.
 
 8. **Save the report.**
-   - Make a concise kebab-case slug, of three words where three are clear, from the name of the primary feature recommended in Step 6.
-   - Write the report from Step 7 to `docs/options/<slug>-heading.md`, taking the time for its title from `date '+%Y-%m-%d %H:%M:%S'` and creating the `docs/options/` folder if it does not exist. If the file already exists, stop and ask before overwriting it.
+   - Write the report from Step 7 as the Saved File section describes, taking the time for its title from `date '+%Y-%m-%d %H:%M:%S'` and creating the `docs/options/` folder if it does not exist.
 
 9. **Run the document review.**
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in Step 8.
    - Follow the instruction that closes its response, using Edit on the saved file only.
-   - Correct wording only. Do not change which feature is the primary or the alternate, a selected dimension, a confidence level, an acceptance criterion or a done standard, and ignore any finding against a field name the report format fixes.
-   - If the sub-agent cannot be started, or reports that it is blocked, leave the file as written in Step 8 and say so in the summary.
+   - Correct wording only. Do not change which feature is the primary or the alternate, a selected dimension, a confidence level, an acceptance criterion or a done standard, and ignore any finding against a field name the Saved File section fixes.
+   - If the sub-agent cannot be started, or reports that it is blocked, leave the file as written in Step 8 and say so in the final response.
 
-10. **Return a concise summary.**
-    - Report the path of the saved report on its own line.
-    - State the slug used, then give this reminder: `The slug is yours to choose. Name the slug you want in the conversation before you first run /plan:fix-position, or it will choose one for you. Rename this report to match if the two differ.`
-    - Report what the document-reviewer's closing instruction says to tell the user, or that the review did not run.
+10. **Return the final response.**
+    - Use the Human-Readable Report in the Output section.
 
 **Decision discipline**
 
@@ -142,9 +139,14 @@ Follow these steps in order:
 - Do not invent PRD/TAD evidence; distinguish evidence from interpretation.
 - Do not recommend horizontal infrastructure work unless it is required to make the vertical slice testable.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Human-Readable Report (for humans)
+- **Path**: `docs/options/<slug>-heading.md`
+- **Naming rule**: `<slug>` is a concise kebab-case slug, of three words where three are clear, made from the name of the primary feature recommended in Step 6.
+- **Written for**: a human.
+- **If the file already exists**: Stop and ask before overwriting it.
+
+**Layout**
 
 Write a concise, easy-to-scan summary to the report file:
 
@@ -179,6 +181,17 @@ Write a concise, easy-to-scan summary to the report file:
   - Include only questions that materially affect the user's decision.
 
 The saved file contains only the parts above. Explain a term inside the part where it first appears.
+
+## Output (OUTPUT)
+
+### Human-Readable Report (for humans)
+
+Return a concise summary, and repeat nothing that is in the file:
+
+- **Status**: `Success`, or `Blocked` with the reason if the file could not be written.
+- **File**: the path of the saved report, on its own line.
+- **Slug**: the slug used, then this reminder: `The slug is yours to choose. Name the slug you want in the conversation before you first run /plan:fix-position, or it will choose one for you. Rename this report to match if the two differ.`
+- **Document review**: what the document-reviewer's closing instruction says to tell the user, or that the review did not run.
 
 ## Notes
 

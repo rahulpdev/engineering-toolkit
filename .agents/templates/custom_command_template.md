@@ -109,7 +109,7 @@ Follow these steps in order:
 5. **Run the document review.** (omit unless the saved file is written for a human and the command may correct its wording; if kept, add `Agent` and `Edit` to `allowed-tools`)
    - Start the `document-reviewer` sub-agent once, using the agent spawning tool with `subagent_type|agent_type: "document-reviewer"`, and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the file written in the step before this one.
    - Follow the instruction that closes its response, using Edit on the saved file only.
-   - Correct wording only. Change nothing the file states, and ignore any finding against a heading or field name the Saved File section fixes.
+   - Correct wording only. Change nothing the file states, and ignore any finding against a heading, field name or format the Saved File section fixes.
    - If the sub-agent cannot be started, or reports that it is blocked, leave the file as that step wrote it and say so in the final response.
 6. {{Return the final response as the Output section describes}}
 
