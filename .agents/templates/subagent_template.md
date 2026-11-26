@@ -2,13 +2,13 @@
 
 ````markdown
 <!--
-  TEMPLATE INSTRUCTIONS (for the creating agent — remove this entire comment block before saving):
+  TEMPLATE INSTRUCTIONS (for the creating agent; remove this entire comment block before saving):
 
   - Read the user-provided spec in full before drafting. Populate, adapt, or delete every section intentionally; never leave raw placeholders.
-  - If a template section does not apply, remove it entirely — do not leave an empty stub.
+  - If a template section does not apply, remove it entirely. Do not leave an empty stub.
   - The `description` field is consumed by the PRIMARY AGENT's tool-selection logic. Write it for that reader.
   - The system prompt (everything below frontmatter) is consumed only by the SUB-AGENT itself. Write it as direct instructions to a specialized executor.
-  - Prefer concrete, project-specific instructions over generic guidance. If the spec references files, standards, or conventions, embed the relevant details or explicit file paths — not vague references.
+  - Prefer concrete, project-specific instructions over generic guidance. If the spec references files, standards, or conventions, embed the relevant details or explicit file paths, not vague references.
   - Keep the system prompt focused on a single area of expertise. A sub-agent that tries to do many things produces weaker results than one with a narrow, well-defined scope.
   - The Process section drives execution quality. Each step must be a single, verifiable action. State dependencies on prior steps explicitly.
   - The Output format drives handoff quality. Structure it so the primary agent (or a downstream consumer) can parse and act on it reliably.
@@ -27,13 +27,13 @@
     Do not include few-shot examples.
   - `hybrid`: the description must separate autonomous trigger conditions from the cases that still require explicit user direction. Include examples only for the autonomous path.
 
-  DECISION 2 — Output Handoff mode:
+  DECISION 2 - Output Handoff mode:
   - Choose exactly one `act-immediately`, `stop-and-wait`, or `conditional`.
   - `act-immediately`: say exactly what the primary agent should do next and any scope limits (e.g., "fix only CRITICAL issues", "pass to X agent", "apply changes then run tests").
   - `stop-and-wait`: instruct the primary agent to present the results to the user and wait for user direction.
   - `conditional`: state the conditional rule that decides whether the primary agent should proceed or stop, and make that rule evaluable from the sub-agent's own output (e.g., "If any CRITICAL findings exist, stop and wait; otherwise, proceed to fix all MAJOR and MINOR issues automatically.").
 
-  DECISION 3 — Saved file mode:
+  DECISION 3 - Saved file mode:
   - If a report file is required, keep the `Saved File` section, specify the exact path pattern, the naming rule and what to do if the file already exists, and define the required sections. The final YAML handoff is still mandatory.
   - If no file is required, delete the `Saved File` section and set `files: none` in the final YAML handoff.
   - A saved file is written for a HUMAN when a user reads it, even if an agent also reads it.
@@ -44,8 +44,8 @@
   - The Invocation Policy body section is consistent with the description field.
   - Context references point to real files, real commands, or explicit inputs the primary agent can supply.
   - Process steps are single, verifiable actions in dependency order.
-  - Handoff protocol matches the chosen post-completion behavior (Decision 2).
-  - The Output Contract is parseable and aligned with the chosen handoff mode.
+  - The Primary-Agent Handoff Policy section matches the chosen handoff mode (Decision 2).
+  - The Output section is parseable and aligned with the chosen handoff mode.
   - If a saved file is required (Decision 3), the Saved File section has a full report template. If not required, the Saved File section has been fully removed - no empty stubs remain.
   - The system prompt stays focused on a single area of expertise.
   - If tools are restricted, the restricted set is sufficient for every Process step to be executable.
@@ -55,10 +55,10 @@
 
 name: {{agent-name}}
 description: |
-{{DESCRIPTION — governed by DECISION 1 Invocation mode above}}
+{{DESCRIPTION, governed by DECISION 1 Invocation mode above}}
 model: {{haiku|sonnet|opus - default to sonnet; use haiku for fast/lightweight research; use opus for complex reasoning}}
-tools: {{COMMA_SEPARATED_ALLOWED_TOOLS — omit this field entirely to grant all tools}}
-color: {{COLOR — optional}}
+tools: {{COMMA_SEPARATED_ALLOWED_TOOLS; omit this field entirely to grant all tools}}
+color: {{COLOR, optional}}
 
 ---
 
@@ -70,7 +70,7 @@ You are {{agent-name}}, a specialized sub-agent responsible for {{one-sentence-m
 
 ## Core Responsibilities
 
-{{Discrete, verifiable duties derived directly from the spec. Each item should be something the agent can succeed or fail at — an observable outcome, not a vague aspiration.}}
+{{Discrete, verifiable duties derived directly from the spec. Each item should be something the agent can succeed or fail at: an observable outcome, not a vague aspiration.}}
 
 - {{RESPONSIBILITY_1}}
 - {{RESPONSIBILITY_2}}
@@ -155,7 +155,7 @@ Follow these steps in order:
 
 ## {{SECTION_1_HEADING}}
 
-{{SECTION_1_CONTENT_GUIDANCE — describe what goes here and how it should be structured}}
+{{SECTION_1_CONTENT_GUIDANCE: describe what goes here and how it should be structured}}
 
 ## {{SECTION_2_HEADING}}
 
@@ -169,7 +169,7 @@ Follow these steps in order:
 **Saved file rules:**
 
 - Write the saved file before sending your final response to the primary agent.
-- The saved file must stand alone without chat history — a reader must understand it with no other context.
+- The saved file must stand alone without chat history: a reader must understand it with no other context.
 - If the saved file cannot be written (missing data, access error), report status as "blocked" and explain why.
 
 ## Output (OUTPUT)
@@ -183,7 +183,7 @@ Include only non-empty fields. If no file is saved, set `files: none`. If no ass
 **Report schema:**
 
 ```yaml
-status: { { success|partial|blocked } }
+status: "{{success|partial|blocked}}"
 summary: "{{one-sentence outcome}}"
 
 scope_executed:

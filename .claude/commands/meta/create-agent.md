@@ -25,7 +25,7 @@ Sub-agents are most effective when they are narrow, predictable, and reusable. B
 
 **Arguments policy**
 
-- **Optional**: `$1` is required. `$2`, `$3`, and `$4` are optional trailing arguments with defaults.
+- **Mandatory**: `$1` is required. `$2`, `$3`, and `$4` are optional trailing arguments with defaults.
 
 **Argument contract**
 
@@ -41,7 +41,7 @@ Sub-agents are most effective when they are narrow, predictable, and reusable. B
   - If `$4` is omitted, use `none`
 - Validation rules:
   - At least `$1` must be present.
-  - If provided, `$2`, `$3`, and `$4` must match the allowed enum values exactly.
+  - If provided, `$2`, `$3`, and `$4` must match the allowed values exactly.
   - Defaults apply only to omitted trailing arguments.
   - `$1` must be specific enough to derive a focused agent name, mission, scope boundary, and minimum viable tool set.
 
@@ -81,7 +81,7 @@ Follow these steps in order:
 6. Design the primary-agent handoff contract as a first-class design problem.
    - If the primary agent may branch conditionally, make that rule explicit and observable from the sub-agent’s output alone, and ensure the output is sufficient for that decision.
    - Instruct the primary agent to state any assumptions or material inferences if the handoff contract allows it to proceed.
-   - Specify precise next-action instructions the primary agent should follow, avoid vague instructions such as "report back", "summarize findings", or "continue if appropriate".
+   - Specify precise next-action instructions the primary agent should follow. Avoid vague instructions such as "report back", "summarize findings", or "continue if appropriate".
 7. Draft the new sub-agent using `@.agents/templates/subagent_template.md`. Do not draft freehand.
    - Remove the template instruction comment block before saving.
    - Replace every placeholder with concrete, project-specific content derived from the current context and `$1`.
@@ -92,7 +92,7 @@ Follow these steps in order:
    - Apply `$4` exactly as the template requires for Decision 3.
    - If `$4` is `report` and the current context does not imply a stronger location, use the default saved file path pattern `docs/reviews/<agent-name>-<timestamp>-<scope>.md`.
    - Keep the sub-agent self-contained. Do not rely on unstated chat history inside the generated sub-agent.
-   - Remove any sections that do not apply — no empty stubs.
+   - Remove any sections that do not apply. Leave no empty stubs.
 8. Validate the draft before writing it.
    - Confirm the agent YAML frontmatter is valid (`name`, `description`, optional `model`, `tools`, `color`)
    - Confirm the `description` field aligns with the chosen invocation mode.
@@ -102,7 +102,8 @@ Follow these steps in order:
    - Confirm the process steps are single, verifiable actions in dependency order.
    - Confirm the generated agent is understandable and executable without relying on unstated repository knowledge or the spec that created it.
    - Confirm the new sub-agent is specialized rather than generic.
-   - Confirm the primary agent can choose the next action from the sub-agent’s output alone, without inferring missing context, (if it may act or branch conditionally) and any assumptions or inferences made by the primary agent are clearly stated.
+   - If the primary agent may act or branch conditionally, confirm it can choose the next action from the sub-agent’s output alone, without inferring missing context.
+   - Confirm the handoff tells the primary agent to state any assumptions or inferences it makes.
    - Confirm the output section preserves the template’s YAML handoff contract, including `status`, `summary`, `files`, `assumptions`, and `recommended_next_action`.
 9. Write the final file as the Saved File section describes.
 10. Run the document review.
