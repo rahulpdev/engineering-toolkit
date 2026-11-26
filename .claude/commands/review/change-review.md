@@ -68,10 +68,9 @@ Follow these steps in order:
    - Compile a deduplicated list of all changed file paths identified by the selected scope mode in Step 1.
    - Sort changed file paths alphabetically.
 
-3. **Write the report file.**
-   - Ensure the `docs/reviews/` directory exists.
-   - Write the report to `docs/reviews/change-review-<YYYY-MM-DD-HHMMSS>.yaml` using the **Structured Agent Handoff** format below.
-   - Return the absolute path of the written report to the user on its own line.
+3. **Write the report file as the Saved File section describes.**
+
+4. **Return the final response as the Output section describes.**
 
 **Decision discipline**
 
@@ -84,13 +83,15 @@ Follow these steps in order:
 - Do not include unrelated staged, unstaged, or untracked changes when commit or range scope is provided unless explicitly requested.
 - Stage nothing and commit nothing.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Structured Agent Handoff (for AI agents)
+- **Path**: `docs/reviews/change-review-<YYYY-MM-DD-HHMMSS>.yaml`
+- **Naming rule**: `<YYYY-MM-DD-HHMMSS>` is the date and time of the run. Create `docs/reviews/` if it does not exist.
+- **Written for**: a later command.
+- **If the file already exists**: Replace it.
 
-Write the following YAML to the report file.
+**Layout**
 
-**Required format (YAML)**
 Include only non-empty fields. Omit empty lists/objects entirely.
 
 ```yaml
@@ -112,3 +113,13 @@ changed_files:
 # blockers:
 #   - # what is blocking and what input is needed
 ```
+
+## Output (OUTPUT)
+
+### Human-Readable Report (for humans)
+
+Return the following, and repeat nothing that is in the file:
+
+- **Status**: `Success`, `Partial` or `Blocked`, matching the `status` written to the file. If the file could not be written, `Blocked` with the reason.
+- **File**: the absolute path of the saved file, on its own line
+- **Questions (only if blocked)**: numbered list

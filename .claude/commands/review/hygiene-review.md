@@ -52,7 +52,7 @@ Follow these steps in order:
 
 2. **Confirm no secrets in changed files.**
    - Read the contents of all changed files from the report and scan for plaintext secrets, API keys, tokens, or credentials. Secrets can appear in any file type.
-   - If secrets are found, stop and alert the user immediately. Do not proceed to subsequent steps. Do not produce a structured handoff or write any file.
+   - If secrets are found, stop and alert the user immediately with the final response the Output section describes. Do not proceed to subsequent steps. Do not produce a structured handoff or write any file.
 
 3. **Audit ignore lists.**
    - Locate `.gitignore` in the repo root (and `.dockerignore` if the project uses Docker, e.g., a `Dockerfile` or `docker-compose.yml` exists). If a required ignore file does not exist, record its creation in the handoff.
@@ -69,11 +69,11 @@ Follow these steps in order:
 4. **Write the structured agent handoff.**
    - Review all recorded changes from Step 3.
    - Do **not** apply any changes.
-   - Package **all** required changes into the **Structured Agent Handoff** format below.
+   - Package **all** required changes into the layout the Saved File section gives.
    - If no issues were found, produce the handoff with `status: success` and a summary indicating no issues were found.
-   - Name the handoff file after the report at `$ARGUMENTS`: replace the leading `change-review` in the report's filename with `hygiene-review` and keep the rest, so that `change-review-2026-03-30-143022.yaml` gives `hygiene-review-2026-03-30-143022.yaml`.
-   - Write the handoff to `docs/reviews/` under that filename, creating the folder if it does not exist.
-   - Return the absolute path of the written handoff to the user on its own line.
+   - Write the handoff file as the Saved File section describes.
+
+5. **Return the final response as the Output section describes.**
 
 **Decision discipline**
 
@@ -85,14 +85,18 @@ Follow these steps in order:
 - Do not modify any files other than the handoff file.
 - Stage nothing and commit nothing.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Structured Agent Handoff (for AI agents)
+- **Path**: `docs/reviews/hygiene-review-<rest>.yaml`
+- **Naming rule**: Take the filename of the report at `$ARGUMENTS` and replace its leading `change-review` with `hygiene-review`, keeping the rest as `<rest>`, so that `change-review-2026-03-30-143022.yaml` gives `hygiene-review-2026-03-30-143022.yaml`. Create `docs/reviews/` if it does not exist.
+- **Written for**: a later command.
+- **If the file already exists**: Replace it.
 
-Write a single structured block to the handoff file that another agent can execute without conversation context.
+No file is written when Step 2 finds a secret.
 
-**Required format (YAML)**
-Include only non-empty fields. Omit empty lists/objects entirely.
+**Layout**
+
+A single structured block that another agent can execute without conversation context. Include only non-empty fields. Omit empty lists/objects entirely.
 
 ```yaml
 source_review: hygiene-review
@@ -124,3 +128,13 @@ actions:
 # blockers:
 #   - # what is blocking and what input is needed
 ```
+
+## Output (OUTPUT)
+
+### Human-Readable Report (for humans)
+
+Return the following, and repeat nothing that is in the file:
+
+- **Status**: `Success`, `Partial` or `Blocked`, matching the `status` written to the file. If Step 2 found a secret or the file could not be written, `Blocked` with the reason.
+- **File**: the absolute path of the saved file, on its own line, or `None` if Step 2 found a secret
+- **Questions (only if blocked)**: numbered list

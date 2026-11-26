@@ -89,10 +89,9 @@ Follow these steps in order:
    - If additional context narrows, filters, or changes interpretation of the report-derived scope, record that explicitly under `context_adjustments`. If files are excluded because of the context, record them under `excluded_files` with their original origins and the reason.
    - If additional context conflicts with the report-derived scope and cannot be applied without guessing, set `status: partial` and record the conflict under `assumptions` or `blockers`.
 
-4. **Write the combined report file.**
-   - Ensure the `docs/reviews/` directory exists.
-   - Write the report to `docs/reviews/change-review-combined-<YYYY-MM-DD-HHMMSS>.yaml` using the **Structured Agent Handoff** format below.
-   - Return the absolute path of the written report to the user on its own line.
+4. **Write the combined report file as the Saved File section describes.**
+
+5. **Return the final response as the Output section describes.**
 
 **Decision discipline**
 
@@ -106,13 +105,15 @@ Follow these steps in order:
 - Do not stage, commit, push, merge, or reset anything.
 - Do not derive missing scope from Git. If either report path is missing, stop and ask for it.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Structured Agent Handoff (for AI agents)
+- **Path**: `docs/reviews/change-review-combined-<YYYY-MM-DD-HHMMSS>.yaml`
+- **Naming rule**: `<YYYY-MM-DD-HHMMSS>` is the date and time of the run. Create `docs/reviews/` if it does not exist.
+- **Written for**: a later command.
+- **If the file already exists**: Replace it.
 
-Write the following YAML to the combined report file.
+**Layout**
 
-**Required format (YAML)**
 Include only non-empty fields. Omit empty lists/objects entirely.
 
 ```yaml
@@ -164,3 +165,13 @@ file_origins:
 # blockers:
 #   - # what is blocking and what input is needed
 ```
+
+## Output (OUTPUT)
+
+### Human-Readable Report (for humans)
+
+Return the following, and repeat nothing that is in the file:
+
+- **Status**: `Success`, `Partial` or `Blocked`, matching the `status` written to the file. If the file could not be written, `Blocked` with the reason.
+- **File**: the absolute path of the saved file, on its own line
+- **Questions (only if blocked)**: numbered list

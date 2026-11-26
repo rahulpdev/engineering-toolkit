@@ -70,11 +70,11 @@ Follow these steps in order:
 5. **Write the structured agent handoff.**
    - Review all recorded changes from Steps 3-4.
    - Do **not** apply any changes.
-   - Package **all** required changes into the **Structured Agent Handoff** format below.
+   - Package **all** required changes into the layout the Saved File section gives.
    - If no issues were found, produce the handoff with `status: success` and a summary indicating no configuration issues were found.
-   - Name the handoff file after the report at `$ARGUMENTS`: replace the leading `change-review` in the report's filename with `config-review` and keep the rest, so that `change-review-2026-03-30-143022.yaml` gives `config-review-2026-03-30-143022.yaml`.
-   - Write the handoff to `docs/reviews/` under that filename, creating the folder if it does not exist.
-   - Return the absolute path of the written handoff to the user on its own line.
+   - Write the handoff file as the Saved File section describes.
+
+6. **Return the final response as the Output section describes.**
 
 **Decision discipline**
 
@@ -87,14 +87,16 @@ Follow these steps in order:
 - Do not execute configuration, deployment, or secret-management commands.
 - Stage nothing and commit nothing.
 
-## Output (OUTPUT)
+## Saved File (OUTPUT)
 
-### Structured Agent Handoff (for AI agents)
+- **Path**: `docs/reviews/config-review-<rest>.yaml`
+- **Naming rule**: Take the filename of the report at `$ARGUMENTS` and replace its leading `change-review` with `config-review`, keeping the rest as `<rest>`, so that `change-review-2026-03-30-143022.yaml` gives `config-review-2026-03-30-143022.yaml`. Create `docs/reviews/` if it does not exist.
+- **Written for**: a later command.
+- **If the file already exists**: Replace it.
 
-Write a single structured block to the handoff file that another agent can execute without conversation context.
+**Layout**
 
-**Required format (YAML)**
-Include only non-empty fields. Omit empty lists/objects entirely.
+A single structured block that another agent can execute without conversation context. Include only non-empty fields. Omit empty lists/objects entirely.
 
 ```yaml
 source_review: config-review
@@ -126,3 +128,13 @@ actions:
 # blockers:
 #   - # what is blocking and what input is needed
 ```
+
+## Output (OUTPUT)
+
+### Human-Readable Report (for humans)
+
+Return the following, and repeat nothing that is in the file:
+
+- **Status**: `Success`, `Partial` or `Blocked`, matching the `status` written to the file. If the file could not be written, `Blocked` with the reason.
+- **File**: the absolute path of the saved file, on its own line
+- **Questions (only if blocked)**: numbered list
