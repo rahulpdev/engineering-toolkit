@@ -138,7 +138,7 @@ Follow these steps in order:
 - **Path**: `docs/reviews/<slug>-audit.md`
 - **Naming rule**: `<slug>` is the report slug identified in Step 1. The file name ends with `-audit.md`.
 - **Written for**: a human.
-- **If the file already exists**: Save under a new name, `docs/reviews/<slug>-<YYYY-MM-DD-HHMMSS>-audit.md`.
+- **If the file already exists**: Replace it.
 
 **Layout**
 
