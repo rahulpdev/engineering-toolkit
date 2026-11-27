@@ -117,14 +117,15 @@ Follow these steps in order:
 2. {{Read only the specific files, docs, or state needed for the task}}
 3. {{Perform the specialized analysis / implementation / validation work}}
 4. {{Cross-check results against relevant standards, constraints, or acceptance criteria}}
-5. {{If a saved file is required, write it as specified in the Saved File section}}
-6. **Run the document review.** (omit unless the saved file is written for a human; if kept, the sub-agent needs the agent spawning tool and Edit)
+5. **Read the communication standard.** (omit unless the saved file is written for a human) Read `.agents/reference/communication-standard.md` in full. The saved file must follow it.
+6. {{If a saved file is required, write it as specified in the Saved File section}}
+7. **Run the document review.** (omit unless the saved file is written for a human; if kept, the sub-agent needs the agent spawning tool and Edit)
    - Start the `document-reviewer` sub-agent once and pass it two paths and nothing else: the communication standard at `.agents/reference/communication-standard.md` and the path of the saved file.
    - Follow the instruction that closes its response, using Edit on the saved file only.
    - Correct wording only. Change nothing the file states, and ignore any finding against a heading, field name or format the Saved File section fixes.
    - You cannot tell the user anything directly, so record under `document_review` in your output what that instruction says to tell the user.
    - If the sub-agent cannot be started, or reports that it is blocked, set `document_review.status` to `not-run` and continue.
-7. {{Produce the final output exactly as specified in the Output section}}
+8. {{Produce the final output exactly as specified in the Output section}}
 
 ## Decision Discipline
 
